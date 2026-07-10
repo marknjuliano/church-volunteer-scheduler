@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">Church Volunteer Scheduler</title>
+  <desc id="desc">A modern church building and heart-shaped people icon.</desc>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d9f4e7"/></linearGradient>
+    <filter id="s"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-opacity=".35"/></filter>
+  </defs>
+  <g filter="url(#s)" fill="none" stroke="url(#g)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M110 296V154l118-76 118 76v142"/>
+    <path d="M70 296h318M165 296v-82h126v82"/>
+    <path d="M228 78V32M196 52h64"/>
+  </g>
+  <g transform="translate(385 105)">
+    <circle cx="58" cy="50" r="28" fill="#d9f4e7"/>
+    <circle cx="132" cy="50" r="28" fill="#d9f4e7"/>
+    <path d="M20 154c6-50 34-77 76-77s70 27 76 77" fill="#72d3a4"/>
+    <path d="M62 165c7-42 31-63 72-63 35 0 59 21 67 63" fill="#ffffff" opacity=".95"/>
+  </g>
+</svg>
