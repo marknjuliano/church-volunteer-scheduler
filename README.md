@@ -85,3 +85,11 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Added account summary cards, search, role filter, status filter, and pagination.
 - Added quick actions to edit a display name or jump to user qualifications.
 - People remains under Admin and collapsed by default.
+
+
+## Alpha 4.9
+
+- Fixed invisible calendar dates caused by the global white button text color.
+- Fixed the selected-day class styling.
+- Improved the selected-date service panel.
+- Added an inline favicon to remove the harmless browser 404 warning.
