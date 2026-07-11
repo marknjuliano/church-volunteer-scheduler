@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha4 volunteer qualifications');
+console.log('Church Volunteer Scheduler v1.0.0-alpha4.1 qualification and overlap rules');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -15,6 +15,19 @@ const nowDate = () => new Date().toISOString().slice(0,10);
 const esc = (s='') => String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const fmtDate = d => d ? new Date(d+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : '';
 const timeLabel = t => { if(!t)return ''; let [h,m]=String(t).split(':').map(Number); const a=h>=12?'PM':'AM'; h=h%12||12; return `${h}:${String(m||0).padStart(2,'0')} ${a}`; };
+const MAX_ALLOWED_OVERLAP_MINUTES = 16;
+const minutesFromTime = t => { const [h,m]=String(t||'').split(':').map(Number); return Number.isFinite(h)&&Number.isFinite(m)?h*60+m:null; };
+function overlapMinutes(a,b){
+  if(!a||!b||a.date!==b.date)return 0;
+  const aStart=minutesFromTime(a.start),aEnd=minutesFromTime(a.end),bStart=minutesFromTime(b.start),bEnd=minutesFromTime(b.end);
+  if([aStart,aEnd,bStart,bEnd].some(v=>v===null))return 0;
+  return Math.max(0,Math.min(aEnd,bEnd)-Math.max(aStart,bStart));
+}
+function volunteerConflicts(volunteerId,targetServiceId){
+  const target=state.services.find(s=>s.id===targetServiceId);
+  if(!target)return [];
+  return state.assignments.filter(a=>a.volunteerId===volunteerId&&!a.archived&&a.serviceId!==targetServiceId).map(a=>({assignment:a,service:state.services.find(s=>s.id===a.serviceId)})).filter(x=>x.service&&!x.service.archived).map(x=>({...x,minutes:overlapMinutes(target,x.service)})).filter(x=>x.minutes>0);
+}
 
 let state={user:null,profile:null,services:[],ministries:[],roles:[],users:[],assignments:[],ready:false,view:localStorage.getItem('cvsView')||'home',calendarMonth:nowDate().slice(0,7),selectedCalendarDate:nowDate()};
 let unsubs=[];
@@ -28,7 +41,7 @@ function friendly(e){const m={'auth/email-already-in-use':'This email is already
 
 if(!firebaseConfigured){renderSetup();} else onAuthStateChanged(auth,async user=>{cleanup();state={...state,user,profile:null,services:[],ministries:[],roles:[],users:[],assignments:[],ready:false};if(!user)return renderLogin();await ensureProfile(user);startListeners();});
 
-function renderSetup(){appEl.innerHTML=`<div class="wrap login"><div><div class="hero brandHero loginBrandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>v1.0.0 Alpha 4</p></div></div></div><div class="card"><h2>Connect Firebase First</h2><div class="notice warn"><b>This build is ready, but it is intentionally not connected to the old Pickleball database.</b></div><p>Open <code>js/firebase.js</code> and paste the Web App configuration from your new church Firebase project.</p><p class="small">This protects your existing PowerDink data from being mixed with church schedules.</p></div></div></div>`}
+function renderSetup(){appEl.innerHTML=`<div class="wrap login"><div><div class="hero brandHero loginBrandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>v1.0.0 Alpha 4.1</p></div></div></div><div class="card"><h2>Connect Firebase First</h2><div class="notice warn"><b>This build is ready, but it is intentionally not connected to the old Pickleball database.</b></div><p>Open <code>js/firebase.js</code> and paste the Web App configuration from your new church Firebase project.</p><p class="small">This protects your existing PowerDink data from being mixed with church schedules.</p></div></div></div>`}
 
 async function ensureProfile(user){const ref=doc(db,'users',user.uid);let snap=await getDoc(ref);if(!snap.exists()){await setDoc(ref,{name:user.email.split('@')[0],email:user.email,status:'pending',role:'pending',ministryIds:[],createdAt:serverTimestamp()});snap=await getDoc(ref)}state.profile={id:user.uid,...snap.data()}}
 function startListeners(){
@@ -50,7 +63,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha4</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha4.1</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -91,7 +104,7 @@ function renderEditableAssignments(s){
     <div><label>Qualified Volunteer</label><select id="vol-${s.id}">${volunteers.map(u=>`<option value="${u.id}">${esc(u.name||u.email)}</option>`).join('')||'<option value="">No qualified volunteers</option>'}</select></div>
     <div style="align-self:end"><button onclick="addAssignment('${s.id}')">Add Volunteer</button></div>
   </div>
-  <p class="small">Only volunteers assigned to the selected ministry and role appear here.</p>`
+  <p class="small">Only volunteers approved for the selected ministry and role appear here. If the list is empty, assign that role under Admin → Manage Users. Schedule overlaps of 16 minutes or less are allowed.</p>`
 }
 window.refreshAssignmentOptions=sid=>{
   const mid=$(`#min-${sid}`).value,roleSel=$(`#role-${sid}`),roles=visibleRoles(mid);
@@ -106,7 +119,26 @@ window.saveService=async()=>{const id=$('#serviceId').value,data={title:$('#serv
 window.editService=id=>{const s=state.services.find(x=>x.id===id);$('#serviceId').value=id;$('#serviceTitle').value=s.title||'';$('#serviceDate').value=s.date||'';$('#serviceStart').value=s.start||'';$('#serviceEnd').value=s.end||'';$('#serviceLocation').value=s.location||'';$('#serviceStatus').value=s.status||'scheduled';$('#serviceNotes').value=s.notes||'';window.scrollTo({top:0,behavior:'smooth'})};window.clearServiceForm=()=>renderSchedule();
 window.duplicateService=async id=>{const s=state.services.find(x=>x.id===id);const newDate=prompt('New service date (YYYY-MM-DD):',s.date);if(!newDate)return;const ref=await addDoc(collection(db,'services'),{title:s.title,date:newDate,start:s.start,end:s.end,location:s.location,status:'scheduled',notes:s.notes||'',archived:false,createdAt:serverTimestamp()});const copy=confirm('Copy volunteer assignments too?');if(copy){for(const a of serviceAssignments(id))await addDoc(collection(db,'assignments'),{serviceId:ref.id,volunteerId:a.volunteerId,volunteerName:a.volunteerName,ministryId:a.ministryId,roleName:a.roleName,createdAt:serverTimestamp()})}alert('Service duplicated.')};
 window.archiveService=id=>updateDoc(doc(db,'services',id),{archived:true});window.deleteService=async id=>{if(confirm('Permanently delete this service?'))await deleteDoc(doc(db,'services',id))};
-window.addAssignment=async sid=>{const uid=$(`#vol-${sid}`).value,mid=$(`#min-${sid}`).value,rid=$(`#role-${sid}`).value,role=state.roles.find(r=>r.id===rid),u=state.users.find(x=>x.id===uid);if(!mid||!rid)return alert('Select a ministry and role.');if(!uid)return alert('No qualified volunteer is available for this ministry and role. Assign the qualification in Admin → Manage Users first.');await addDoc(collection(db,'assignments'),{serviceId:sid,volunteerId:uid,volunteerName:u?.name||u?.email||'Volunteer',ministryId:mid,roleId:rid,roleName:role?.name||'Volunteer',createdAt:serverTimestamp()})};window.removeAssignment=id=>deleteDoc(doc(db,'assignments',id));
+window.addAssignment=async sid=>{
+  const uid=$(`#vol-${sid}`).value,mid=$(`#min-${sid}`).value,rid=$(`#role-${sid}`).value;
+  const role=state.roles.find(r=>r.id===rid),u=state.users.find(x=>x.id===uid),service=state.services.find(s=>s.id===sid);
+  if(!mid||!rid)return alert('Select a ministry and role.');
+  if(!uid)return alert('No qualified volunteer is available for this ministry and role. Assign the qualification in Admin → Manage Users first.');
+  if(serviceAssignments(sid).some(a=>a.volunteerId===uid&&!a.archived))return alert('This volunteer is already assigned to this service.');
+  const conflicts=volunteerConflicts(uid,sid);
+  const blocked=conflicts.filter(c=>c.minutes>MAX_ALLOWED_OVERLAP_MINUTES);
+  if(blocked.length){
+    const detail=blocked.map(c=>`${c.service.title||'Service'} (${timeLabel(c.service.start)}–${timeLabel(c.service.end)}): ${c.minutes} minute overlap`).join('\n');
+    return alert(`Cannot schedule ${u?.name||u?.email||'this volunteer'}. The allowed overlap is ${MAX_ALLOWED_OVERLAP_MINUTES} minutes or less.\n\n${detail}`);
+  }
+  const allowed=conflicts.filter(c=>c.minutes>0);
+  if(allowed.length){
+    const detail=allowed.map(c=>`${c.service.title||'Service'}: ${c.minutes} minute overlap`).join('\n');
+    const proceed=confirm(`This volunteer has a small schedule overlap, but it is within the ${MAX_ALLOWED_OVERLAP_MINUTES}-minute allowance.\n\n${detail}\n\nSchedule anyway?`);
+    if(!proceed)return;
+  }
+  await addDoc(collection(db,'assignments'),{serviceId:sid,volunteerId:uid,volunteerName:u?.name||u?.email||'Volunteer',ministryId:mid,roleId:rid,roleName:role?.name||'Volunteer',createdAt:serverTimestamp()});
+};window.removeAssignment=id=>deleteDoc(doc(db,'assignments',id));
 
 function renderAdmin(){const pending=state.users.filter(u=>u.role==='pending'||u.status==='pending');$('#main').innerHTML=`<div class="dash"><div class="stat"><span>Users</span><b>${state.users.length}</b></div><div class="stat"><span>Pending</span><b>${pending.length}</b></div><div class="stat"><span>Ministries</span><b>${state.ministries.length}</b></div><div class="stat"><span>Services</span><b>${state.services.length}</b></div></div><div class="card"><h2>Pending Accounts</h2>${pending.map(userCard).join('')||'<p class="small">No pending accounts.</p>'}</div><div class="card"><h2>Manage Users</h2>${state.users.map(userCard).join('')}</div><div class="card"><h2>Manage Ministries & Roles</h2>${state.ministries.map(ministryCard).join('')||'<p class="small">No ministries yet.</p>'}<div class="row"><input id="newMinistry" placeholder="New ministry name"><button onclick="addMinistry()">Add Ministry</button></div></div>`}
 function userCard(u){

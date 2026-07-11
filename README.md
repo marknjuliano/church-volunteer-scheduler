@@ -18,3 +18,10 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 
 - Firebase config: `js/firebase.js`
 - Firestore rules: `firestore.rules`
+
+
+## Alpha 4.1
+- Clarifies why the qualified-volunteer list can be empty.
+- Allows schedule overlaps of up to 16 minutes with confirmation.
+- Blocks overlaps longer than 16 minutes.
+- Prevents assigning the same volunteer twice to one service.
