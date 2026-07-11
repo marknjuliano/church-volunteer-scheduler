@@ -1018,3 +1018,12 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
     padding:9px 4px;
   }
 }
+
+/* Alpha 5.2 — pending demo people */
+.demoPeopleHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+.demoPeopleHeader h2{margin-bottom:4px}
+.demoPeopleHeader p{margin:0}
+@media(max-width:620px){
+  .demoPeopleHeader{display:block}
+  .demoPeopleHeader button{width:100%;margin-top:12px}
+}

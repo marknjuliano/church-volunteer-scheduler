@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha5.1 ministry-grouped home teams');
+console.log('Church Volunteer Scheduler v1.0.0-alpha5.2 pending demo people');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -64,7 +64,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.1</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.2</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -419,7 +419,10 @@ function renderAdmin(){
     </div>
 
     <div class="card">
-      <h2>Pending Accounts</h2>
+      <div class="demoPeopleHeader">
+        <div><h2>Pending Accounts</h2><p class="small">Create test people for checking the People directory and approval workflow.</p></div>
+        <button onclick="generateDemoPeople()">Generate 20 Demo People</button>
+      </div>
       ${pending.map(userCard).join('')||'<p class="small">No pending accounts.</p>'}
     </div>
 
@@ -450,6 +453,39 @@ function renderAdmin(){
       </div>
     </details>`;
 }
+
+window.generateDemoPeople=async()=>{
+  if(!isAdmin())return alert('Only admins can generate demo people.');
+  const existing=state.users.filter(u=>u.demo===true);
+  if(existing.length){
+    const ok=confirm(`${existing.length} demo people already exist. Create 20 more?`);
+    if(!ok)return;
+  }
+  const stamp=Date.now();
+  try{
+    for(let i=1;i<=20;i++){
+      const n=String(i).padStart(2,'0');
+      const ref=doc(collection(db,'users'));
+      await setDoc(ref,{
+        name:`Demo Volunteer ${n}`,
+        email:`demo.volunteer.${n}.${stamp}@demo.local`,
+        role:'pending',
+        status:'pending',
+        qualifications:[],
+        ministryIds:[],
+        demo:true,
+        demoBatch:String(stamp),
+        createdAt:serverTimestamp(),
+        updatedAt:serverTimestamp()
+      });
+    }
+    alert('20 demo people created. All accounts are Pending.');
+  }catch(e){
+    console.error('Unable to generate demo people:',e);
+    alert(friendly(e));
+  }
+};
+
 function userCard(u){
   const canQualify=['volunteer','volunteerS','coordinator','admin'].includes(u.role);
   return `<div id="user-card-${u.id}" class="person userCard"><div><b>${esc(u.name||u.email)}</b><div class="small">${esc(u.email||'')} • ${esc(roleLabel(u.role))}</div>${canQualify?`<div class="small">${userQualifications(u).reduce((n,q)=>n+(q.roleIds?.length||0),0)} ministry role(s) assigned</div>`:''}</div><div class="actions"><select id="role-${u.id}"><option value="pending" ${u.role==='pending'?'selected':''}>Pending</option><option value="scheduleViewer" ${u.role==='scheduleViewer'?'selected':''}>Schedule Viewer</option><option value="volunteer" ${u.role==='volunteer'?'selected':''}>Volunteer</option><option value="volunteerS" ${u.role==='volunteerS'?'selected':''}>Volunteer (S)</option><option value="coordinator" ${u.role==='coordinator'?'selected':''}>Coordinator</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select><button onclick="saveUserRole('${u.id}')">Save Role</button></div></div>${canQualify?qualificationEditor(u):''}`

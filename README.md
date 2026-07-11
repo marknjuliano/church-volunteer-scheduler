@@ -112,3 +112,12 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Each ministry shows its assigned volunteer count.
 - Ministry sections are collapsible.
 - Volunteers inside each ministry are sorted by role, then by name.
+
+
+## Alpha 5.2
+
+- Added an Admin-only **Generate 20 Demo People** button under Pending Accounts.
+- All generated demo people start with `role: pending` and `status: pending`.
+- Demo people have no ministry or role qualifications by default.
+- Demo records are Firestore-only test people and do not have Firebase Authentication login credentials.
+- Demo records are marked with `demo: true` for easy identification later.
