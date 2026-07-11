@@ -87,3 +87,216 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
 .assignmentBuilder{margin-top:14px;align-items:end}
 .userCard{margin-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0}
 .userCard + .qualificationPanel{border-top-left-radius:0;border-top-right-radius:0;border-top:0}
+
+
+/* Alpha 4.5 — mobile schedule refinement */
+@media(max-width:620px){
+  body{
+    background:linear-gradient(180deg,#f8fbf9 0,#eef5f1 100%);
+  }
+
+  .wrap{
+    padding:8px 8px 34px;
+  }
+
+  .tabs{
+    position:sticky;
+    top:4px;
+    gap:4px;
+    padding:6px;
+    margin:0 0 16px;
+    border-radius:14px;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    box-shadow:0 8px 22px rgba(20,48,38,.10);
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    scroll-snap-align:start;
+    flex:0 0 auto;
+    min-height:42px;
+    padding:10px 14px;
+    font-size:14px;
+  }
+
+  .sectionTitle{
+    margin:18px 4px 12px;
+  }
+  .sectionTitle h2,
+  .otherTitle{
+    font-size:24px;
+    line-height:1.15;
+  }
+  .sectionTitle .small,
+  .otherTitle + .small{
+    display:block;
+    margin-top:5px;
+    font-size:13px;
+    line-height:1.45;
+  }
+
+  .featuredEvent{
+    display:block;
+    margin:12px 0 16px;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 10px 28px rgba(20,48,38,.09);
+  }
+
+  .featuredRibbon{
+    top:12px;
+    left:12px;
+    padding:6px 9px;
+    font-size:10px;
+    letter-spacing:.03em;
+  }
+
+  .featuredDate{
+    min-height:auto;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    padding:48px 14px 14px;
+    border-right:0;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(135deg,#e6f4ed,#edf8f3);
+  }
+  .featuredDate span,
+  .featuredDate b,
+  .featuredDate strong,
+  .featuredDate em{
+    display:inline;
+    margin:0;
+    line-height:1;
+  }
+  .featuredDate span{font-size:13px;color:var(--muted)}
+  .featuredDate b{font-size:14px;letter-spacing:.05em}
+  .featuredDate strong{font-size:24px;color:var(--brand-2)}
+  .featuredDate em{font-size:13px;color:var(--muted)}
+
+  .featuredMain{
+    padding:18px 16px 16px;
+  }
+  .featuredMain h2{
+    font-size:23px;
+    margin-bottom:8px;
+  }
+  .featuredMain p{
+    margin:5px 0;
+    line-height:1.55;
+  }
+  .featuredBadges{
+    margin-top:10px;
+  }
+  .featuredMain h3{
+    margin:22px 0 10px;
+    font-size:18px;
+  }
+
+  .featuredMain .person{
+    padding:13px 14px;
+    border-radius:13px;
+    background:#fbfdfc;
+  }
+
+  .eventDetailsCard{
+    margin:10px 0;
+    padding:0;
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    background:#fff;
+  }
+  .eventDetailsCard summary{
+    display:grid;
+    grid-template-columns:44px 1fr auto;
+    gap:10px;
+    align-items:center;
+    padding:13px;
+    list-style:none;
+  }
+  .eventDetailsCard summary::-webkit-details-marker{display:none}
+
+  .miniDate{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:48px;
+    border-radius:10px;
+    background:var(--brand-soft);
+    color:var(--brand);
+    line-height:1;
+  }
+  .miniDate span{font-size:9px;text-transform:uppercase}
+  .miniDate b{font-size:10px;margin:3px 0}
+  .miniDate strong{font-size:18px}
+
+  .miniInfo{
+    min-width:0;
+  }
+  .miniInfo b{
+    display:block;
+    font-size:15px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .miniInfo span{
+    display:block;
+    margin-top:3px;
+    font-size:12px;
+    color:var(--muted);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .miniCount{
+    display:none;
+  }
+  .expandBtn{
+    min-width:0;
+    padding:8px 10px;
+    font-size:0;
+    border-radius:9px;
+  }
+  .expandBtn:after{
+    content:'›';
+    font-size:22px;
+    line-height:1;
+  }
+  .eventDetailsCard[open] .expandBtn:after{
+    content:'⌄';
+  }
+  .eventExpanded{
+    display:block;
+    padding:0 12px 12px;
+    border-top:1px solid var(--line);
+  }
+
+  .card{
+    margin:12px 0;
+    padding:16px;
+  }
+
+  .person{
+    padding:13px;
+  }
+
+  .footer{
+    padding:18px 8px;
+    line-height:1.4;
+  }
+}
+
+@media(max-width:380px){
+  .tab{padding:9px 12px;font-size:13px}
+  .featuredMain{padding:16px 14px}
+  .featuredMain h2{font-size:21px}
+  .featuredDate{gap:5px}
+}

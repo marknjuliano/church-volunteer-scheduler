@@ -51,3 +51,20 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Existing assignment records are updated with the corrected volunteer name.
 - Coordinators can read the volunteer directory required for scheduling.
 - Publish the included `firestore.rules` after deployment.
+
+
+## Alpha 4.5
+
+- Reworked the phone layout for a cleaner, more compact schedule view.
+- Same-day expanded service cards now use a compact horizontal date header.
+- Future services have clearer collapsible cards with improved tap targets.
+- Navigation tabs now scroll smoothly on narrow screens.
+- Reduced spacing and improved typography for small phones.
+
+
+## Alpha 4.6
+
+- The **People** page now lists every account: Pending, Schedule Viewer, Volunteer, Volunteer (S), Coordinator, and Admin.
+- Admins may edit any person's display name.
+- Coordinators may edit Volunteer and Volunteer (S) display names.
+- Non-editable accounts remain visible to coordinators as view-only.
