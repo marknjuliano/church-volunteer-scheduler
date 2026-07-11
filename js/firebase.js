@@ -3,7 +3,7 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-aut
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
 export const firebaseConfig = {
-  apiKey: "AIzaSyClpSh1A21ATp0LrhSkzRgcql5-bQBEpAg",
+  apiKey: "AIzaSyCOrGbO748DUm4P_iFH74Nf3cbRSxlsiBQ",
   authDomain: "church-volunteer-scheduler.firebaseapp.com",
   projectId: "church-volunteer-scheduler",
   storageBucket: "church-volunteer-scheduler.firebasestorage.app",
