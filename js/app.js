@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha4.2 repeat volunteer and 15-minute overlap rules');
+console.log('Church Volunteer Scheduler v1.0.0-alpha4.3 Volunteer (S) and grouped home view');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -34,7 +34,7 @@ let unsubs=[];
 const cleanup=()=>{unsubs.forEach(fn=>fn&&fn());unsubs=[]};
 const isAdmin=()=>state.profile?.role==='admin';
 const isCoordinator=()=>['coordinator','admin'].includes(state.profile?.role);
-const isVolunteer=()=>state.profile?.role==='volunteer';
+const isVolunteer=()=>['volunteer','volunteerS'].includes(state.profile?.role);
 const canManageService=()=>isCoordinator();
 
 function friendly(e){const m={'auth/email-already-in-use':'This email is already registered.','auth/weak-password':'Password must be at least 6 characters.','auth/invalid-email':'Please enter a valid email.','auth/invalid-credential':'Email or password is incorrect.','auth/network-request-failed':'Please check your internet connection.','permission-denied':'You do not have permission for that action.'};return m[e?.code]||e?.message||'Something went wrong.'}
@@ -63,22 +63,44 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha4.2</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
-const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha4.3</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
 function userQualifications(u){return Array.isArray(u?.qualifications)?u.qualifications:[]}
 function qualificationFor(u,ministryId){return userQualifications(u).find(q=>q.ministryId===ministryId)}
 function isQualifiedFor(u,ministryId,roleId){const q=qualificationFor(u,ministryId);return !!q && Array.isArray(q.roleIds) && q.roleIds.includes(roleId)}
-function qualifiedUsers(ministryId,roleId){return state.users.filter(u=>['volunteer','coordinator','admin'].includes(u.role)&&isQualifiedFor(u,ministryId,roleId))}
+function qualifiedUsers(ministryId,roleId){return state.users.filter(u=>['volunteer','volunteerS','coordinator','admin'].includes(u.role)&&isQualifiedFor(u,ministryId,roleId))}
+function isVolunteerSUser(userId){return state.users.find(u=>u.id===userId)?.role==='volunteerS'}
 function upcomingServices(){return [...state.services].filter(s=>!s.archived&&s.date&&new Date(s.date+'T23:59:59')>=new Date()).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start))}
 function serviceAssignments(id){return state.assignments.filter(a=>a.serviceId===id&&!a.archived)}
 function myAssignments(){return state.assignments.filter(a=>a.volunteerId===state.user.uid&&!a.archived)}
 
-function renderHome(){const upcoming=upcomingServices();if(isVolunteer())return renderVolunteerHome(upcoming);const next=upcoming[0];$('#main').innerHTML=next?`<div class="sectionTitle"><h2>Next Service</h2><p class="small">Read-only schedule view</p></div>${serviceFeature(next,false)}${upcoming.slice(1).length?`<h2 class="otherTitle">Upcoming Services</h2>${upcoming.slice(1).map(serviceCollapsed).join('')}`:''}`:`<div class="card"><h2>No upcoming services</h2><p class="small">The next service will appear here when a coordinator adds it.</p></div>`}
-function renderVolunteerHome(upcoming){const mine=myAssignments().map(a=>({a,s:state.services.find(s=>s.id===a.serviceId)})).filter(x=>x.s&&!x.s.archived&&new Date(x.s.date+'T23:59:59')>=new Date()).sort((x,y)=>(x.s.date+x.s.start).localeCompare(y.s.date+y.s.start));const next=mine[0];$('#main').innerHTML=next?`<div class="sectionTitle"><h2>My Next Assignment</h2><p class="small">Your nearest volunteer schedule</p></div>${assignmentFeature(next.s,next.a)}${mine.slice(1).length?`<h2 class="otherTitle">Upcoming Assignments</h2>${mine.slice(1).map(x=>assignmentCollapsed(x.s,x.a)).join('')}`:''}`:`<div class="card"><h2>No upcoming assignments</h2><p class="small">You can still view the complete church calendar.</p></div>${upcoming[0]?serviceFeature(upcoming[0],false):''}`}
-function serviceFeature(s){const as=serviceAssignments(s.id);return `<section class="featuredEvent"><div class="featuredRibbon">⛪ NEXT SERVICE</div><div class="featuredDate"><span>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})}</span><b>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b><strong>${new Date(s.date+'T12:00:00').getDate()}</strong><em>${new Date(s.date+'T12:00:00').getFullYear()}</em></div><div class="featuredMain"><div class="featuredTop"><div><h2>${esc(s.title||'Church Service')}</h2><p>🕒 ${timeLabel(s.start)}${s.end?' - '+timeLabel(s.end):''}<br>📍 ${esc(s.location||'Location TBD')}</p></div><div class="featuredBadges"><span class="badge green">${esc((s.status||'scheduled').toUpperCase())}</span></div></div>${s.notes?`<div class="notice info">${esc(s.notes)}</div>`:''}<h3>Scheduled Volunteers</h3>${renderAssignmentList(as)}</div></section>`}
-function assignmentFeature(s,a){const m=state.ministries.find(x=>x.id===a.ministryId);return `<section class="featuredEvent"><div class="featuredRibbon">⭐ MY NEXT ASSIGNMENT</div><div class="featuredDate"><span>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})}</span><b>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b><strong>${new Date(s.date+'T12:00:00').getDate()}</strong><em>${new Date(s.date+'T12:00:00').getFullYear()}</em></div><div class="featuredMain"><h2>${esc(s.title||'Church Service')}</h2><p>🕒 ${timeLabel(s.start)}${s.end?' - '+timeLabel(s.end):''}<br>📍 ${esc(s.location||'Location TBD')}</p><div class="notice"><b>Ministry:</b> ${esc(m?.name||'Ministry')}<br><b>Role:</b> ${esc(a.roleName||'Volunteer')}</div></div></section>`}
+function renderHome(){
+  const upcoming=upcomingServices();
+  if(isVolunteer())return renderVolunteerHome(upcoming);
+  if(!upcoming.length){
+    $('#main').innerHTML='<div class="card"><h2>No upcoming services</h2><p class="small">The next service will appear here when a coordinator adds it.</p></div>';
+    return;
+  }
+  const nextDate=upcoming[0].date;
+  const sameDay=upcoming.filter(s=>s.date===nextDate);
+  const future=upcoming.filter(s=>s.date!==nextDate);
+  $('#main').innerHTML=`<div class="sectionTitle"><h2>${nextDate===nowDate()?'Today’s Services':'Next Service Day'}</h2><p class="small">${fmtDate(nextDate)} • all services on this date are expanded</p></div>${sameDay.map((s,i)=>serviceFeature(s,i===0?'NEXT SERVICE':'SAME-DAY SERVICE')).join('')}${future.length?`<h2 class="otherTitle">Future Services</h2><p class="small">Services on later dates are collapsible.</p>${future.map(serviceCollapsed).join('')}`:''}`;
+}
+function renderVolunteerHome(upcoming){
+  const mine=myAssignments().map(a=>({a,s:state.services.find(s=>s.id===a.serviceId)})).filter(x=>x.s&&!x.s.archived&&new Date(x.s.date+'T23:59:59')>=new Date()).sort((x,y)=>(x.s.date+x.s.start).localeCompare(y.s.date+y.s.start));
+  if(!mine.length){
+    $('#main').innerHTML=`<div class="card"><h2>No upcoming assignments</h2><p class="small">You can still view the complete church calendar.</p></div>${upcoming[0]?serviceFeature(upcoming[0],'NEXT SERVICE'):''}`;
+    return;
+  }
+  const nextDate=mine[0].s.date;
+  const sameDay=mine.filter(x=>x.s.date===nextDate);
+  const future=mine.filter(x=>x.s.date!==nextDate);
+  $('#main').innerHTML=`<div class="sectionTitle"><h2>${nextDate===nowDate()?'Today’s Assignments':'My Next Service Day'}</h2><p class="small">${fmtDate(nextDate)} • all assignments on this date are expanded</p></div>${sameDay.map((x,i)=>assignmentFeature(x.s,x.a,i===0?'MY NEXT ASSIGNMENT':'SAME-DAY ASSIGNMENT')).join('')}${future.length?`<h2 class="otherTitle">Future Assignments</h2><p class="small">Assignments on later dates are collapsible.</p>${future.map(x=>assignmentCollapsed(x.s,x.a)).join('')}`:''}`;
+}
+function serviceFeature(s,ribbon='NEXT SERVICE'){const as=serviceAssignments(s.id);return `<section class="featuredEvent"><div class="featuredRibbon">⛪ ${esc(ribbon)}</div><div class="featuredDate"><span>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})}</span><b>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b><strong>${new Date(s.date+'T12:00:00').getDate()}</strong><em>${new Date(s.date+'T12:00:00').getFullYear()}</em></div><div class="featuredMain"><div class="featuredTop"><div><h2>${esc(s.title||'Church Service')}</h2><p>🕒 ${timeLabel(s.start)}${s.end?' - '+timeLabel(s.end):''}<br>📍 ${esc(s.location||'Location TBD')}</p></div><div class="featuredBadges"><span class="badge green">${esc((s.status||'scheduled').toUpperCase())}</span></div></div>${s.notes?`<div class="notice info">${esc(s.notes)}</div>`:''}<h3>Scheduled Volunteers</h3>${renderAssignmentList(as)}</div></section>`}
+function assignmentFeature(s,a,ribbon='MY NEXT ASSIGNMENT'){const m=state.ministries.find(x=>x.id===a.ministryId);return `<section class="featuredEvent"><div class="featuredRibbon">⭐ ${esc(ribbon)}</div><div class="featuredDate"><span>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})}</span><b>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b><strong>${new Date(s.date+'T12:00:00').getDate()}</strong><em>${new Date(s.date+'T12:00:00').getFullYear()}</em></div><div class="featuredMain"><h2>${esc(s.title||'Church Service')}</h2><p>🕒 ${timeLabel(s.start)}${s.end?' - '+timeLabel(s.end):''}<br>📍 ${esc(s.location||'Location TBD')}</p><div class="notice"><b>Ministry:</b> ${esc(m?.name||'Ministry')}<br><b>Role:</b> ${esc(a.roleName||'Volunteer')}</div></div></section>`}
 function serviceCollapsed(s){return `<details class="eventDetailsCard"><summary><div class="miniDate"><span>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})}</span><b>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b><strong>${new Date(s.date+'T12:00:00').getDate()}</strong></div><div class="miniInfo"><b>${esc(s.title||'Service')}</b><span>${timeLabel(s.start)} • ${esc(s.location||'TBD')}</span></div><div class="miniCount">👥 ${serviceAssignments(s.id).length} assigned</div><button class="secondary expandBtn">Expand</button></summary><div class="eventExpanded">${renderAssignmentList(serviceAssignments(s.id))}</div></details>`}
 function assignmentCollapsed(s,a){const m=state.ministries.find(x=>x.id===a.ministryId);return `<details class="eventDetailsCard"><summary><div class="miniDate"><span>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})}</span><b>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b><strong>${new Date(s.date+'T12:00:00').getDate()}</strong></div><div class="miniInfo"><b>${esc(s.title||'Service')}</b><span>${esc(m?.name||'Ministry')} • ${esc(a.roleName||'Volunteer')}</span></div><button class="secondary expandBtn">Expand</button></summary><div class="eventExpanded"><p>🕒 ${timeLabel(s.start)} • 📍 ${esc(s.location||'TBD')}</p></div></details>`}
 function renderAssignmentList(list){if(!list.length)return '<p class="small">No volunteers assigned yet.</p>';return list.map(a=>{const u=state.users.find(x=>x.id===a.volunteerId);const m=state.ministries.find(x=>x.id===a.ministryId);return `<div class="person"><span><b>${esc(a.volunteerName||u?.name||'Volunteer')}</b><div class="small">${esc(m?.name||'Ministry')} • ${esc(a.roleName||'Volunteer')}</div></span></div>`}).join('')}
@@ -104,7 +126,7 @@ function renderEditableAssignments(s){
     <div><label>Qualified Volunteer</label><select id="vol-${s.id}">${volunteers.map(u=>`<option value="${u.id}">${esc(u.name||u.email)}</option>`).join('')||'<option value="">No qualified volunteers</option>'}</select></div>
     <div style="align-self:end"><button onclick="addAssignment('${s.id}')">Add Volunteer</button></div>
   </div>
-  <p class="small">Only volunteers approved for the selected ministry and role appear here. If the list is empty, assign that role under Admin → Manage Users. The same volunteer can be scheduled multiple times. Overlaps of 15 minutes or less are allowed with confirmation; longer overlaps are blocked.</p>`
+  <p class="small">Only volunteers approved for the selected ministry and role appear here. Regular volunteers may overlap by up to 15 minutes with confirmation. Volunteer (S) accounts may be assigned throughout the same day without duplicate or overlap blocking.</p>`
 }
 window.refreshAssignmentOptions=sid=>{
   const mid=$(`#min-${sid}`).value,roleSel=$(`#role-${sid}`),roles=visibleRoles(mid);
@@ -124,26 +146,29 @@ window.addAssignment=async sid=>{
   const role=state.roles.find(r=>r.id===rid),u=state.users.find(x=>x.id===uid),service=state.services.find(s=>s.id===sid);
   if(!mid||!rid)return alert('Select a ministry and role.');
   if(!uid)return alert('No qualified volunteer is available for this ministry and role. Assign the qualification in Admin → Manage Users first.');
-  if(serviceAssignments(sid).some(a=>a.volunteerId===uid&&a.ministryId===mid&&a.roleId===rid&&!a.archived))return alert('This exact volunteer, ministry, and role assignment already exists for this service.');
-  const conflicts=volunteerConflicts(uid,sid);
-  const blocked=conflicts.filter(c=>c.minutes>MAX_ALLOWED_OVERLAP_MINUTES);
-  if(blocked.length){
-    const detail=blocked.map(c=>`${c.service.title||'Service'} (${timeLabel(c.service.start)}–${timeLabel(c.service.end)}): ${c.minutes} minute overlap`).join('\n');
-    return alert(`Cannot schedule ${u?.name||u?.email||'this volunteer'}. The allowed overlap is ${MAX_ALLOWED_OVERLAP_MINUTES} minutes or less.\n\n${detail}`);
-  }
-  const allowed=conflicts.filter(c=>c.minutes>0);
-  if(allowed.length){
-    const detail=allowed.map(c=>`${c.service.title||'Service'}: ${c.minutes} minute overlap`).join('\n');
-    const proceed=confirm(`This volunteer has a small schedule overlap, but it is within the ${MAX_ALLOWED_OVERLAP_MINUTES}-minute allowance.\n\n${detail}\n\nSchedule anyway?`);
-    if(!proceed)return;
+  const volunteerS=isVolunteerSUser(uid);
+  if(!volunteerS && serviceAssignments(sid).some(a=>a.volunteerId===uid&&a.ministryId===mid&&a.roleId===rid&&!a.archived))return alert('This exact volunteer, ministry, and role assignment already exists for this service.');
+  if(!volunteerS){
+    const conflicts=volunteerConflicts(uid,sid);
+    const blocked=conflicts.filter(c=>c.minutes>MAX_ALLOWED_OVERLAP_MINUTES);
+    if(blocked.length){
+      const detail=blocked.map(c=>`${c.service.title||'Service'} (${timeLabel(c.service.start)}–${timeLabel(c.service.end)}): ${c.minutes} minute overlap`).join('\n');
+      return alert(`Cannot schedule ${u?.name||u?.email||'this volunteer'}. The allowed overlap is ${MAX_ALLOWED_OVERLAP_MINUTES} minutes or less.\n\n${detail}`);
+    }
+    const allowed=conflicts.filter(c=>c.minutes>0);
+    if(allowed.length){
+      const detail=allowed.map(c=>`${c.service.title||'Service'}: ${c.minutes} minute overlap`).join('\n');
+      const proceed=confirm(`This volunteer has a small schedule overlap, but it is within the ${MAX_ALLOWED_OVERLAP_MINUTES}-minute allowance.\n\n${detail}\n\nSchedule anyway?`);
+      if(!proceed)return;
+    }
   }
   await addDoc(collection(db,'assignments'),{serviceId:sid,volunteerId:uid,volunteerName:u?.name||u?.email||'Volunteer',ministryId:mid,roleId:rid,roleName:role?.name||'Volunteer',createdAt:serverTimestamp()});
 };window.removeAssignment=id=>deleteDoc(doc(db,'assignments',id));
 
 function renderAdmin(){const pending=state.users.filter(u=>u.role==='pending'||u.status==='pending');$('#main').innerHTML=`<div class="dash"><div class="stat"><span>Users</span><b>${state.users.length}</b></div><div class="stat"><span>Pending</span><b>${pending.length}</b></div><div class="stat"><span>Ministries</span><b>${state.ministries.length}</b></div><div class="stat"><span>Services</span><b>${state.services.length}</b></div></div><div class="card"><h2>Pending Accounts</h2>${pending.map(userCard).join('')||'<p class="small">No pending accounts.</p>'}</div><div class="card"><h2>Manage Users</h2>${state.users.map(userCard).join('')}</div><div class="card"><h2>Manage Ministries & Roles</h2>${state.ministries.map(ministryCard).join('')||'<p class="small">No ministries yet.</p>'}<div class="row"><input id="newMinistry" placeholder="New ministry name"><button onclick="addMinistry()">Add Ministry</button></div></div>`}
 function userCard(u){
-  const canQualify=['volunteer','coordinator','admin'].includes(u.role);
-  return `<div class="person userCard"><div><b>${esc(u.name||u.email)}</b><div class="small">${esc(u.email||'')} • ${esc(roleLabel(u.role))}</div>${canQualify?`<div class="small">${userQualifications(u).reduce((n,q)=>n+(q.roleIds?.length||0),0)} ministry role(s) assigned</div>`:''}</div><div class="actions"><select id="role-${u.id}"><option value="pending" ${u.role==='pending'?'selected':''}>Pending</option><option value="scheduleViewer" ${u.role==='scheduleViewer'?'selected':''}>Schedule Viewer</option><option value="volunteer" ${u.role==='volunteer'?'selected':''}>Volunteer</option><option value="coordinator" ${u.role==='coordinator'?'selected':''}>Coordinator</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select><button onclick="saveUserRole('${u.id}')">Save Role</button></div></div>${canQualify?qualificationEditor(u):''}`
+  const canQualify=['volunteer','volunteerS','coordinator','admin'].includes(u.role);
+  return `<div class="person userCard"><div><b>${esc(u.name||u.email)}</b><div class="small">${esc(u.email||'')} • ${esc(roleLabel(u.role))}</div>${canQualify?`<div class="small">${userQualifications(u).reduce((n,q)=>n+(q.roleIds?.length||0),0)} ministry role(s) assigned</div>`:''}</div><div class="actions"><select id="role-${u.id}"><option value="pending" ${u.role==='pending'?'selected':''}>Pending</option><option value="scheduleViewer" ${u.role==='scheduleViewer'?'selected':''}>Schedule Viewer</option><option value="volunteer" ${u.role==='volunteer'?'selected':''}>Volunteer</option><option value="volunteerS" ${u.role==='volunteerS'?'selected':''}>Volunteer (S)</option><option value="coordinator" ${u.role==='coordinator'?'selected':''}>Coordinator</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select><button onclick="saveUserRole('${u.id}')">Save Role</button></div></div>${canQualify?qualificationEditor(u):''}`
 }
 function qualificationEditor(u){
   return `<details class="qualificationPanel"><summary>Manage Ministry & Role Qualifications</summary><div class="qualificationBody"><p class="small">Choose every ministry role this person is trained or approved to serve in.</p>${visibleMinistries().map(m=>{const roles=visibleRoles(m.id);return `<div class="qualificationMinistry"><h3>${esc(m.name)}</h3>${roles.length?roles.map(r=>`<label class="qualificationChoice"><input type="checkbox" id="qual-${u.id}-${r.id}" ${isQualifiedFor(u,m.id,r.id)?'checked':''}> <span>${esc(r.name)}</span></label>`).join(''):'<p class="small">No roles configured for this ministry.</p>'}</div>`}).join('')}<button onclick="saveQualifications('${u.id}')">Save Ministry Roles</button></div></details>`

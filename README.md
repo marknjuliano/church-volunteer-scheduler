@@ -33,3 +33,12 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Schedule overlaps of up to 15 minutes are allowed after confirmation.
 - Overlaps longer than 15 minutes are blocked.
 - Assignments within the same service are also checked for time conflicts.
+
+
+## Alpha 4.3
+
+- Added **Volunteer (S)** as a special account type.
+- Volunteer (S) may be assigned repeatedly throughout the same day without duplicate or overlap blocking.
+- Regular volunteers still use the 15-minute overlap allowance.
+- Home now expands every service or assignment on the nearest upcoming date.
+- Events on later dates remain collapsible.
