@@ -939,3 +939,82 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
   .homeSideCard{display:block}
   .homeFutureDate{margin-top:8px}
 }
+
+
+/* Alpha 5.1 — group scheduled volunteers by ministry */
+.homeMinistries{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+.homeMinistryGroup{
+  border:1px solid var(--line);
+  border-radius:13px;
+  overflow:hidden;
+  background:#fbfdfc;
+}
+.homeMinistryGroup>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 14px;
+  cursor:pointer;
+  list-style:none;
+  font-weight:850;
+  background:#fff;
+}
+.homeMinistryGroup>summary::-webkit-details-marker{display:none}
+.homeMinistryGroup>summary small{
+  color:var(--muted);
+  font-weight:700;
+}
+.homeMinistryGroup[open] .homeCollapseIcon{
+  transform:rotate(180deg);
+}
+.homeMinistryList{
+  padding:0 12px 12px;
+}
+.homeMinistryRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 7px;
+  border-top:1px solid var(--line);
+}
+.homeMinistryRow:first-child{border-top:0}
+.homeMinistryPerson{
+  min-width:0;
+}
+.homeMinistryPerson b,
+.homeMinistryPerson small{
+  display:block;
+}
+.homeMinistryPerson b{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.homeMinistryPerson small{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:12px;
+}
+.homeNoAssignments{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fbfdfc;
+}
+
+@media(max-width:620px){
+  .homeMinistryGroup>summary{
+    padding:12px;
+  }
+  .homeMinistryList{
+    padding:0 10px 10px;
+  }
+  .homeMinistryRow{
+    padding:9px 4px;
+  }
+}

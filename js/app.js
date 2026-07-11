@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha5.0 home dashboard redesign');
+console.log('Church Volunteer Scheduler v1.0.0-alpha5.1 ministry-grouped home teams');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -64,7 +64,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.0</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.1</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -170,25 +170,46 @@ function homeServiceCard(s,isFirst=false){
         </div>
       </details>`:''}
 
-      <details class="homeTeam" ${isFirst?'open':''}>
-        <summary>
-          <span>Team (${assignments.length})</span>
-          <span class="homeCollapseIcon">⌄</span>
-        </summary>
-        <div class="homeTeamList">
-          ${assignments.length?assignments.map(homeTeamRow).join(''):'<p class="small">No volunteers assigned yet.</p>'}
-        </div>
-      </details>
+      <div class="homeMinistries">
+        ${assignments.length
+          ? homeMinistryGroups(assignments,isFirst)
+          : '<div class="homeNoAssignments"><p class="small">No volunteers assigned yet.</p></div>'}
+      </div>
     </div>
   </article>`;
 }
-function homeTeamRow(a){
+function homeMinistryGroups(assignments,openFirst=false){
+  const groups=new Map();
+  assignments.forEach(a=>{
+    const ministry=state.ministries.find(m=>m.id===a.ministryId);
+    const ministryName=ministry?.name||'Other Ministry';
+    if(!groups.has(ministryName))groups.set(ministryName,[]);
+    groups.get(ministryName).push(a);
+  });
+  return [...groups.entries()]
+    .sort((a,b)=>a[0].localeCompare(b[0]))
+    .map(([ministryName,items],index)=>{
+      const sorted=[...items].sort((a,b)=>String(a.roleName||'').localeCompare(String(b.roleName||''))||String(a.volunteerName||'').localeCompare(String(b.volunteerName||'')));
+      return `<details class="homeMinistryGroup" ${(openFirst&&index===0)?'open':''}>
+        <summary>
+          <span>${esc(ministryName)} <small>(${sorted.length})</small></span>
+          <span class="homeCollapseIcon">⌄</span>
+        </summary>
+        <div class="homeMinistryList">
+          ${sorted.map(homeMinistryRow).join('')}
+        </div>
+      </details>`;
+    }).join('');
+}
+function homeMinistryRow(a){
   const user=state.users.find(u=>u.id===a.volunteerId);
   const name=a.volunteerName||user?.name||'Volunteer';
-  return `<div class="homeTeamRow">
+  return `<div class="homeMinistryRow">
     <span class="homeTeamAvatar">${homeInitials(name)}</span>
-    <b>${esc(name)}</b>
-    <span>${esc(a.roleName||'Volunteer')}</span>
+    <div class="homeMinistryPerson">
+      <b>${esc(name)}</b>
+      <small>${esc(a.roleName||'Volunteer')}</small>
+    </div>
   </div>`;
 }
 function homeFutureDate(date,services){

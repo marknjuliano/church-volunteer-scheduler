@@ -104,3 +104,11 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Team lists are collapsible.
 - Future service dates appear in a compact expandable sidebar.
 - Added responsive desktop and mobile layouts.
+
+
+## Alpha 5.1
+
+- Replaced the single Team list on Home with ministry-grouped sections.
+- Each ministry shows its assigned volunteer count.
+- Ministry sections are collapsible.
+- Volunteers inside each ministry are sorted by role, then by name.
