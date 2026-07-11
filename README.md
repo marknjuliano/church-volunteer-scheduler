@@ -68,3 +68,12 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Admins may edit any person's display name.
 - Coordinators may edit Volunteer and Volunteer (S) display names.
 - Non-editable accounts remain visible to coordinators as view-only.
+
+
+## Alpha 4.7
+
+- Moved **People** into the **Admin** page.
+- Removed the separate People navigation tab.
+- People is collapsed by default to reduce scrolling.
+- Manage Users & Qualifications is collapsed by default.
+- Manage Ministries & Roles is collapsed by default.

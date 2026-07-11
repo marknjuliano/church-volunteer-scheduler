@@ -300,3 +300,68 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
   .featuredMain h2{font-size:21px}
   .featuredDate{gap:5px}
 }
+
+
+/* Alpha 4.7 — collapsible admin sections */
+.adminSection{
+  padding:0;
+  overflow:hidden;
+}
+.adminSection > summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:22px 24px;
+  cursor:pointer;
+  list-style:none;
+  user-select:none;
+}
+.adminSection > summary::-webkit-details-marker{display:none}
+.adminSection > summary span:first-child{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.adminSection > summary b{
+  font-size:24px;
+  color:var(--ink);
+}
+.adminSection > summary small{
+  color:var(--muted);
+  font-size:14px;
+  font-weight:500;
+}
+.adminChevron{
+  flex:0 0 auto;
+  font-size:24px;
+  color:var(--brand);
+  transition:transform .2s ease;
+}
+.adminSection[open] .adminChevron{
+  transform:rotate(180deg);
+}
+.adminSectionBody{
+  padding:0 24px 24px;
+  border-top:1px solid var(--line);
+}
+.adminSectionBody > .person:first-child,
+.adminSectionBody > .statusBox:first-child{
+  margin-top:18px;
+}
+
+@media(max-width:620px){
+  .adminSection > summary{
+    padding:18px 16px;
+  }
+  .adminSection > summary b{
+    font-size:20px;
+  }
+  .adminSection > summary small{
+    font-size:12px;
+    line-height:1.35;
+  }
+  .adminSectionBody{
+    padding:0 12px 14px;
+  }
+}
