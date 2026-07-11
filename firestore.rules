@@ -8,10 +8,25 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow create: if signedIn() && request.auth.uid == userId;
-      allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
-      allow update: if isAdmin() || (signedIn() && request.auth.uid == userId
-        && request.resource.data.role == resource.data.role
-        && request.resource.data.status == resource.data.status);
+
+      // Coordinators need the volunteer directory for scheduling and name corrections.
+      allow read: if signedIn()
+        && (request.auth.uid == userId || isAdmin() || isCoordinator());
+
+      allow update: if isAdmin()
+        || (
+          signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.status == resource.data.status
+        )
+        || (
+          isCoordinator()
+          && resource.data.role in ["volunteer", "volunteerS"]
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(["name", "updatedAt"])
+        );
+
       allow delete: if isAdmin();
     }
     match /ministries/{id} { allow read: if signedIn(); allow create, update, delete: if isAdmin(); }

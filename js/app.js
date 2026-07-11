@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha4.3 Volunteer (S) and grouped home view');
+console.log('Church Volunteer Scheduler v1.0.0-alpha4.4 editable volunteer names');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -50,7 +50,7 @@ function startListeners(){
   unsubs.push(onSnapshot(collection(db,'roles'),s=>{state.roles=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.sortOrder||0)-(b.sortOrder||0));render()},console.error));
   unsubs.push(onSnapshot(collection(db,'assignments'),s=>{state.assignments=s.docs.map(d=>({id:d.id,...d.data()}));render()},console.error));
   unsubs.push(onSnapshot(doc(db,'users',state.user.uid),s=>{if(s.exists()){state.profile={id:s.id,...s.data()};render()}},console.error));
-  if(isAdmin())unsubs.push(onSnapshot(collection(db,'users'),s=>{state.users=s.docs.map(d=>({id:d.id,...d.data()}));render()},console.error));
+  if(isCoordinator())unsubs.push(onSnapshot(collection(db,'users'),s=>{state.users=s.docs.map(d=>({id:d.id,...d.data()}));render()},console.error));
 }
 function renderError(e){appEl.innerHTML=`<div class="wrap"><div class="card"><h2>Firebase Error</h2><div class="error">${esc(friendly(e))}</div></div></div>`}
 function render(){if(!state.user)return renderLogin();if(!state.ready)return appEl.innerHTML='<div class="wrap"><div class="card"><h2>Loading...</h2></div></div>';renderApp()}
@@ -63,7 +63,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha4.3</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator()){tabs.push(['schedule','Schedule']);tabs.push(['people','People'])}if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha4.4</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='people'&&isCoordinator())renderPeople();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -164,6 +164,30 @@ window.addAssignment=async sid=>{
   }
   await addDoc(collection(db,'assignments'),{serviceId:sid,volunteerId:uid,volunteerName:u?.name||u?.email||'Volunteer',ministryId:mid,roleId:rid,roleName:role?.name||'Volunteer',createdAt:serverTimestamp()});
 };window.removeAssignment=id=>deleteDoc(doc(db,'assignments',id));
+
+function renderPeople(){
+  const volunteers=state.users.filter(u=>['volunteer','volunteerS'].includes(u.role)).sort((a,b)=>String(a.name||a.email).localeCompare(String(b.name||b.email)));
+  $('#main').innerHTML=`<div class="card"><div class="sectionTitle"><div><h2>People</h2><p class="small">Admins and coordinators can correct volunteer display names used throughout schedules.</p></div></div>${volunteers.length?volunteers.map(editableVolunteerCard).join(''):'<p class="small">No volunteer accounts yet.</p>'}</div>`;
+}
+function editableVolunteerCard(u){
+  return `<div class="person"><div><b>${esc(u.name||u.email)}</b><div class="small">${esc(u.email||'')} • ${esc(roleLabel(u.role))}</div></div><div class="actions"><input id="displayName-${u.id}" value="${esc(u.name||'')}" placeholder="Volunteer display name" aria-label="Display name for ${esc(u.email||'volunteer')}"><button onclick="saveVolunteerName('${u.id}')">Save Name</button></div></div>`;
+}
+window.saveVolunteerName=async uid=>{
+  const input=document.getElementById(`displayName-${uid}`);
+  const name=input?.value.trim();
+  if(!name)return alert('Enter the volunteer’s name.');
+  const user=state.users.find(u=>u.id===uid);
+  if(!user||!['volunteer','volunteerS'].includes(user.role))return alert('Only volunteer names can be edited here.');
+  try{
+    await updateDoc(doc(db,'users',uid),{name,updatedAt:serverTimestamp()});
+    const matches=await getDocs(query(collection(db,'assignments'),where('volunteerId','==',uid)));
+    await Promise.all(matches.docs.map(item=>updateDoc(item.ref,{volunteerName:name,updatedAt:serverTimestamp()})));
+    alert(`Volunteer name updated to “${name}”.`);
+  }catch(e){
+    console.error('Unable to update volunteer name:',e);
+    alert(friendly(e));
+  }
+};
 
 function renderAdmin(){const pending=state.users.filter(u=>u.role==='pending'||u.status==='pending');$('#main').innerHTML=`<div class="dash"><div class="stat"><span>Users</span><b>${state.users.length}</b></div><div class="stat"><span>Pending</span><b>${pending.length}</b></div><div class="stat"><span>Ministries</span><b>${state.ministries.length}</b></div><div class="stat"><span>Services</span><b>${state.services.length}</b></div></div><div class="card"><h2>Pending Accounts</h2>${pending.map(userCard).join('')||'<p class="small">No pending accounts.</p>'}</div><div class="card"><h2>Manage Users</h2>${state.users.map(userCard).join('')}</div><div class="card"><h2>Manage Ministries & Roles</h2>${state.ministries.map(ministryCard).join('')||'<p class="small">No ministries yet.</p>'}<div class="row"><input id="newMinistry" placeholder="New ministry name"><button onclick="addMinistry()">Add Ministry</button></div></div>`}
 function userCard(u){

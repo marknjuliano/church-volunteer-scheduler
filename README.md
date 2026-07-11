@@ -42,3 +42,12 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Regular volunteers still use the 15-minute overlap allowance.
 - Home now expands every service or assignment on the nearest upcoming date.
 - Events on later dates remain collapsible.
+
+
+## Alpha 4.4
+
+- Added a **People** page for Admin and Coordinator accounts.
+- Admins and coordinators can change a volunteer display name, such as `mark.juliano` to `Mark Juliano`.
+- Existing assignment records are updated with the corrected volunteer name.
+- Coordinators can read the volunteer directory required for scheduling.
+- Publish the included `firestore.rules` after deployment.
