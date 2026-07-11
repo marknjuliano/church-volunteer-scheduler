@@ -71,3 +71,19 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
 .calendarCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}
 @media(max-width:800px){.dash{grid-template-columns:repeat(2,minmax(0,1fr))}.featuredEvent{grid-template-columns:120px 1fr}.featuredDate .day{font-size:45px}.wrap{padding:18px 14px 50px}.tabs{top:6px}.brandDivider{display:none}.brandLeft{gap:14px}.powerDinkLogo{width:68px;height:68px}.hero{padding:22px}}
 @media(max-width:620px){body{font-size:15px}.wrap{padding:10px 10px 42px}.hero{border-radius:20px;padding:20px}.hero h1{font-size:26px}.brandHero{min-height:110px}.powerDinkLogo{width:56px;height:56px}.brandTitle p{font-size:13px}.card{padding:18px;border-radius:16px}.eventTop,.featuredTop{display:block}.person{display:block}.person .actions{margin-top:12px;justify-content:flex-start}.person .actions>*{flex:1;min-width:120px}.tabs{border-radius:13px}.tab{padding:10px 13px}.tab:last-child{margin-left:0}.featuredEvent{grid-template-columns:1fr}.featuredDate{padding:52px 18px 18px;border-right:0;border-bottom:1px solid var(--line)}.featuredMain{padding:20px}.calendarCell{min-height:70px;padding:6px}.calendarGrid,.calendarWeekdays{gap:3px}.calendarEvent{font-size:9px}.coordEventCard summary{align-items:flex-start}.coordSummaryRight{display:block;text-align:right}.login .row{grid-template-columns:1fr}.login .row button{width:100%}.sectionTitle{display:block}.dash{gap:9px}.stat{padding:16px}.stat b{font-size:28px}}
+
+/* Alpha 4 — volunteer ministry and role qualifications */
+.qualificationPanel{margin:-2px 0 18px;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.qualificationPanel summary{cursor:pointer;padding:14px 16px;font-weight:800;color:var(--brand);list-style:none;background:var(--brand-soft)}
+.qualificationPanel summary::-webkit-details-marker{display:none}
+.qualificationPanel summary:after{content:'Manage';float:right;font-size:12px;color:var(--muted)}
+.qualificationPanel[open] summary:after{content:'Close'}
+.qualificationBody{padding:16px}
+.qualificationMinistry{padding:12px 0;border-bottom:1px solid var(--line)}
+.qualificationMinistry:last-of-type{border-bottom:0}
+.qualificationMinistry h3{margin:0 0 9px}
+.qualificationChoice{display:inline-flex;align-items:center;gap:7px;margin:4px 8px 4px 0;padding:9px 11px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);font-weight:700;cursor:pointer}
+.qualificationChoice input{width:auto;margin:0}
+.assignmentBuilder{margin-top:14px;align-items:end}
+.userCard{margin-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0}
+.userCard + .qualificationPanel{border-top-left-radius:0;border-top-right-radius:0;border-top:0}
