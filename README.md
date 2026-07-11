@@ -1,34 +1,23 @@
-# Church Volunteer Scheduler v1.0.0 Alpha 2
+# Church Volunteer Scheduler v1.0.0 Alpha 3
 
-GitHub-ready full project.
+A professional, Firebase-powered church volunteer scheduling app.
 
 ## Included
-- Firebase Authentication and Firestore configuration
-- Admin, Coordinator, Volunteer, Schedule Viewer, and Pending roles
-- Ministry management
-- Ministry roles management
-- Default Tech/Creative roles:
-  - ProPresenter
-  - FOH
-  - Lights
-  - FB Sound
-  - Camera Switcher
-- Add, edit, hide/show, archive, and delete roles
-- Service scheduling and assignments
-- Calendar, profile, and role-based navigation
-- Firestore rules in `firestore.rules`
 
-## Upload to GitHub
-Upload the **contents inside this folder** to the repository root:
-- `index.html`
-- `css/`
-- `images/`
-- `js/`
-- `firestore.rules`
-- `README.md`
+- Email/password authentication
+- Role-based access: Admin, Coordinator, Volunteer, Schedule Viewer
+- Pending-account approval flow
+- Ministry management with show/hide, archive, and delete
+- Custom ministry roles such as ProPresenter, FOH, Lights, FB Sound, and Camera Switcher
+- Service creation, editing, duplication, archiving, and deletion
+- Volunteer assignments by ministry and role
+- Monthly calendar and next-service views
+- Responsive professional interface for desktop and mobile
 
-## Firestore Rules
-Copy the contents of `firestore.rules` into Firebase Console → Firestore Database → Rules, then Publish.
+## Deployment
 
-## Local preview
-Open the folder in VS Code and use Live Server on `index.html`.
+The app is ready for GitHub Pages. Publish the `main` branch from the repository root.
+
+## Firebase
+
+Firebase configuration is stored in `js/firebase.js`. Firestore rules are in `firestore.rules`.
