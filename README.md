@@ -25,3 +25,11 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Allows schedule overlaps of up to 16 minutes with confirmation.
 - Blocks overlaps longer than 16 minutes.
 - Prevents assigning the same volunteer twice to one service.
+
+
+## Alpha 4.2
+- A volunteer may be scheduled multiple times across services and roles.
+- Exact duplicate assignments for the same service, ministry, and role are prevented.
+- Schedule overlaps of up to 15 minutes are allowed after confirmation.
+- Overlaps longer than 15 minutes are blocked.
+- Assignments within the same service are also checked for time conflicts.
