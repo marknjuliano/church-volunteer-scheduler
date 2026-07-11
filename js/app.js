@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha5.2 pending demo people');
+console.log('Church Volunteer Scheduler v1.0.0-alpha5.3 stable qualifications panels');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -32,6 +32,8 @@ function volunteerConflicts(volunteerId,targetServiceId){
 let state={user:null,profile:null,services:[],ministries:[],roles:[],users:[],assignments:[],ready:false,view:localStorage.getItem('cvsView')||'home',calendarMonth:nowDate().slice(0,7),selectedCalendarDate:nowDate()};
 let unsubs=[];
 let peopleUI={search:'',role:'all',status:'all',page:1,pageSize:10};
+const adminOpenSections=new Set();
+const qualificationOpenUsers=new Set();
 const cleanup=()=>{unsubs.forEach(fn=>fn&&fn());unsubs=[]};
 const isAdmin=()=>state.profile?.role==='admin';
 const isCoordinator=()=>['coordinator','admin'].includes(state.profile?.role);
@@ -64,7 +66,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.2</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.3</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -396,6 +398,7 @@ window.editPersonName=async uid=>{
   }
 };
 window.openUserManager=uid=>{
+  adminOpenSections.add('users');
   const details=document.getElementById('manageUsersSection');
   if(details)details.open=true;
   setTimeout(()=>{
@@ -407,6 +410,28 @@ window.openUserManager=uid=>{
     }
   },80);
 };
+
+
+document.addEventListener('toggle',event=>{
+  const details=event.target;
+  if(!(details instanceof HTMLDetailsElement))return;
+
+  if(details.id==='admin-section-people'){
+    details.open?adminOpenSections.add('people'):adminOpenSections.delete('people');
+  }else if(details.id==='manageUsersSection'){
+    details.open?adminOpenSections.add('users'):adminOpenSections.delete('users');
+  }else if(details.id==='admin-section-ministries'){
+    details.open?adminOpenSections.add('ministries'):adminOpenSections.delete('ministries');
+  }
+
+  if(details.classList.contains('qualificationPanel')){
+    const uid=details.dataset.userId;
+    if(uid){
+      details.open?qualificationOpenUsers.add(uid):qualificationOpenUsers.delete(uid);
+    }
+  }
+},true);
+
 
 function renderAdmin(){
   const pending=state.users.filter(u=>u.role==='pending'||u.status==='pending');
@@ -426,7 +451,7 @@ function renderAdmin(){
       ${pending.map(userCard).join('')||'<p class="small">No pending accounts.</p>'}
     </div>
 
-    <details class="card adminSection">
+    <details id="admin-section-people" class="card adminSection" ${adminOpenSections.has('people')?'open':''}>
       <summary>
         <span><b>People</b><small>${state.users.length} account(s) • edit display names</small></span>
         <span class="adminChevron">⌄</span>
@@ -434,7 +459,7 @@ function renderAdmin(){
       <div class="adminSectionBody">${renderPeopleDirectory()}</div>
     </details>
 
-    <details id="manageUsersSection" class="card adminSection">
+    <details id="manageUsersSection" class="card adminSection" ${adminOpenSections.has('users')?'open':''}>
       <summary>
         <span><b>Manage Users & Qualifications</b><small>Roles, approvals, and ministry qualifications</small></span>
         <span class="adminChevron">⌄</span>
@@ -442,7 +467,7 @@ function renderAdmin(){
       <div class="adminSectionBody">${state.users.map(userCard).join('')}</div>
     </details>
 
-    <details class="card adminSection">
+    <details id="admin-section-ministries" class="card adminSection" ${adminOpenSections.has('ministries')?'open':''}>
       <summary>
         <span><b>Manage Ministries & Roles</b><small>${state.ministries.length} ministry/ministries</small></span>
         <span class="adminChevron">⌄</span>
@@ -491,7 +516,7 @@ function userCard(u){
   return `<div id="user-card-${u.id}" class="person userCard"><div><b>${esc(u.name||u.email)}</b><div class="small">${esc(u.email||'')} • ${esc(roleLabel(u.role))}</div>${canQualify?`<div class="small">${userQualifications(u).reduce((n,q)=>n+(q.roleIds?.length||0),0)} ministry role(s) assigned</div>`:''}</div><div class="actions"><select id="role-${u.id}"><option value="pending" ${u.role==='pending'?'selected':''}>Pending</option><option value="scheduleViewer" ${u.role==='scheduleViewer'?'selected':''}>Schedule Viewer</option><option value="volunteer" ${u.role==='volunteer'?'selected':''}>Volunteer</option><option value="volunteerS" ${u.role==='volunteerS'?'selected':''}>Volunteer (S)</option><option value="coordinator" ${u.role==='coordinator'?'selected':''}>Coordinator</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select><button onclick="saveUserRole('${u.id}')">Save Role</button></div></div>${canQualify?qualificationEditor(u):''}`
 }
 function qualificationEditor(u){
-  return `<details class="qualificationPanel"><summary>Manage Ministry & Role Qualifications</summary><div class="qualificationBody"><p class="small">Choose every ministry role this person is trained or approved to serve in.</p>${visibleMinistries().map(m=>{const roles=visibleRoles(m.id);return `<div class="qualificationMinistry"><h3>${esc(m.name)}</h3>${roles.length?roles.map(r=>`<label class="qualificationChoice"><input type="checkbox" id="qual-${u.id}-${r.id}" ${isQualifiedFor(u,m.id,r.id)?'checked':''}> <span>${esc(r.name)}</span></label>`).join(''):'<p class="small">No roles configured for this ministry.</p>'}</div>`}).join('')}<button onclick="saveQualifications('${u.id}')">Save Ministry Roles</button></div></details>`
+  return `<details class="qualificationPanel" data-user-id="${u.id}" ${qualificationOpenUsers.has(u.id)?'open':''}><summary>Manage Ministry & Role Qualifications</summary><div class="qualificationBody"><p class="small">Choose every ministry role this person is trained or approved to serve in.</p>${visibleMinistries().map(m=>{const roles=visibleRoles(m.id);return `<div class="qualificationMinistry"><h3>${esc(m.name)}</h3>${roles.length?roles.map(r=>`<label class="qualificationChoice"><input type="checkbox" id="qual-${u.id}-${r.id}" ${isQualifiedFor(u,m.id,r.id)?'checked':''}> <span>${esc(r.name)}</span></label>`).join(''):'<p class="small">No roles configured for this ministry.</p>'}</div>`}).join('')}<button onclick="saveQualifications('${u.id}')">Save Ministry Roles</button></div></details>`
 }
 window.saveQualifications=async uid=>{
   const qualifications=visibleMinistries().map(m=>({ministryId:m.id,roleIds:visibleRoles(m.id).filter(r=>document.getElementById(`qual-${uid}-${r.id}`)?.checked).map(r=>r.id)})).filter(q=>q.roleIds.length);

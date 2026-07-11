@@ -121,3 +121,12 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Demo people have no ministry or role qualifications by default.
 - Demo records are Firestore-only test people and do not have Firebase Authentication login credentials.
 - Demo records are marked with `demo: true` for easy identification later.
+
+
+## Alpha 5.3
+
+- Fixed ministry-role checkbox layout shifting when checked or unchecked.
+- Checkbox and pill dimensions now stay constant in both states.
+- Open Admin sections remain open after Firestore updates.
+- Open user qualification panels remain open after saving roles.
+- Panels stay open until the user manually collapses them.

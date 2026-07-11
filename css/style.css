@@ -1027,3 +1027,63 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
   .demoPeopleHeader{display:block}
   .demoPeopleHeader button{width:100%;margin-top:12px}
 }
+
+
+/* Alpha 5.3 — stable qualification checkboxes and preserved open panels */
+.qualificationChoice{
+  box-sizing:border-box;
+  min-height:52px;
+  padding:12px 18px;
+  border:1px solid var(--line);
+  gap:10px;
+  vertical-align:top;
+  transform:none;
+}
+.qualificationChoice:hover{
+  border-color:#b9cec3;
+  background:#f5f9f7;
+}
+.qualificationChoice:has(input:checked){
+  border:1px solid #9fc8b6;
+  background:var(--brand-soft);
+}
+.qualificationChoice input[type="checkbox"]{
+  appearance:auto;
+  -webkit-appearance:checkbox;
+  width:20px;
+  height:20px;
+  min-width:20px;
+  flex:0 0 20px;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:3px;
+  box-shadow:none;
+  accent-color:var(--brand);
+}
+.qualificationChoice input[type="checkbox"]:focus{
+  border:0;
+  box-shadow:none;
+  outline:2px solid rgba(20,92,67,.18);
+  outline-offset:2px;
+}
+.qualificationChoice span{
+  display:inline-block;
+  line-height:20px;
+  white-space:nowrap;
+}
+.qualificationPanel,
+.adminSection{
+  scroll-margin-top:90px;
+}
+
+@media(max-width:620px){
+  .qualificationChoice{
+    min-height:48px;
+    padding:11px 14px;
+    margin-right:6px;
+  }
+  .qualificationChoice span{
+    white-space:normal;
+  }
+}
