@@ -21,3 +21,9 @@ The app is ready for GitHub Pages. Publish the `main` branch from the repository
 ## Firebase
 
 Firebase configuration is stored in `js/firebase.js`. Firestore rules are in `firestore.rules`.
+
+
+## Alpha 3.1 fix
+- Fixed Add Role feedback and error handling.
+- If adding a role is blocked, the app now shows whether Firestore rules need to be published.
+- Ensure the included `firestore.rules` is published in Firebase Console.

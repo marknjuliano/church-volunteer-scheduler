@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha3 professional UI');
+console.log('Church Volunteer Scheduler v1.0.0-alpha3.1 role fix');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -50,7 +50,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha3</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha3.1</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -89,7 +89,31 @@ function ministryCard(m){const roles=state.roles.filter(r=>r.ministryId===m.id);
 function roleCard(r){return `<div class="person"><div><b>${esc(r.name)}</b><div class="small">${r.archived?'Archived':(r.visible===false?'Hidden • Active':'Visible • Active')}</div></div><div class="actions"><button class="secondary" onclick="toggleRole('${r.id}',${r.visible===false})">${r.visible===false?'Show':'Hide'}</button><button class="secondary" onclick="renameRole('${r.id}')">Edit</button><button class="secondary" onclick="archiveRole('${r.id}')">Archive</button><button class="danger" onclick="deleteRole('${r.id}')">Delete</button></div></div>`}
 window.addMinistry=async()=>{const name=$('#newMinistry').value.trim();if(!name)return;await addDoc(collection(db,'ministries'),{name,visible:true,archived:false,sortOrder:state.ministries.length+1,createdAt:serverTimestamp()})};window.toggleMinistry=(id,show)=>updateDoc(doc(db,'ministries',id),{visible:show});window.renameMinistry=async id=>{const m=state.ministries.find(x=>x.id===id),name=prompt('Ministry name:',m.name);if(name)await updateDoc(doc(db,'ministries',id),{name})};window.archiveMinistry=id=>updateDoc(doc(db,'ministries',id),{archived:true,visible:false});window.deleteMinistry=async id=>{if(confirm('Permanently delete this ministry?'))await deleteDoc(doc(db,'ministries',id))};
 
-window.addRole=async ministryId=>{const input=$(`#newRole-${ministryId}`),name=input.value.trim();if(!name)return;await addDoc(collection(db,'roles'),{name,ministryId,visible:true,archived:false,sortOrder:state.roles.filter(r=>r.ministryId===ministryId).length+1,createdAt:serverTimestamp()});input.value=''};
+window.addRole=async ministryId=>{
+  const input=$(`#newRole-${ministryId}`);
+  const name=input?.value.trim();
+  if(!input)return alert('Role input was not found. Please refresh the page and try again.');
+  if(!name)return alert('Enter a role name first.');
+  try{
+    await addDoc(collection(db,'roles'),{
+      name,
+      ministryId,
+      visible:true,
+      archived:false,
+      sortOrder:state.roles.filter(r=>r.ministryId===ministryId).length+1,
+      createdAt:serverTimestamp()
+    });
+    input.value='';
+    alert(`Role “${name}” added.`);
+  }catch(error){
+    console.error('Unable to add role:',error);
+    if(error?.code==='permission-denied'){
+      alert('Permission denied. Publish the updated Firestore rules included with this release, then try again.');
+    }else{
+      alert(`Unable to add role: ${error?.message||'Unknown error'}`);
+    }
+  }
+};
 window.addDefaultTechRoles=async ministryId=>{const defaults=['ProPresenter','FOH','Lights','FB Sound','Camera Switcher'];const existing=new Set(state.roles.filter(r=>r.ministryId===ministryId).map(r=>String(r.name).toLowerCase()));for(const name of defaults){if(!existing.has(name.toLowerCase()))await addDoc(collection(db,'roles'),{name,ministryId,visible:true,archived:false,sortOrder:state.roles.filter(r=>r.ministryId===ministryId).length+1,createdAt:serverTimestamp()})}alert('Default tech roles added.')};
 window.toggleRole=(id,show)=>updateDoc(doc(db,'roles',id),{visible:show});
 window.renameRole=async id=>{const r=state.roles.find(x=>x.id===id),name=prompt('Role name:',r?.name||'');if(name)await updateDoc(doc(db,'roles',id),{name})};
