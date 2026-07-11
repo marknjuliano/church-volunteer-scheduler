@@ -77,3 +77,11 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - People is collapsed by default to reduce scrolling.
 - Manage Users & Qualifications is collapsed by default.
 - Manage Ministries & Roles is collapsed by default.
+
+
+## Alpha 4.8
+
+- Replaced the long People card list with a compact directory table.
+- Added account summary cards, search, role filter, status filter, and pagination.
+- Added quick actions to edit a display name or jump to user qualifications.
+- People remains under Admin and collapsed by default.

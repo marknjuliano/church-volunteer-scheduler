@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha4.7 collapsible admin sections');
+console.log('Church Volunteer Scheduler v1.0.0-alpha4.8 People directory table');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -31,6 +31,7 @@ function volunteerConflicts(volunteerId,targetServiceId){
 
 let state={user:null,profile:null,services:[],ministries:[],roles:[],users:[],assignments:[],ready:false,view:localStorage.getItem('cvsView')||'home',calendarMonth:nowDate().slice(0,7),selectedCalendarDate:nowDate()};
 let unsubs=[];
+let peopleUI={search:'',role:'all',status:'all',page:1,pageSize:10};
 const cleanup=()=>{unsubs.forEach(fn=>fn&&fn());unsubs=[]};
 const isAdmin=()=>state.profile?.role==='admin';
 const isCoordinator=()=>['coordinator','admin'].includes(state.profile?.role);
@@ -63,7 +64,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha4.7</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha4.8</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -165,33 +166,121 @@ window.addAssignment=async sid=>{
   await addDoc(collection(db,'assignments'),{serviceId:sid,volunteerId:uid,volunteerName:u?.name||u?.email||'Volunteer',ministryId:mid,roleId:rid,roleName:role?.name||'Volunteer',createdAt:serverTimestamp()});
 };window.removeAssignment=id=>deleteDoc(doc(db,'assignments',id));
 
-function renderPeopleList(){
-  const people=[...state.users].sort((a,b)=>String(a.name||a.email).localeCompare(String(b.name||b.email)));
-  return people.length?people.map(editablePersonCard).join(''):'<p class="small">No accounts yet.</p>';
+function peopleStats(){
+  const users=state.users;
+  return {
+    total:users.length,
+    admins:users.filter(u=>u.role==='admin').length,
+    coordinators:users.filter(u=>u.role==='coordinator').length,
+    volunteers:users.filter(u=>u.role==='volunteer').length,
+    volunteerS:users.filter(u=>u.role==='volunteerS').length
+  };
 }
-function editablePersonCard(u){
-  const coordinatorCanEdit=['volunteer','volunteerS'].includes(u.role);
-  const canEdit=isAdmin()||coordinatorCanEdit;
-  return `<div class="person"><div><b>${esc(u.name||u.email)}</b><div class="small">${esc(u.email||'')} • ${esc(roleLabel(u.role))}</div></div><div class="actions"><input id="displayName-${u.id}" value="${esc(u.name||'')}" placeholder="Display name" aria-label="Display name for ${esc(u.email||'person')}" ${canEdit?'':'disabled'}><button onclick="savePersonName('${u.id}')" ${canEdit?'':'disabled'}>${canEdit?'Save Name':'View Only'}</button></div></div>`;
+function peopleFiltered(){
+  const term=peopleUI.search.trim().toLowerCase();
+  return [...state.users]
+    .filter(u=>peopleUI.role==='all'||u.role===peopleUI.role)
+    .filter(u=>peopleUI.status==='all'||(u.status||'active')===peopleUI.status)
+    .filter(u=>!term||[u.name,u.email,roleLabel(u.role)].some(v=>String(v||'').toLowerCase().includes(term)))
+    .sort((a,b)=>String(a.name||a.email).localeCompare(String(b.name||b.email)));
 }
-window.savePersonName=async uid=>{
-  const input=document.getElementById(`displayName-${uid}`);
-  const name=input?.value.trim();
-  if(!name)return alert('Enter a display name.');
+function peopleInitials(u){
+  const source=String(u.name||u.email||'?').trim();
+  const parts=source.split(/[\s._-]+/).filter(Boolean);
+  return esc((parts.length>1?parts[0][0]+parts[parts.length-1][0]:source.slice(0,2)).toUpperCase());
+}
+function peopleRoleBadge(role){
+  return `<span class="peopleRole peopleRole-${esc(role||'pending')}">${esc(roleLabel(role))}</span>`;
+}
+function renderPeopleDirectory(){
+  const stats=peopleStats();
+  return `<div class="peopleDirectory">
+    <div class="peopleStats">
+      <div><span>Total People</span><b>${stats.total}</b></div>
+      <div><span>Admins</span><b>${stats.admins}</b></div>
+      <div><span>Coordinators</span><b>${stats.coordinators}</b></div>
+      <div><span>Volunteers</span><b>${stats.volunteers}</b></div>
+      <div><span>Volunteer (S)</span><b>${stats.volunteerS}</b></div>
+    </div>
+    <div class="peopleToolbar">
+      <label class="peopleSearch"><span>⌕</span><input value="${esc(peopleUI.search)}" placeholder="Search name, email, or role..." oninput="peopleSearch(this.value)"></label>
+      <select onchange="peopleRoleFilter(this.value)">
+        <option value="all">All Roles</option>
+        ${['admin','coordinator','volunteer','volunteerS','scheduleViewer','pending'].map(r=>`<option value="${r}" ${peopleUI.role===r?'selected':''}>${esc(roleLabel(r))}</option>`).join('')}
+      </select>
+      <select onchange="peopleStatusFilter(this.value)">
+        <option value="all">All Status</option>
+        <option value="active" ${peopleUI.status==='active'?'selected':''}>Active</option>
+        <option value="pending" ${peopleUI.status==='pending'?'selected':''}>Pending</option>
+      </select>
+    </div>
+    <div id="peopleTableWrap">${renderPeopleTable()}</div>
+  </div>`;
+}
+function renderPeopleTable(){
+  const filtered=peopleFiltered();
+  const pages=Math.max(1,Math.ceil(filtered.length/peopleUI.pageSize));
+  if(peopleUI.page>pages)peopleUI.page=pages;
+  const start=(peopleUI.page-1)*peopleUI.pageSize;
+  const rows=filtered.slice(start,start+peopleUI.pageSize);
+  return `<div class="peopleTableScroller"><table class="peopleTable">
+    <thead><tr><th>Name</th><th>Email</th><th>Account Type</th><th>Ministry Roles</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows.length?rows.map(peopleTableRow).join(''):`<tr><td colspan="6" class="peopleEmpty">No matching people.</td></tr>`}</tbody>
+  </table></div>
+  <div class="peoplePager">
+    <div><select onchange="peoplePageSize(this.value)"><option value="10" ${peopleUI.pageSize===10?'selected':''}>10</option><option value="20" ${peopleUI.pageSize===20?'selected':''}>20</option><option value="50" ${peopleUI.pageSize===50?'selected':''}>50</option></select><span>Showing ${filtered.length?start+1:0} to ${Math.min(start+peopleUI.pageSize,filtered.length)} of ${filtered.length} people</span></div>
+    <div><button onclick="peoplePage(${peopleUI.page-1})" ${peopleUI.page<=1?'disabled':''}>Previous</button><span class="peoplePageNumber">${peopleUI.page}</span><button onclick="peoplePage(${peopleUI.page+1})" ${peopleUI.page>=pages?'disabled':''}>Next</button></div>
+  </div>`;
+}
+function peopleTableRow(u){
+  const roles=userQualifications(u).reduce((n,q)=>n+(q.roleIds?.length||0),0);
+  const status=u.status||'active';
+  return `<tr>
+    <td><div class="peopleIdentity"><span class="peopleAvatar">${peopleInitials(u)}</span><div><b>${esc(u.name||u.email)}</b><small>${esc(u.email||'')}</small></div></div></td>
+    <td>${esc(u.email||'—')}</td>
+    <td>${peopleRoleBadge(u.role)}</td>
+    <td><b>${roles}</b></td>
+    <td><span class="peopleStatus peopleStatus-${esc(status)}">● ${esc(status[0].toUpperCase()+status.slice(1))}</span></td>
+    <td><div class="peopleActions"><button title="Edit display name" onclick="editPersonName('${u.id}')">✎</button><button title="Manage user and qualifications" onclick="openUserManager('${u.id}')">♙</button></div></td>
+  </tr>`;
+}
+function refreshPeopleTable(){
+  const wrap=document.getElementById('peopleTableWrap');
+  if(wrap)wrap.innerHTML=renderPeopleTable();
+}
+window.peopleSearch=value=>{peopleUI.search=value;peopleUI.page=1;refreshPeopleTable()};
+window.peopleRoleFilter=value=>{peopleUI.role=value;peopleUI.page=1;refreshPeopleTable()};
+window.peopleStatusFilter=value=>{peopleUI.status=value;peopleUI.page=1;refreshPeopleTable()};
+window.peoplePageSize=value=>{peopleUI.pageSize=Number(value)||10;peopleUI.page=1;refreshPeopleTable()};
+window.peoplePage=page=>{const pages=Math.max(1,Math.ceil(peopleFiltered().length/peopleUI.pageSize));peopleUI.page=Math.min(Math.max(1,page),pages);refreshPeopleTable()};
+window.editPersonName=async uid=>{
   const user=state.users.find(u=>u.id===uid);
   if(!user)return alert('User account was not found.');
-  if(!isAdmin()&&!['volunteer','volunteerS'].includes(user.role)){
-    return alert('Coordinators can edit Volunteer and Volunteer (S) names only.');
-  }
+  const name=prompt('Enter the display name:',user.name||'');
+  if(name===null)return;
+  const clean=name.trim();
+  if(!clean)return alert('Enter a display name.');
   try{
-    await updateDoc(doc(db,'users',uid),{name,updatedAt:serverTimestamp()});
+    await updateDoc(doc(db,'users',uid),{name:clean,updatedAt:serverTimestamp()});
     const matches=await getDocs(query(collection(db,'assignments'),where('volunteerId','==',uid)));
-    await Promise.all(matches.docs.map(item=>updateDoc(item.ref,{volunteerName:name,updatedAt:serverTimestamp()})));
-    alert(`Display name updated to “${name}”.`);
+    await Promise.all(matches.docs.map(item=>updateDoc(item.ref,{volunteerName:clean,updatedAt:serverTimestamp()})));
+    alert(`Display name updated to “${clean}”.`);
   }catch(e){
     console.error('Unable to update display name:',e);
     alert(friendly(e));
   }
+};
+window.openUserManager=uid=>{
+  const details=document.getElementById('manageUsersSection');
+  if(details)details.open=true;
+  setTimeout(()=>{
+    const card=document.getElementById(`user-card-${uid}`);
+    if(card){
+      card.scrollIntoView({behavior:'smooth',block:'center'});
+      card.classList.add('peopleFocus');
+      setTimeout(()=>card.classList.remove('peopleFocus'),1600);
+    }
+  },80);
 };
 
 function renderAdmin(){
@@ -214,10 +303,10 @@ function renderAdmin(){
         <span><b>People</b><small>${state.users.length} account(s) • edit display names</small></span>
         <span class="adminChevron">⌄</span>
       </summary>
-      <div class="adminSectionBody">${renderPeopleList()}</div>
+      <div class="adminSectionBody">${renderPeopleDirectory()}</div>
     </details>
 
-    <details class="card adminSection">
+    <details id="manageUsersSection" class="card adminSection">
       <summary>
         <span><b>Manage Users & Qualifications</b><small>Roles, approvals, and ministry qualifications</small></span>
         <span class="adminChevron">⌄</span>
@@ -238,7 +327,7 @@ function renderAdmin(){
 }
 function userCard(u){
   const canQualify=['volunteer','volunteerS','coordinator','admin'].includes(u.role);
-  return `<div class="person userCard"><div><b>${esc(u.name||u.email)}</b><div class="small">${esc(u.email||'')} • ${esc(roleLabel(u.role))}</div>${canQualify?`<div class="small">${userQualifications(u).reduce((n,q)=>n+(q.roleIds?.length||0),0)} ministry role(s) assigned</div>`:''}</div><div class="actions"><select id="role-${u.id}"><option value="pending" ${u.role==='pending'?'selected':''}>Pending</option><option value="scheduleViewer" ${u.role==='scheduleViewer'?'selected':''}>Schedule Viewer</option><option value="volunteer" ${u.role==='volunteer'?'selected':''}>Volunteer</option><option value="volunteerS" ${u.role==='volunteerS'?'selected':''}>Volunteer (S)</option><option value="coordinator" ${u.role==='coordinator'?'selected':''}>Coordinator</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select><button onclick="saveUserRole('${u.id}')">Save Role</button></div></div>${canQualify?qualificationEditor(u):''}`
+  return `<div id="user-card-${u.id}" class="person userCard"><div><b>${esc(u.name||u.email)}</b><div class="small">${esc(u.email||'')} • ${esc(roleLabel(u.role))}</div>${canQualify?`<div class="small">${userQualifications(u).reduce((n,q)=>n+(q.roleIds?.length||0),0)} ministry role(s) assigned</div>`:''}</div><div class="actions"><select id="role-${u.id}"><option value="pending" ${u.role==='pending'?'selected':''}>Pending</option><option value="scheduleViewer" ${u.role==='scheduleViewer'?'selected':''}>Schedule Viewer</option><option value="volunteer" ${u.role==='volunteer'?'selected':''}>Volunteer</option><option value="volunteerS" ${u.role==='volunteerS'?'selected':''}>Volunteer (S)</option><option value="coordinator" ${u.role==='coordinator'?'selected':''}>Coordinator</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select><button onclick="saveUserRole('${u.id}')">Save Role</button></div></div>${canQualify?qualificationEditor(u):''}`
 }
 function qualificationEditor(u){
   return `<details class="qualificationPanel"><summary>Manage Ministry & Role Qualifications</summary><div class="qualificationBody"><p class="small">Choose every ministry role this person is trained or approved to serve in.</p>${visibleMinistries().map(m=>{const roles=visibleRoles(m.id);return `<div class="qualificationMinistry"><h3>${esc(m.name)}</h3>${roles.length?roles.map(r=>`<label class="qualificationChoice"><input type="checkbox" id="qual-${u.id}-${r.id}" ${isQualifiedFor(u,m.id,r.id)?'checked':''}> <span>${esc(r.name)}</span></label>`).join(''):'<p class="small">No roles configured for this ministry.</p>'}</div>`}).join('')}<button onclick="saveQualifications('${u.id}')">Save Ministry Roles</button></div></details>`
