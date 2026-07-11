@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha4.9 calendar visibility fix');
+console.log('Church Volunteer Scheduler v1.0.0-alpha5.0 home dashboard redesign');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -64,7 +64,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha4.9</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.0</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -79,26 +79,130 @@ function myAssignments(){return state.assignments.filter(a=>a.volunteerId===stat
 
 function renderHome(){
   const upcoming=upcomingServices();
-  if(isVolunteer())return renderVolunteerHome(upcoming);
+  const profileName=state.profile?.name||state.user?.email?.split('@')[0]||'there';
   if(!upcoming.length){
-    $('#main').innerHTML='<div class="card"><h2>No upcoming services</h2><p class="small">The next service will appear here when a coordinator adds it.</p></div>';
+    $('#main').innerHTML=`<section class="homeWelcome"><div class="homeAvatar">${homeInitials(profileName)}</div><div><h1>Welcome, ${esc(profileName)}!</h1><p>No upcoming services have been scheduled yet.</p></div></section><div class="card"><h2>No upcoming services</h2><p class="small">The next service will appear here when a coordinator adds it.</p></div>`;
     return;
   }
-  const nextDate=upcoming[0].date;
-  const sameDay=upcoming.filter(s=>s.date===nextDate);
-  const future=upcoming.filter(s=>s.date!==nextDate);
-  $('#main').innerHTML=`<div class="sectionTitle"><h2>${nextDate===nowDate()?'Today’s Services':'Next Service Day'}</h2><p class="small">${fmtDate(nextDate)} • all services on this date are expanded</p></div>${sameDay.map((s,i)=>serviceFeature(s,i===0?'NEXT SERVICE':'SAME-DAY SERVICE')).join('')}${future.length?`<h2 class="otherTitle">Future Services</h2><p class="small">Services on later dates are collapsible.</p>${future.map(serviceCollapsed).join('')}`:''}`;
+
+  const focusDate=upcoming[0].date;
+  const focusServices=upcoming.filter(s=>s.date===focusDate);
+  const futureServices=upcoming.filter(s=>s.date!==focusDate);
+  const futureDates=[...new Set(futureServices.map(s=>s.date))];
+
+  $('#main').innerHTML=`
+    <section class="homeWelcome">
+      <div class="homeAvatar">${homeInitials(profileName)}</div>
+      <div class="homeWelcomeCopy">
+        <h1>${homeGreeting()}, ${esc(profileName)}!</h1>
+        <p>Here’s what’s happening with your church schedule.</p>
+      </div>
+      <div class="homeToday"><span>Today is</span><b>${fmtDate(nowDate())}</b></div>
+    </section>
+
+    <div class="homeDashboard">
+      <section class="homePrimary">
+        <div class="homeSectionHeading">
+          <div>
+            <h2>${focusDate===nowDate()?'Today’s Services':'Next Service Day'}</h2>
+            <p>${fmtDate(focusDate)}</p>
+          </div>
+          <span class="homeCount">${focusServices.length} ${focusServices.length===1?'Service':'Services'}</span>
+        </div>
+        <div class="homeServiceList">
+          ${focusServices.map((s,i)=>homeServiceCard(s,i===0)).join('')}
+        </div>
+        <button class="homeCalendarLink" onclick="nav('calendar')">View Full Calendar <span>›</span></button>
+      </section>
+
+      <aside class="homeSidebar">
+        <div class="homeSideCard">
+          <div class="homeSideHeading"><h3>Upcoming Services</h3><span>Future dates</span></div>
+          ${futureDates.length
+            ? futureDates.slice(0,6).map(date=>homeFutureDate(date,futureServices.filter(s=>s.date===date))).join('')
+            : '<p class="small">No later services scheduled.</p>'}
+          ${futureDates.length>6?`<button class="homeViewAll" onclick="nav('calendar')">View All</button>`:''}
+        </div>
+      </aside>
+    </div>`;
 }
-function renderVolunteerHome(upcoming){
-  const mine=myAssignments().map(a=>({a,s:state.services.find(s=>s.id===a.serviceId)})).filter(x=>x.s&&!x.s.archived&&new Date(x.s.date+'T23:59:59')>=new Date()).sort((x,y)=>(x.s.date+x.s.start).localeCompare(y.s.date+y.s.start));
-  if(!mine.length){
-    $('#main').innerHTML=`<div class="card"><h2>No upcoming assignments</h2><p class="small">You can still view the complete church calendar.</p></div>${upcoming[0]?serviceFeature(upcoming[0],'NEXT SERVICE'):''}`;
-    return;
-  }
-  const nextDate=mine[0].s.date;
-  const sameDay=mine.filter(x=>x.s.date===nextDate);
-  const future=mine.filter(x=>x.s.date!==nextDate);
-  $('#main').innerHTML=`<div class="sectionTitle"><h2>${nextDate===nowDate()?'Today’s Assignments':'My Next Service Day'}</h2><p class="small">${fmtDate(nextDate)} • all assignments on this date are expanded</p></div>${sameDay.map((x,i)=>assignmentFeature(x.s,x.a,i===0?'MY NEXT ASSIGNMENT':'SAME-DAY ASSIGNMENT')).join('')}${future.length?`<h2 class="otherTitle">Future Assignments</h2><p class="small">Assignments on later dates are collapsible.</p>${future.map(x=>assignmentCollapsed(x.s,x.a)).join('')}`:''}`;
+function renderVolunteerHome(upcoming){renderHome()}
+function homeGreeting(){
+  const h=new Date().getHours();
+  return h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+}
+function homeInitials(name){
+  const parts=String(name||'').trim().split(/[\s._-]+/).filter(Boolean);
+  return esc((parts.length>1?parts[0][0]+parts[parts.length-1][0]:String(name||'?').slice(0,2)).toUpperCase());
+}
+function myServiceAssignment(serviceId){
+  return serviceAssignments(serviceId).find(a=>a.volunteerId===state.user?.uid);
+}
+function homeServiceCard(s,isFirst=false){
+  const assignments=serviceAssignments(s.id);
+  const mine=myServiceAssignment(s.id);
+  const d=new Date(s.date+'T12:00:00');
+  const ministry=mine?state.ministries.find(m=>m.id===mine.ministryId):null;
+  return `<article class="homeServiceCard ${isFirst?'homeServiceFirst':''}">
+    <div class="homeServiceDate">
+      <span>${d.toLocaleDateString(undefined,{weekday:'short'}).toUpperCase()}</span>
+      <strong>${d.getDate()}</strong>
+      <b>${d.toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b>
+    </div>
+    <div class="homeServiceContent">
+      <div class="homeServiceTop">
+        <div>
+          <h3>${esc(s.title||'Church Service')}</h3>
+          <p>◷ ${timeLabel(s.start)}${s.end?' – '+timeLabel(s.end):''}</p>
+          <p>📍 ${esc(s.location||'Location TBD')}</p>
+        </div>
+        <span class="badge green">${esc((s.status||'scheduled').toUpperCase())}</span>
+      </div>
+
+      ${mine?`<details class="homeAssignment" open>
+        <summary>
+          <span><small>MY ASSIGNMENT</small><b>${esc(ministry?.name||'Ministry')} • ${esc(mine.roleName||'Volunteer')}</b></span>
+          <span class="homeCollapseIcon">⌄</span>
+        </summary>
+        <div class="homeAssignmentBody">
+          <div><small>Ministry</small><b>${esc(ministry?.name||'Ministry')}</b></div>
+          <div><small>Role</small><b>${esc(mine.roleName||'Volunteer')}</b></div>
+        </div>
+      </details>`:''}
+
+      <details class="homeTeam" ${isFirst?'open':''}>
+        <summary>
+          <span>Team (${assignments.length})</span>
+          <span class="homeCollapseIcon">⌄</span>
+        </summary>
+        <div class="homeTeamList">
+          ${assignments.length?assignments.map(homeTeamRow).join(''):'<p class="small">No volunteers assigned yet.</p>'}
+        </div>
+      </details>
+    </div>
+  </article>`;
+}
+function homeTeamRow(a){
+  const user=state.users.find(u=>u.id===a.volunteerId);
+  const name=a.volunteerName||user?.name||'Volunteer';
+  return `<div class="homeTeamRow">
+    <span class="homeTeamAvatar">${homeInitials(name)}</span>
+    <b>${esc(name)}</b>
+    <span>${esc(a.roleName||'Volunteer')}</span>
+  </div>`;
+}
+function homeFutureDate(date,services){
+  const d=new Date(date+'T12:00:00');
+  return `<details class="homeFutureDate">
+    <summary>
+      <div class="homeFutureCalendar"><span>${d.toLocaleDateString(undefined,{weekday:'short'}).toUpperCase()}</span><strong>${d.getDate()}</strong><b>${d.toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b></div>
+      <div><b>${esc(services.length===1?(services[0].title||'Service'):'Sunday Services')}</b><span>${services.length} ${services.length===1?'service':'services'}</span></div>
+      <span class="homeFutureArrow">›</span>
+    </summary>
+    <div class="homeFutureBody">
+      ${services.map(s=>`<div><b>${esc(s.title||'Service')}</b><span>${timeLabel(s.start)} • ${esc(s.location||'TBD')}</span></div>`).join('')}
+    </div>
+  </details>`;
 }
 function serviceFeature(s,ribbon='NEXT SERVICE'){const as=serviceAssignments(s.id);return `<section class="featuredEvent"><div class="featuredRibbon">⛪ ${esc(ribbon)}</div><div class="featuredDate"><span>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})}</span><b>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b><strong>${new Date(s.date+'T12:00:00').getDate()}</strong><em>${new Date(s.date+'T12:00:00').getFullYear()}</em></div><div class="featuredMain"><div class="featuredTop"><div><h2>${esc(s.title||'Church Service')}</h2><p>🕒 ${timeLabel(s.start)}${s.end?' - '+timeLabel(s.end):''}<br>📍 ${esc(s.location||'Location TBD')}</p></div><div class="featuredBadges"><span class="badge green">${esc((s.status||'scheduled').toUpperCase())}</span></div></div>${s.notes?`<div class="notice info">${esc(s.notes)}</div>`:''}<h3>Scheduled Volunteers</h3>${renderAssignmentList(as)}</div></section>`}
 function assignmentFeature(s,a,ribbon='MY NEXT ASSIGNMENT'){const m=state.ministries.find(x=>x.id===a.ministryId);return `<section class="featuredEvent"><div class="featuredRibbon">⭐ ${esc(ribbon)}</div><div class="featuredDate"><span>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})}</span><b>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b><strong>${new Date(s.date+'T12:00:00').getDate()}</strong><em>${new Date(s.date+'T12:00:00').getFullYear()}</em></div><div class="featuredMain"><h2>${esc(s.title||'Church Service')}</h2><p>🕒 ${timeLabel(s.start)}${s.end?' - '+timeLabel(s.end):''}<br>📍 ${esc(s.location||'Location TBD')}</p><div class="notice"><b>Ministry:</b> ${esc(m?.name||'Ministry')}<br><b>Role:</b> ${esc(a.roleName||'Volunteer')}</div></div></section>`}

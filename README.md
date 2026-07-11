@@ -93,3 +93,14 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Fixed the selected-day class styling.
 - Improved the selected-date service panel.
 - Added an inline favicon to remove the harmless browser 404 warning.
+
+
+## Alpha 5.0
+
+- Rebuilt the Home page as a compact professional dashboard.
+- Removed the oversized decorative service hero and separate My Assignment sidebar.
+- Services on the nearest upcoming date remain expanded.
+- My Assignment now shows Ministry and Role in a collapsible section.
+- Team lists are collapsible.
+- Future service dates appear in a compact expandable sidebar.
+- Added responsive desktop and mobile layouts.
