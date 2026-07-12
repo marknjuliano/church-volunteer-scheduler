@@ -1087,3 +1087,274 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
     white-space:normal;
   }
 }
+
+
+/* Alpha 5.5 — Schedule Calendar/List tabs and printable ministry roster */
+.scheduleViewPage{margin-top:18px}
+.scheduleViewHeader{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin:0 2px 14px;
+}
+.scheduleViewHeader h2{margin:0;font-size:30px}
+.scheduleViewHeader p{margin:5px 0 0}
+.scheduleViewTabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  max-width:680px;
+  margin-bottom:14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+}
+.scheduleViewTabs button{
+  border:0;
+  border-radius:0;
+  background:#fff;
+  color:var(--ink);
+  min-height:48px;
+}
+.scheduleViewTabs button.active{
+  background:var(--brand);
+  color:#fff;
+}
+.printScheduleButton{white-space:nowrap}
+.scheduleListNotice{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:14px;
+  padding:13px 16px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#f7fbf9;
+  color:var(--brand);
+}
+.scheduleListNotice b{font-size:12px;color:var(--muted)}
+.scheduleDateList{display:grid;gap:10px}
+.scheduleDateGroup{
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 4px 14px rgba(19,63,47,.04);
+}
+.scheduleDateGroup>summary{
+  display:grid;
+  grid-template-columns:auto auto auto 1fr;
+  align-items:center;
+  gap:10px;
+  padding:15px 18px;
+  list-style:none;
+  cursor:pointer;
+  background:#fff;
+}
+.scheduleDateGroup>summary::-webkit-details-marker{display:none}
+.scheduleDateArrow{
+  color:var(--brand);
+  font-size:22px;
+  line-height:1;
+  transition:transform .2s ease;
+}
+.scheduleDateGroup[open] .scheduleDateArrow{transform:rotate(90deg)}
+.scheduleDateCount{
+  justify-self:end;
+  color:var(--brand);
+  font-size:13px;
+  font-weight:800;
+}
+.scheduleDateBody{
+  padding:0 14px 14px;
+  border-top:1px solid var(--line);
+}
+.scheduleListService{
+  margin-top:14px;
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  break-inside:avoid;
+}
+.scheduleListServiceHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:13px;
+}
+.scheduleListServiceHeader h3{
+  margin:0;
+  font-size:20px;
+}
+.scheduleListServiceHeader p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+.scheduleMinistryGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.scheduleMinistryBlock{
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  break-inside:avoid;
+}
+.scheduleMinistryBlock h4{
+  margin:0;
+  padding:10px 12px;
+  background:#f4f8f6;
+  color:var(--ink);
+  font-size:14px;
+}
+.scheduleRoleRows{padding:4px 12px 8px}
+.scheduleRoleRow{
+  display:grid;
+  grid-template-columns:minmax(120px,.8fr) minmax(120px,1fr);
+  gap:14px;
+  padding:7px 0;
+  border-bottom:1px solid #edf2ef;
+  font-size:13px;
+}
+.scheduleRoleRow:last-child{border-bottom:0}
+.scheduleRoleRow span{color:var(--muted)}
+.scheduleEmptyTeam{grid-column:1/-1;margin:0}
+
+@media(max-width:760px){
+  .scheduleViewHeader{align-items:stretch;flex-direction:column}
+  .printScheduleButton{width:100%}
+  .scheduleViewTabs{max-width:none}
+  .scheduleListNotice{align-items:flex-start;flex-direction:column}
+  .scheduleDateGroup>summary{
+    grid-template-columns:auto 1fr auto;
+    padding:13px;
+  }
+  .scheduleDateGroup>summary .badge{grid-column:2}
+  .scheduleDateCount{grid-column:3;grid-row:1}
+  .scheduleDateBody{padding:0 9px 9px}
+  .scheduleListService{padding:12px}
+  .scheduleListServiceHeader{display:block}
+  .scheduleListServiceHeader .badge{display:inline-flex;margin-top:8px}
+  .scheduleMinistryGrid{grid-template-columns:1fr}
+  .scheduleRoleRow{grid-template-columns:minmax(105px,.8fr) 1fr}
+}
+
+@media print{
+  @page{size:letter portrait;margin:.55in}
+  body.schedulePrinting{
+    background:#fff!important;
+    color:#000!important;
+    font-family:Arial,Helvetica,sans-serif!important;
+  }
+  body.schedulePrinting .hero,
+  body.schedulePrinting .tabs,
+  body.schedulePrinting .footer,
+  body.schedulePrinting .scheduleViewHeader,
+  body.schedulePrinting .scheduleViewTabs,
+  body.schedulePrinting .scheduleListNotice,
+  body.schedulePrinting .calendarCard{
+    display:none!important;
+  }
+  body.schedulePrinting .wrap{
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  body.schedulePrinting main:before{
+    content:"CHURCH VOLUNTEER SCHEDULE";
+    display:block;
+    margin-bottom:4px;
+    font-size:20pt;
+    font-weight:900;
+    letter-spacing:.02em;
+  }
+  body.schedulePrinting main:after{
+    content:"Thank you for serving!";
+    display:block;
+    margin-top:18px;
+    padding-top:10px;
+    border-top:1px solid #000;
+    text-align:center;
+    font-style:italic;
+  }
+  body.schedulePrinting .scheduleDateList{display:block}
+  body.schedulePrinting .scheduleDateGroup{
+    display:none;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+  }
+  body.schedulePrinting .scheduleDateGroup[open]{
+    display:block;
+    margin-bottom:18px;
+  }
+  body.schedulePrinting .scheduleDateGroup>summary{
+    display:block;
+    padding:0 0 8px;
+    border-bottom:2px solid #000;
+    background:#fff;
+  }
+  body.schedulePrinting .scheduleDateArrow,
+  body.schedulePrinting .scheduleDateCount,
+  body.schedulePrinting .scheduleDateGroup>summary .badge{
+    display:none!important;
+  }
+  body.schedulePrinting .scheduleDateGroup>summary b{
+    font-size:14pt;
+  }
+  body.schedulePrinting .scheduleDateBody{
+    padding:0;
+    border:0;
+  }
+  body.schedulePrinting .scheduleListService{
+    margin-top:14px;
+    padding:0 0 12px;
+    border:0;
+    border-bottom:1px solid #777;
+    border-radius:0;
+  }
+  body.schedulePrinting .scheduleListServiceHeader{
+    margin-bottom:8px;
+  }
+  body.schedulePrinting .scheduleListServiceHeader h3{
+    font-size:12pt;
+    text-transform:uppercase;
+  }
+  body.schedulePrinting .scheduleListServiceHeader p{
+    color:#000;
+    font-size:9pt;
+  }
+  body.schedulePrinting .scheduleListServiceHeader .badge{
+    display:none;
+  }
+  body.schedulePrinting .scheduleMinistryGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  body.schedulePrinting .scheduleMinistryBlock{
+    border:0;
+    border-radius:0;
+  }
+  body.schedulePrinting .scheduleMinistryBlock h4{
+    padding:5px 0;
+    border-bottom:1px solid #000;
+    background:#fff;
+    font-size:9pt;
+    text-transform:uppercase;
+  }
+  body.schedulePrinting .scheduleRoleRows{padding:2px 0 0}
+  body.schedulePrinting .scheduleRoleRow{
+    grid-template-columns:1fr 1fr;
+    padding:3px 0;
+    border:0;
+    font-size:8.5pt;
+  }
+  body.schedulePrinting .scheduleRoleRow span{color:#000}
+}
