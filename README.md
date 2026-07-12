@@ -130,3 +130,43 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Open Admin sections remain open after Firestore updates.
 - Open user qualification panels remain open after saving roles.
 - Panels stay open until the user manually collapses them.
+
+
+## Alpha 5.4
+
+- Expanded service panels under Schedule remain open after adding a volunteer.
+- Expanded service panels remain open after removing an assignment.
+- Firestore snapshot refreshes no longer collapse the service being edited.
+- A panel closes only when the user manually collapses it.
+
+
+## Alpha 5.5
+
+- Added Calendar View and List View tabs to the user Schedule page.
+- List View is organized by Date → Service → Ministry → Role / Volunteer.
+- Only the nearest upcoming service date is expanded by default.
+- Future dates are collapsed until the user opens them.
+- Expanded/collapsed date state survives live Firestore updates.
+- Added a printer-friendly Print Schedule button.
+- Print output includes only dates currently expanded in List View and supports Save as PDF.
+
+
+## Alpha 5.6
+
+- Admin Schedule service panels remain expanded while repeatedly adding volunteers.
+- Pressing Enter from the assignment controls adds the volunteer to that same service.
+- Firestore live updates no longer collapse the service currently being edited.
+- Expanded Schedule service panels are remembered for the browser session.
+- After an assignment is added, focus returns to the same service's volunteer selector.
+- Removing an assignment also keeps the service panel expanded.
+
+
+## Alpha 5.7
+
+- Fixed the missing Calendar View / List View switcher.
+- Added stronger mobile styling so both view buttons remain visible.
+- Preserved Alpha 5.6 Admin scheduling workflow improvements.
+- List View is grouped by Date → Service → Ministry → Role / Volunteer.
+- The next service date opens by default; later dates remain collapsed.
+- Added printable schedule output and Save as PDF support.
+- Updated asset cache-busting to Alpha 5.7.

@@ -1358,3 +1358,59 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
   }
   body.schedulePrinting .scheduleRoleRow span{color:#000}
 }
+
+
+/* Alpha 5.6 — uninterrupted admin scheduling workflow */
+.coordEventCard[data-service-id]{scroll-margin-top:90px}
+.coordEventCard .assignmentBuilder select:focus,
+.coordEventCard .assignmentBuilder input:focus{position:relative;z-index:1}
+
+
+/* Alpha 5.7 — guaranteed Calendar/List switcher visibility */
+.scheduleViewPage{margin-top:16px}
+.scheduleViewTabs{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  width:100%!important;
+  max-width:680px!important;
+  margin:0 0 14px!important;
+  border:1px solid var(--line)!important;
+  border-radius:13px!important;
+  overflow:hidden!important;
+  background:#fff!important;
+}
+.scheduleViewTabs button{
+  display:block!important;
+  min-height:48px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#fff!important;
+  color:var(--ink)!important;
+  box-shadow:none!important;
+}
+.scheduleViewTabs button.active{
+  background:var(--brand)!important;
+  color:#fff!important;
+}
+@media(max-width:620px){
+  .scheduleViewHeader{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:10px!important;
+  }
+  .scheduleViewHeader h2{font-size:26px!important}
+  .scheduleViewTabs{
+    position:relative!important;
+    top:auto!important;
+    z-index:1!important;
+    margin-bottom:12px!important;
+  }
+  .scheduleViewTabs button{
+    padding:12px 8px!important;
+    font-size:14px!important;
+  }
+  .printScheduleButton{
+    width:100%!important;
+  }
+}

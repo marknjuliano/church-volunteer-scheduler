@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha5.3 stable qualifications panels');
+console.log('Church Volunteer Scheduler v1.0.0-alpha5.7 calendar list and print fix');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -34,6 +34,15 @@ let unsubs=[];
 let peopleUI={search:'',role:'all',status:'all',page:1,pageSize:10};
 const adminOpenSections=new Set();
 const qualificationOpenUsers=new Set();
+const openScheduleServices=new Set(
+  JSON.parse(sessionStorage.getItem('cvsOpenScheduleServices')||'[]')
+);
+function saveOpenScheduleServices(){
+  sessionStorage.setItem('cvsOpenScheduleServices',JSON.stringify([...openScheduleServices]));
+}
+const openScheduleDates=new Set();
+let scheduleDatesInitialized=false;
+let calendarDisplay=localStorage.getItem('cvsCalendarDisplay')||'calendar';
 const cleanup=()=>{unsubs.forEach(fn=>fn&&fn());unsubs=[]};
 const isAdmin=()=>state.profile?.role==='admin';
 const isCoordinator=()=>['coordinator','admin'].includes(state.profile?.role);
@@ -66,7 +75,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.3</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.7</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -233,14 +242,187 @@ function serviceCollapsed(s){return `<details class="eventDetailsCard"><summary>
 function assignmentCollapsed(s,a){const m=state.ministries.find(x=>x.id===a.ministryId);return `<details class="eventDetailsCard"><summary><div class="miniDate"><span>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})}</span><b>${new Date(s.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</b><strong>${new Date(s.date+'T12:00:00').getDate()}</strong></div><div class="miniInfo"><b>${esc(s.title||'Service')}</b><span>${esc(m?.name||'Ministry')} • ${esc(a.roleName||'Volunteer')}</span></div><button class="secondary expandBtn">Expand</button></summary><div class="eventExpanded"><p>🕒 ${timeLabel(s.start)} • 📍 ${esc(s.location||'TBD')}</p></div></details>`}
 function renderAssignmentList(list){if(!list.length)return '<p class="small">No volunteers assigned yet.</p>';return list.map(a=>{const u=state.users.find(x=>x.id===a.volunteerId);const m=state.ministries.find(x=>x.id===a.ministryId);return `<div class="person"><span><b>${esc(a.volunteerName||u?.name||'Volunteer')}</b><div class="small">${esc(m?.name||'Ministry')} • ${esc(a.roleName||'Volunteer')}</div></span></div>`}).join('')}
 
-function renderCalendar(){const [y,m]=state.calendarMonth.split('-').map(Number),first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),start=first.getDay(),by={};state.services.filter(s=>!s.archived).forEach(s=>(by[s.date]??=[]).push(s));let cells='';for(let i=0;i<start;i++)cells+='<div class="calendarCell empty"></div>';for(let d=1;d<=days;d++){const date=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;cells+=`<button class="calendarCell ${date===state.selectedCalendarDate?'selected':''} ${date===nowDate()?'today':''}" onclick="selectCalendarDate('${date}')"><span>${d}</span>${by[date]?.length?`<b>${by[date].length} service</b>`:''}</button>`}const selected=by[state.selectedCalendarDate]||[];$('#main').innerHTML=`<div class="card calendarCard"><div class="calendarHeader"><button class="secondary" onclick="changeCalendarMonth(-1)">‹</button><h2>${first.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</h2><button class="secondary" onclick="changeCalendarMonth(1)">›</button></div><div class="calendarWeekdays">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<div>${x}</div>`).join('')}</div><div class="calendarGrid">${cells}</div><div class="calendarSelected"><h3>${fmtDate(state.selectedCalendarDate)}</h3>${selected.length?selected.map(s=>`<div class="calendarEvent"><div><b>${esc(s.title||'Service')}</b><div class="small">${timeLabel(s.start)} • ${esc(s.location||'TBD')}</div></div><div>${serviceAssignments(s.id).length} assigned</div></div>`).join(''):'<p class="small">No service scheduled for this date.</p>'}</div></div>`}
+function renderCalendar(){
+  $('#main').innerHTML=`<div class="scheduleViewPage">
+    <div class="scheduleViewHeader">
+      <div>
+        <h2>Schedule</h2>
+        <p class="small">Choose Calendar View or the printable ministry-grouped List View.</p>
+      </div>
+      ${calendarDisplay==='list'
+        ? '<button class="secondary printScheduleButton" onclick="printSchedule()">🖨 Print Schedule</button>'
+        : ''}
+    </div>
+
+    <div class="scheduleViewTabs" role="tablist" aria-label="Schedule views">
+      <button class="${calendarDisplay==='calendar'?'active':''}" onclick="setCalendarDisplay('calendar')" aria-selected="${calendarDisplay==='calendar'}">▣ Calendar View</button>
+      <button class="${calendarDisplay==='list'?'active':''}" onclick="setCalendarDisplay('list')" aria-selected="${calendarDisplay==='list'}">☷ List View</button>
+    </div>
+
+    <div id="scheduleViewContent"></div>
+  </div>`;
+
+  if(calendarDisplay==='list')renderScheduleListView();
+  else renderCalendarGridView();
+}
+
+function renderCalendarGridView(){
+  const [y,m]=state.calendarMonth.split('-').map(Number);
+  const first=new Date(y,m-1,1);
+  const days=new Date(y,m,0).getDate();
+  const start=first.getDay();
+  const by={};
+
+  state.services
+    .filter(s=>!s.archived)
+    .forEach(s=>(by[s.date]??=[]).push(s));
+
+  let cells='';
+  for(let i=0;i<start;i++)cells+='<div class="calendarCell empty"></div>';
+
+  for(let d=1;d<=days;d++){
+    const date=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const count=by[date]?.length||0;
+    cells+=`<button class="calendarCell ${date===state.selectedCalendarDate?'selected':''} ${date===nowDate()?'today':''}" onclick="selectCalendarDate('${date}')">
+      <span>${d}</span>
+      ${count?`<b>${count} ${count===1?'service':'services'}</b>`:''}
+    </button>`;
+  }
+
+  const selected=(by[state.selectedCalendarDate]||[]).sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+
+  $('#scheduleViewContent').innerHTML=`<div class="card calendarCard">
+    <div class="calendarHeader">
+      <button class="secondary" onclick="changeCalendarMonth(-1)">‹</button>
+      <h2>${first.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</h2>
+      <button class="secondary" onclick="changeCalendarMonth(1)">›</button>
+    </div>
+
+    <div class="calendarWeekdays">
+      ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<div>${x}</div>`).join('')}
+    </div>
+
+    <div class="calendarGrid">${cells}</div>
+
+    <div class="calendarSelected">
+      <h3>${fmtDate(state.selectedCalendarDate)}</h3>
+      ${selected.length
+        ? selected.map(s=>`<div class="calendarEvent">
+            <div>
+              <b>${esc(s.title||'Service')}</b>
+              <div class="small">${timeLabel(s.start)}${s.end?' – '+timeLabel(s.end):''} • ${esc(s.location||'TBD')}</div>
+            </div>
+            <div>${serviceAssignments(s.id).length} assigned</div>
+          </div>`).join('')
+        : '<p class="small">No service scheduled for this date.</p>'}
+    </div>
+  </div>`;
+}
+
+function renderScheduleListView(){
+  const services=upcomingServices();
+  const dates=[...new Set(services.map(s=>s.date))];
+
+  if(!scheduleDatesInitialized){
+    if(dates[0])openScheduleDates.add(dates[0]);
+    scheduleDatesInitialized=true;
+  }
+
+  $('#scheduleViewContent').innerHTML=`
+    <div class="scheduleListNotice">
+      <span>◷ Next service date is expanded. Future dates stay collapsed until opened.</span>
+      <b>${dates.length} upcoming ${dates.length===1?'date':'dates'}</b>
+    </div>
+
+    <div class="scheduleDateList">
+      ${dates.length
+        ? dates.map((date,index)=>scheduleDateGroup(date,services.filter(s=>s.date===date),index===0)).join('')
+        : '<div class="card"><p class="small">No upcoming services.</p></div>'}
+    </div>`;
+}
+
+function scheduleDateGroup(date,services,isNext){
+  const sorted=[...services].sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+  return `<details class="scheduleDateGroup" data-schedule-date="${date}" ${openScheduleDates.has(date)?'open':''}>
+    <summary>
+      <span class="scheduleDateArrow">›</span>
+      <b>${fmtDate(date)}</b>
+      ${isNext?'<span class="badge green">NEXT SERVICE</span>':''}
+      <span class="scheduleDateCount">${sorted.length} ${sorted.length===1?'service':'services'}</span>
+    </summary>
+    <div class="scheduleDateBody">
+      ${sorted.map(scheduleListService).join('')}
+    </div>
+  </details>`;
+}
+
+function scheduleListService(service){
+  const assignments=serviceAssignments(service.id);
+  const ministryGroups=new Map();
+
+  assignments.forEach(a=>{
+    const ministry=state.ministries.find(m=>m.id===a.ministryId);
+    const name=ministry?.name||'Other Ministry';
+    if(!ministryGroups.has(name))ministryGroups.set(name,[]);
+    ministryGroups.get(name).push(a);
+  });
+
+  return `<section class="scheduleListService">
+    <div class="scheduleListServiceHeader">
+      <div>
+        <h3>${esc(service.title||'Service')}</h3>
+        <p>◷ ${timeLabel(service.start)}${service.end?' – '+timeLabel(service.end):''} &nbsp; • &nbsp; 📍 ${esc(service.location||'TBD')}</p>
+      </div>
+      <span class="badge green">${esc((service.status||'scheduled').toUpperCase())}</span>
+    </div>
+
+    <div class="scheduleMinistryGrid">
+      ${ministryGroups.size
+        ? [...ministryGroups.entries()]
+            .sort((a,b)=>a[0].localeCompare(b[0]))
+            .map(([name,items])=>scheduleMinistryBlock(name,items))
+            .join('')
+        : '<p class="small scheduleEmptyTeam">No volunteers assigned yet.</p>'}
+    </div>
+  </section>`;
+}
+
+function scheduleMinistryBlock(name,items){
+  const sorted=[...items].sort((a,b)=>
+    String(a.roleName||'').localeCompare(String(b.roleName||'')) ||
+    String(a.volunteerName||'').localeCompare(String(b.volunteerName||''))
+  );
+
+  return `<div class="scheduleMinistryBlock">
+    <h4>${esc(name)} Team</h4>
+    <div class="scheduleRoleRows">
+      ${sorted.map(a=>`<div class="scheduleRoleRow">
+        <b>${esc(a.roleName||'Volunteer')}</b>
+        <span>${esc(a.volunteerName||state.users.find(u=>u.id===a.volunteerId)?.name||'Volunteer')}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+window.setCalendarDisplay=view=>{
+  calendarDisplay=view==='list'?'list':'calendar';
+  localStorage.setItem('cvsCalendarDisplay',calendarDisplay);
+  renderCalendar();
+};
+
+window.printSchedule=()=>{
+  document.body.classList.add('schedulePrinting');
+  window.print();
+  setTimeout(()=>document.body.classList.remove('schedulePrinting'),300);
+};
+
 window.selectCalendarDate=d=>{state.selectedCalendarDate=d;renderCalendar()};window.changeCalendarMonth=n=>{const [y,m]=state.calendarMonth.split('-').map(Number),d=new Date(y,m-1+n,1);state.calendarMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;state.selectedCalendarDate=state.calendarMonth+'-01';renderCalendar()};
 
 function renderProfile(){const p=state.profile;$('#main').innerHTML=`<div class="card"><h2>Profile</h2><label>Name</label><input id="profileName" value="${esc(p.name||'')}"><label>Email</label><input value="${esc(state.user.email)}" disabled><label>Phone</label><input id="profilePhone" value="${esc(p.phone||'')}"><label>Account Type</label><input value="${esc(roleLabel(p.role))}" disabled><button style="margin-top:12px" onclick="saveProfile()">Save Profile</button></div><div class="card"><h2>Change Password</h2><input id="newPassword" type="password" placeholder="New password"><button style="margin-top:10px" onclick="changeMyPassword()">Change Password</button></div>`}
 window.saveProfile=async()=>{await updateDoc(doc(db,'users',state.user.uid),{name:$('#profileName').value.trim(),phone:$('#profilePhone').value.trim()});alert('Profile saved.')};window.changeMyPassword=async()=>{const p=$('#newPassword').value;if(p.length<6)return alert('Use at least 6 characters.');try{await updatePassword(state.user,p);alert('Password changed.')}catch(e){alert(friendly(e))}};
 
 function renderSchedule(){const services=[...state.services].filter(s=>!s.archived).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));$('#main').innerHTML=`<div class="card"><h2>Create / Edit Service</h2><input id="serviceId" type="hidden"><label>Service Name</label><input id="serviceTitle" value="Sunday Service"><div class="row"><div><label>Date</label><input id="serviceDate" type="date" value="${nowDate()}"></div><div><label>Start</label><input id="serviceStart" type="time" value="09:00"></div><div><label>End</label><input id="serviceEnd" type="time" value="11:00"></div></div><label>Location</label><input id="serviceLocation" value="Main Sanctuary"><label>Status</label><select id="serviceStatus"><option>scheduled</option><option>ready</option><option>cancelled</option></select><label>Notes</label><textarea id="serviceNotes"></textarea><div class="row"><button onclick="saveService()">Save Service</button><button class="secondary" onclick="clearServiceForm()">Clear</button></div></div><div class="card"><h2>Services</h2>${services.length?services.map(scheduleCard).join(''):'<p class="small">No services yet.</p>'}</div>`}
-function scheduleCard(s){return `<details class="coordEventCard"><summary><div><div class="big">${fmtDate(s.date)} — ${esc(s.title||'Service')}</div><p>${timeLabel(s.start)} • ${esc(s.location||'TBD')} • ${serviceAssignments(s.id).length} assigned</p></div><div class="coordSummaryRight"><span class="badge green">${esc((s.status||'scheduled').toUpperCase())}</span><span class="coordExpandText">Expand</span></div></summary><div class="coordEventBody"><div class="row"><button class="secondary" onclick="editService('${s.id}')">Edit</button><button onclick="duplicateService('${s.id}')">Duplicate</button><button class="secondary" onclick="archiveService('${s.id}')">Archive</button>${isAdmin()?`<button class="danger" onclick="deleteService('${s.id}')">Delete</button>`:''}</div><h3>Assignments</h3>${renderEditableAssignments(s)}</div></details>`}
+function scheduleCard(s){return `<details class="coordEventCard" data-service-id="${s.id}" ${openScheduleServices.has(s.id)?'open':''}><summary><div><div class="big">${fmtDate(s.date)} — ${esc(s.title||'Service')}</div><p>${timeLabel(s.start)} • ${esc(s.location||'TBD')} • ${serviceAssignments(s.id).length} assigned</p></div><div class="coordSummaryRight"><span class="badge green">${esc((s.status||'scheduled').toUpperCase())}</span><span class="coordExpandText">Expand</span></div></summary><div class="coordEventBody"><div class="row"><button class="secondary" onclick="editService('${s.id}')">Edit</button><button onclick="duplicateService('${s.id}')">Duplicate</button><button class="secondary" onclick="archiveService('${s.id}')">Archive</button>${isAdmin()?`<button class="danger" onclick="deleteService('${s.id}')">Delete</button>`:''}</div><h3>Assignments</h3>${renderEditableAssignments(s)}</div></details>`}
 function renderEditableAssignments(s){
   const list=serviceAssignments(s.id),mins=visibleMinistries();
   const firstMin=mins[0]?.id||'';
@@ -269,7 +451,23 @@ window.saveService=async()=>{const id=$('#serviceId').value,data={title:$('#serv
 window.editService=id=>{const s=state.services.find(x=>x.id===id);$('#serviceId').value=id;$('#serviceTitle').value=s.title||'';$('#serviceDate').value=s.date||'';$('#serviceStart').value=s.start||'';$('#serviceEnd').value=s.end||'';$('#serviceLocation').value=s.location||'';$('#serviceStatus').value=s.status||'scheduled';$('#serviceNotes').value=s.notes||'';window.scrollTo({top:0,behavior:'smooth'})};window.clearServiceForm=()=>renderSchedule();
 window.duplicateService=async id=>{const s=state.services.find(x=>x.id===id);const newDate=prompt('New service date (YYYY-MM-DD):',s.date);if(!newDate)return;const ref=await addDoc(collection(db,'services'),{title:s.title,date:newDate,start:s.start,end:s.end,location:s.location,status:'scheduled',notes:s.notes||'',archived:false,createdAt:serverTimestamp()});const copy=confirm('Copy volunteer assignments too?');if(copy){for(const a of serviceAssignments(id))await addDoc(collection(db,'assignments'),{serviceId:ref.id,volunteerId:a.volunteerId,volunteerName:a.volunteerName,ministryId:a.ministryId,roleName:a.roleName,createdAt:serverTimestamp()})}alert('Service duplicated.')};
 window.archiveService=id=>updateDoc(doc(db,'services',id),{archived:true});window.deleteService=async id=>{if(confirm('Permanently delete this service?'))await deleteDoc(doc(db,'services',id))};
+
+function refocusScheduleService(sid){
+  openScheduleServices.add(sid);
+  saveOpenScheduleServices();
+  requestAnimationFrame(()=>{
+    const card=document.querySelector(`.coordEventCard[data-service-id="${sid}"]`);
+    if(card){
+      card.open=true;
+      const select=document.getElementById(`vol-${sid}`);
+      if(select)select.focus({preventScroll:true});
+    }
+  });
+}
+
 window.addAssignment=async sid=>{
+  openScheduleServices.add(sid);
+  saveOpenScheduleServices();
   const uid=$(`#vol-${sid}`).value,mid=$(`#min-${sid}`).value,rid=$(`#role-${sid}`).value;
   const role=state.roles.find(r=>r.id===rid),u=state.users.find(x=>x.id===uid),service=state.services.find(s=>s.id===sid);
   if(!mid||!rid)return alert('Select a ministry and role.');
@@ -291,7 +489,8 @@ window.addAssignment=async sid=>{
     }
   }
   await addDoc(collection(db,'assignments'),{serviceId:sid,volunteerId:uid,volunteerName:u?.name||u?.email||'Volunteer',ministryId:mid,roleId:rid,roleName:role?.name||'Volunteer',createdAt:serverTimestamp()});
-};window.removeAssignment=id=>deleteDoc(doc(db,'assignments',id));
+  refocusScheduleService(sid);
+};window.removeAssignment=async id=>{const assignment=state.assignments.find(a=>a.id===id);if(assignment?.serviceId){openScheduleServices.add(assignment.serviceId);saveOpenScheduleServices();}await deleteDoc(doc(db,'assignments',id))};
 
 function peopleStats(){
   const users=state.users;
@@ -430,8 +629,42 @@ document.addEventListener('toggle',event=>{
       details.open?qualificationOpenUsers.add(uid):qualificationOpenUsers.delete(uid);
     }
   }
+
+  if(details.classList.contains('coordEventCard')){
+    const serviceId=details.dataset.serviceId;
+    if(serviceId){
+      details.open?openScheduleServices.add(serviceId):openScheduleServices.delete(serviceId);
+      saveOpenScheduleServices();
+    }
+  }
+
+  if(details.classList.contains('scheduleDateGroup')){
+    const date=details.dataset.scheduleDate;
+    if(date){
+      details.open?openScheduleDates.add(date):openScheduleDates.delete(date);
+    }
+  }
 },true);
 
+
+
+document.addEventListener('keydown',event=>{
+  if(event.key!=='Enter' || event.repeat)return;
+  const card=event.target.closest?.('.coordEventCard[data-service-id]');
+  if(!card)return;
+  const target=event.target;
+  if(target.tagName==='TEXTAREA' || target.isContentEditable || target.closest('button'))return;
+
+  const assignmentControl=target.matches(
+    'select[id^="vol-"], select[id^="min-"], select[id^="role-"], input[id^="vol-"], input[id^="min-"], input[id^="role-"]'
+  );
+  if(!assignmentControl)return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  const sid=card.dataset.serviceId;
+  if(sid)window.addAssignment(sid);
+});
 
 function renderAdmin(){
   const pending=state.users.filter(u=>u.role==='pending'||u.status==='pending');
