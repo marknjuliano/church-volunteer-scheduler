@@ -1933,12 +1933,55 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
   }
 }
 
-/* Alpha 6.1: reorderable role columns */
-.gridRoleChip{cursor:grab;user-select:none;transition:transform .15s ease,opacity .15s ease,box-shadow .15s ease}
+
+/* Alpha 6.1.1 — safe draggable role-column ordering */
+.gridRoleChip{
+  cursor:grab;
+  user-select:none;
+}
 .gridRoleChip:active{cursor:grabbing}
-.gridRoleChip.dragging{opacity:.5;transform:scale(.98);box-shadow:0 8px 20px rgba(0,0,0,.12)}
-.gridRoleDragHandle{font-weight:900;color:var(--muted);letter-spacing:-3px;cursor:grab;padding-right:3px}
-.gridRoleMoveButtons{display:inline-flex;gap:2px}
-.gridRoleMoveButtons button{width:24px;min-width:24px;height:24px;min-height:24px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--brand);font-size:18px;line-height:1}
-.gridRoleMoveButtons button:disabled{opacity:.3;cursor:not-allowed}
-@media (pointer:fine){.gridRoleMoveButtons{display:none}}
+.gridRoleChip.dragging{
+  opacity:.55;
+  outline:2px dashed #6fa98e;
+  outline-offset:2px;
+}
+.gridRoleDragHandle{
+  color:var(--muted);
+  font-weight:900;
+  letter-spacing:-2px;
+  cursor:grab;
+}
+.gridRoleChipLabel{
+  white-space:nowrap;
+}
+.gridRoleMoveButtons{
+  display:none;
+  align-items:center;
+  gap:2px;
+}
+.gridRoleMoveButtons button,
+.gridRoleRemove{
+  width:26px;
+  min-width:26px;
+  height:26px;
+  min-height:26px;
+  padding:0;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  color:var(--muted);
+}
+.gridRoleMoveButtons button:hover,
+.gridRoleRemove:hover{
+  background:#e7f2ec;
+  color:var(--brand);
+}
+.gridRoleMoveButtons button:disabled{
+  opacity:.3;
+  cursor:not-allowed;
+}
+@media (pointer:coarse), (max-width:760px){
+  .gridRoleMoveButtons{display:inline-flex}
+  .gridRoleDragHandle{display:none}
+  .gridRoleChip{cursor:default}
+}

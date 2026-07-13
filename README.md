@@ -206,3 +206,13 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Reduced cell padding, font size, and column width to make the grid less crowded.
 - Narrowed the frozen Actions column.
 - Kept Date and Service frozen while role columns scroll horizontally.
+
+
+## Alpha 6.1.1
+
+- Hotfix for the blank page introduced in Alpha 6.1.
+- Restored the complete Grid View markup from Alpha 6.0.
+- Added safe drag-and-drop reordering for visible role columns.
+- Assigned volunteer cells move automatically with their role column.
+- Added left/right controls for mobile and touch devices.
+- Role-column order remains saved per ministry.

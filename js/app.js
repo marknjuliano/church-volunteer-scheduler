@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha6.1 draggable role columns');
+console.log('Church Volunteer Scheduler v1.0.0-alpha6.1.1 draggable columns hotfix');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -90,7 +90,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.1</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.1.1</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -547,10 +547,50 @@ function renderGridScheduler(){
     <div class="gridRoleConfig card">
       <div>
         <b>Visible Role Columns</b>
-        <p class="small">Drag roles to rearrange columns. Assigned volunteers stay with their role and move with the column.</p>
+        <p class="small">Each role is one horizontal column. Add, change, or remove columns anytime.</p>
       </div>
       <div class="gridRoleChips">
-        ${selectedRoles.map((r,index)=>`<span class="gridRoleChip" draggable="true" data-role-id="${r.id}" ondragstart="startGridRoleDrag(event,'${r.id}')" ondragover="gridRoleDragOver(event)" ondrop="dropGridRole(event,'${r.id}')" ondragend="endGridRoleDrag(event)"><span class="gridRoleDragHandle" title="Drag to reorder">⋮⋮</span><span>${esc(r.name)}</span><span class="gridRoleMoveButtons"><button title="Move left" onclick="event.stopPropagation();moveGridRoleColumn(${index},-1)" ${index===0?'disabled':''}>‹</button><button title="Move right" onclick="event.stopPropagation();moveGridRoleColumn(${index},1)" ${index===selectedRoles.length-1?'disabled':''}>›</button></span><button title="Remove role column" onclick="event.stopPropagation();removeGridRoleColumn('${r.id}')">×</button></span>`).join('')}
+        ${selectedRoles.map((r,index)=>`<span class="gridRoleChip" draggable="true" data-role-id="${r.id}" ondragstart="startGridRoleDrag(event,'${r.id}')" ondragover="gridRoleDragOver(event)" ondrop="dropGridRole(event,'${r.id}')" ondragend="endGridRoleDrag(event)">
+          <span class="gridRoleDragHandle" title="Drag to reorder">⋮⋮</span>
+          <span class="gridRoleChipLabel">${esc(r.name)}</span>
+          <span class="gridRoleMoveButtons">
+            <button type="button" title="Move left" onclick="event.stopPropagation();moveGridRoleColumn(${index},-1)" ${index===0?'disabled':''}>‹</button>
+            <button type="button" title="Move right" onclick="event.stopPropagation();moveGridRoleColumn(${index},1)" ${index===selectedRoles.length-1?'disabled':''}>›</button>
+          </span>
+          <button type="button" class="gridRoleRemove" title="Remove role column" onclick="event.stopPropagation();removeGridRoleColumn('${r.id}')">×</button>
+        </span>`).join('')
+          || '<span class="small">Add at least one role column.</span>'}
+      </div>
+    </div>
+
+    <div id="gridServiceEditor"></div>
+
+    <div class="gridTableToolbar">
+      <div>
+        <b>${esc(ministry?.name||'Ministry')} Grid</b>
+        <span>${selectedRoles.length} role column${selectedRoles.length===1?'':'s'}</span>
+      </div>
+      <div class="gridToolbarActions">
+        <button class="secondary" onclick="openGridAddService()">＋ Add Row</button>
+        <button class="secondary" onclick="document.getElementById('gridAddRoleSelect')?.focus()">＋ Add Column</button>
+      </div>
+    </div>
+
+    <div class="gridScrollHint">Swipe or scroll sideways for more roles. <b>Date and Service stay frozen.</b></div>
+
+    <div class="gridTableScroller">
+      <table class="ministryGridTable">
+        <thead>
+          <tr class="gridTitleRow">
+            <th colspan="${3+Math.max(1,selectedRoles.length)}">${esc(gridMonthLabel(gridMonth))} — ${esc(ministry?.name||'Ministry')} Schedule</th>
+          </tr>
+          <tr class="gridHeaderRow">
+            <th class="stickyDate">Date</th>
+            <th class="stickyService">Service</th>
+            ${selectedRoles.map((role,index)=>`<th class="roleHeader">
+              <div class="roleHeaderInner">
+                <select aria-label="Role for column ${index+1}" onchange="changeGridRoleColumn(${index},this.value)">
+                  ${roles.map(r=>`<option value="${r.id}" ${r.id===role.id?'selected':''}>${esc(r.name)}</option>`).join('')}
                 </select>
                 <button title="Remove role column" onclick="removeGridRoleColumn('${role.id}')">×</button>
               </div>
@@ -655,11 +695,52 @@ window.addGridRoleColumn=()=>{
 
 
 let draggedGridRoleId='';
-window.startGridRoleDrag=(event,id)=>{draggedGridRoleId=id;event.currentTarget?.classList.add('dragging');if(event.dataTransfer){event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',id);}};
-window.gridRoleDragOver=event=>{event.preventDefault();if(event.dataTransfer)event.dataTransfer.dropEffect='move';};
-window.dropGridRole=(event,targetId)=>{event.preventDefault();const sourceId=draggedGridRoleId||event.dataTransfer?.getData('text/plain');if(!sourceId||sourceId===targetId)return;const ids=selectedGridRoleIds(gridMinistryId);const from=ids.indexOf(sourceId),to=ids.indexOf(targetId);if(from<0||to<0)return;ids.splice(from,1);ids.splice(to,0,sourceId);saveGridRoleIds(gridMinistryId,ids);draggedGridRoleId='';renderGridScheduler();};
-window.endGridRoleDrag=event=>{draggedGridRoleId='';event.currentTarget?.classList.remove('dragging');};
-window.moveGridRoleColumn=(index,direction)=>{const ids=selectedGridRoleIds(gridMinistryId);const next=index+direction;if(index<0||next<0||next>=ids.length)return;[ids[index],ids[next]]=[ids[next],ids[index]];saveGridRoleIds(gridMinistryId,ids);renderGridScheduler();};
+
+window.startGridRoleDrag=(event,id)=>{
+  draggedGridRoleId=id;
+  event.currentTarget?.classList.add('dragging');
+  if(event.dataTransfer){
+    event.dataTransfer.effectAllowed='move';
+    event.dataTransfer.setData('text/plain',id);
+  }
+};
+
+window.gridRoleDragOver=event=>{
+  event.preventDefault();
+  if(event.dataTransfer)event.dataTransfer.dropEffect='move';
+};
+
+window.dropGridRole=(event,targetId)=>{
+  event.preventDefault();
+  const sourceId=draggedGridRoleId||event.dataTransfer?.getData('text/plain');
+  if(!sourceId||sourceId===targetId)return;
+
+  const ids=selectedGridRoleIds(gridMinistryId);
+  const from=ids.indexOf(sourceId);
+  const to=ids.indexOf(targetId);
+  if(from<0||to<0)return;
+
+  ids.splice(from,1);
+  ids.splice(to,0,sourceId);
+  saveGridRoleIds(gridMinistryId,ids);
+  draggedGridRoleId='';
+  renderGridScheduler();
+};
+
+window.endGridRoleDrag=event=>{
+  draggedGridRoleId='';
+  event.currentTarget?.classList.remove('dragging');
+};
+
+window.moveGridRoleColumn=(index,direction)=>{
+  const ids=selectedGridRoleIds(gridMinistryId);
+  const next=index+direction;
+  if(index<0||next<0||next>=ids.length)return;
+
+  [ids[index],ids[next]]=[ids[next],ids[index]];
+  saveGridRoleIds(gridMinistryId,ids);
+  renderGridScheduler();
+};
 
 window.removeGridRoleColumn=id=>{
   saveGridRoleIds(
