@@ -2195,3 +2195,109 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
     content:"";
   }
 }
+
+
+/* Alpha 6.1.5 — balanced print typography and alignment */
+@media print{
+  body.gridSchedulePrinting .gridPrintHeader{
+    width:100%;
+    margin:0 auto 12px!important;
+  }
+
+  body.gridSchedulePrinting .gridPrintChurch{
+    font-size:8pt!important;
+    font-weight:600!important;
+    letter-spacing:.07em!important;
+  }
+
+  body.gridSchedulePrinting .gridPrintTitle{
+    font-size:16pt!important;
+    font-weight:700!important;
+    line-height:1.15!important;
+  }
+
+  body.gridSchedulePrinting .gridPrintMeta{
+    font-size:8pt!important;
+    font-weight:400!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable{
+    width:100%!important;
+    margin:0 auto!important;
+    table-layout:fixed!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable thead th{
+    font-size:8.2pt!important;
+    font-weight:600!important;
+    line-height:1.1!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .stickyDate{
+    width:11%!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .stickyService{
+    width:16%!important;
+  }
+
+  body.gridSchedulePrinting .gridDateCell b{
+    font-size:8.6pt!important;
+    font-weight:600!important;
+    line-height:1.15!important;
+  }
+
+  body.gridSchedulePrinting .gridDateCell span{
+    font-size:6.8pt!important;
+    font-weight:400!important;
+  }
+
+  body.gridSchedulePrinting .gridServiceCell b{
+    font-size:8.2pt!important;
+    font-weight:600!important;
+    line-height:1.15!important;
+  }
+
+  body.gridSchedulePrinting .gridServiceCell span{
+    font-size:6.8pt!important;
+    font-weight:400!important;
+    line-height:1.2!important;
+  }
+
+  body.gridSchedulePrinting .roleHeaderInner select{
+    font-size:8.1pt!important;
+    font-weight:600!important;
+    line-height:1.1!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell{
+    font-size:8pt!important;
+    font-weight:400!important;
+    line-height:1.15!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell::after{
+    font-weight:400!important;
+    letter-spacing:0!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell[data-print-value="OPEN"]::after{
+    color:#777!important;
+    font-weight:400!important;
+    letter-spacing:.02em!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable th,
+  body.gridSchedulePrinting .ministryGridTable td{
+    border-color:#aeb8b3!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable thead th{
+    background:#e8f1ec!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable tbody tr:nth-child(4n+1) td,
+  body.gridSchedulePrinting .ministryGridTable tbody tr:nth-child(4n+2) td{
+    background:#fcfdfc!important;
+  }
+}

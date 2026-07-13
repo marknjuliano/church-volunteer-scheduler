@@ -246,3 +246,13 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Added stronger date grouping, subtle row shading, and cleaner table borders.
 - Hid all screen-only controls from print output.
 - Preserved draggable columns, alphabetical volunteer dropdowns, and existing scheduling logic.
+
+
+## Alpha 6.1.5
+
+- Balanced the print typography so volunteer names no longer look overly bold.
+- Reduced visual competition between titles, headers, dates, services, and assignments.
+- Volunteer names now print at regular weight.
+- OPEN now prints in a softer neutral style.
+- Improved title and table alignment.
+- Softened table borders and header shading for a cleaner professional look.
