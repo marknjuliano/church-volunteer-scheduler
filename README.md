@@ -170,3 +170,16 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - The next service date opens by default; later dates remain collapsed.
 - Added printable schedule output and Save as PDF support.
 - Updated asset cache-busting to Alpha 5.7.
+
+
+## Alpha 5.8
+
+- Added a ministry-based Grid View under the coordinator/admin Schedule page.
+- Select a ministry and month, then choose which role columns to display.
+- Each role header is a dropdown, so columns can be changed manually.
+- Each schedule cell contains a qualified-volunteer dropdown.
+- Assignments save automatically; selecting Unassigned removes the assignment.
+- Regular volunteer overlap rules and Volunteer (S) behavior are preserved.
+- Date and Service columns remain frozen while role columns scroll horizontally.
+- Role headers remain sticky while scrolling vertically.
+- Added print / Save as PDF support for the grid.

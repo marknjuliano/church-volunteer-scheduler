@@ -1414,3 +1414,207 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
     width:100%!important;
   }
 }
+
+
+/* Alpha 5.8 — Ministry spreadsheet grid scheduler */
+.scheduleManagerHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:16px;
+  margin:18px 2px 14px;
+}
+.scheduleManagerHeader h2{margin:0;font-size:30px}
+.scheduleManagerHeader p{margin:5px 0 0}
+.scheduleManagerTabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  max-width:520px;
+  margin-bottom:14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+.scheduleManagerTabs button{
+  border:0;
+  border-radius:0;
+  background:#fff;
+  color:var(--ink);
+  min-height:48px;
+}
+.scheduleManagerTabs button.active{
+  background:var(--brand);
+  color:#fff;
+}
+.gridControls{
+  display:grid;
+  grid-template-columns:minmax(180px,1fr) minmax(180px,1fr) minmax(260px,1.4fr);
+  gap:14px;
+  align-items:end;
+  margin-bottom:12px;
+}
+.gridAddRoleRow{display:grid;grid-template-columns:1fr auto;gap:8px}
+.gridRoleConfig{margin-bottom:10px}
+.gridRoleConfig>div:first-child p{margin:4px 0 12px}
+.gridRoleChips{display:flex;gap:8px;flex-wrap:wrap}
+.gridRoleChip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 12px;
+  border:1px solid #acd0bf;
+  border-radius:9px;
+  background:#f4fbf7;
+  font-weight:800;
+}
+.gridRoleChip button{
+  min-width:24px;
+  min-height:24px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+}
+.gridScrollHint{
+  padding:9px 12px;
+  color:var(--muted);
+  font-size:13px;
+}
+.gridTableScroller{
+  width:100%;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  -webkit-overflow-scrolling:touch;
+}
+.ministryGridTable{
+  width:max-content;
+  min-width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
+}
+.ministryGridTable th,
+.ministryGridTable td{
+  min-width:190px;
+  padding:10px;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  background:#fff;
+  vertical-align:middle;
+}
+.ministryGridTable thead th{
+  position:sticky;
+  top:0;
+  z-index:6;
+  background:#eaf5ef;
+}
+.ministryGridTable .gridTitleRow th{
+  left:0;
+  min-width:100%;
+  padding:10px;
+  text-align:center;
+  background:#dff0e7;
+  z-index:9;
+}
+.ministryGridTable .stickyDate{
+  position:sticky;
+  left:0;
+  min-width:135px;
+  width:135px;
+  z-index:5;
+  background:#f7fbf9;
+  box-shadow:2px 0 0 var(--line);
+}
+.ministryGridTable thead .stickyDate{z-index:10;background:#eaf5ef}
+.ministryGridTable .stickyService{
+  position:sticky;
+  left:135px;
+  min-width:180px;
+  width:180px;
+  z-index:4;
+  background:#fff;
+  box-shadow:2px 0 0 var(--line);
+}
+.ministryGridTable thead .stickyService{z-index:9;background:#eaf5ef}
+.gridDateCell{text-align:center}
+.gridDateCell b,.gridDateCell span,.gridServiceCell b,.gridServiceCell span{display:block}
+.gridDateCell span,.gridServiceCell span{margin-top:4px;color:var(--muted);font-size:12px}
+.roleHeader{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:6px;
+  align-items:center;
+}
+.roleHeader select,.gridVolunteerCell select{min-width:165px;margin:0}
+.roleHeader button{
+  min-width:30px;
+  min-height:40px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+}
+.gridFooterNote{
+  margin-top:10px;
+  padding:11px 14px;
+  border-radius:9px;
+  background:#eef5fb;
+  color:var(--muted);
+  font-size:13px;
+}
+
+@media(max-width:760px){
+  .scheduleManagerHeader{flex-direction:column;align-items:stretch}
+  .scheduleManagerTabs{max-width:none}
+  .gridControls{grid-template-columns:1fr}
+  .ministryGridTable .stickyDate{min-width:105px;width:105px}
+  .ministryGridTable .stickyService{left:105px;min-width:150px;width:150px}
+  .ministryGridTable th,.ministryGridTable td{min-width:170px;padding:8px}
+  .roleHeader select,.gridVolunteerCell select{min-width:145px}
+}
+
+@media print{
+  body.gridSchedulePrinting .hero,
+  body.gridSchedulePrinting .tabs,
+  body.gridSchedulePrinting .footer,
+  body.gridSchedulePrinting .scheduleManagerHeader,
+  body.gridSchedulePrinting .scheduleManagerTabs,
+  body.gridSchedulePrinting .gridControls,
+  body.gridSchedulePrinting .gridRoleConfig,
+  body.gridSchedulePrinting .gridScrollHint,
+  body.gridSchedulePrinting .gridFooterNote{
+    display:none!important;
+  }
+  body.gridSchedulePrinting .wrap{
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  body.gridSchedulePrinting .gridTableScroller{
+    overflow:visible;
+    border:0;
+  }
+  body.gridSchedulePrinting .ministryGridTable{
+    width:100%;
+    font-size:8pt;
+  }
+  body.gridSchedulePrinting .ministryGridTable th,
+  body.gridSchedulePrinting .ministryGridTable td{
+    position:static!important;
+    min-width:0!important;
+    width:auto!important;
+    padding:4px!important;
+    box-shadow:none!important;
+  }
+  body.gridSchedulePrinting select{
+    appearance:none;
+    border:0;
+    padding:0;
+    font-size:8pt;
+    background:transparent;
+  }
+  body.gridSchedulePrinting .roleHeader button{display:none}
+}
