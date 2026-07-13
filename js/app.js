@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha5.8 ministry grid scheduler');
+console.log('Church Volunteer Scheduler v1.0.0-alpha5.9 fixed grid rows and columns');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -90,7 +90,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.8</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha5.9</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -518,30 +518,44 @@ function renderGridScheduler(){
           ${ministries.map(m=>`<option value="${m.id}" ${m.id===gridMinistryId?'selected':''}>${esc(m.name)}</option>`).join('')}
         </select>
       </div>
+
       <div>
         <label>Month</label>
         <input type="month" value="${gridMonth}" onchange="changeGridMonth(this.value)">
       </div>
+
+      <div class="gridActionGroup">
+        <label>Rows</label>
+        <div class="gridActionRow">
+          <button onclick="openGridAddService()">+ Add Date / Service Row</button>
+        </div>
+      </div>
+
       <div class="gridAddRole">
-        <label>Add Role Column</label>
+        <label>Columns</label>
         <div class="gridAddRoleRow">
           <select id="gridAddRoleSelect">
-            ${unselected.length?unselected.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join(''):'<option value="">All roles added</option>'}
+            ${unselected.length
+              ? unselected.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('')
+              : '<option value="">All roles added</option>'}
           </select>
-          <button onclick="addGridRoleColumn()">+ Add</button>
+          <button onclick="addGridRoleColumn()">+ Add Role Column</button>
         </div>
       </div>
     </div>
 
     <div class="gridRoleConfig card">
       <div>
-        <b>Role Columns</b>
-        <p class="small">Choose each column role here. Every cell below contains only a volunteer selector.</p>
+        <b>Visible Role Columns</b>
+        <p class="small">Each role is one horizontal column. Add, change, or remove columns anytime.</p>
       </div>
       <div class="gridRoleChips">
-        ${selectedRoles.map(r=>`<span class="gridRoleChip">${esc(r.name)} <button title="Remove role column" onclick="removeGridRoleColumn('${r.id}')">×</button></span>`).join('')||'<span class="small">Add at least one role column.</span>'}
+        ${selectedRoles.map(r=>`<span class="gridRoleChip">${esc(r.name)} <button title="Remove role column" onclick="removeGridRoleColumn('${r.id}')">×</button></span>`).join('')
+          || '<span class="small">Add at least one role column.</span>'}
       </div>
     </div>
+
+    <div id="gridServiceEditor"></div>
 
     <div class="gridScrollHint">Swipe or scroll sideways for more roles. <b>Date and Service stay frozen.</b></div>
 
@@ -549,26 +563,31 @@ function renderGridScheduler(){
       <table class="ministryGridTable">
         <thead>
           <tr class="gridTitleRow">
-            <th colspan="${2+Math.max(1,selectedRoles.length)}">${esc(gridMonthLabel(gridMonth))} — ${esc(ministry?.name||'Ministry')} Schedule</th>
+            <th colspan="${3+Math.max(1,selectedRoles.length)}">${esc(gridMonthLabel(gridMonth))} — ${esc(ministry?.name||'Ministry')} Schedule</th>
           </tr>
-          <tr>
+          <tr class="gridHeaderRow">
             <th class="stickyDate">Date</th>
             <th class="stickyService">Service</th>
             ${selectedRoles.map((role,index)=>`<th class="roleHeader">
-              <select aria-label="Role for column ${index+1}" onchange="changeGridRoleColumn(${index},this.value)">
-                ${roles.map(r=>`<option value="${r.id}" ${r.id===role.id?'selected':''}>${esc(r.name)}</option>`).join('')}
-              </select>
-              <button title="Remove column" onclick="removeGridRoleColumn('${role.id}')">×</button>
+              <div class="roleHeaderInner">
+                <select aria-label="Role for column ${index+1}" onchange="changeGridRoleColumn(${index},this.value)">
+                  ${roles.map(r=>`<option value="${r.id}" ${r.id===role.id?'selected':''}>${esc(r.name)}</option>`).join('')}
+                </select>
+                <button title="Remove role column" onclick="removeGridRoleColumn('${role.id}')">×</button>
+              </div>
             </th>`).join('')}
+            <th class="stickyActions">Row Actions</th>
           </tr>
         </thead>
         <tbody>
-          ${services.length?gridServiceRows(services,selectedRoles):`<tr><td class="stickyDate">—</td><td class="stickyService">No services in this month</td><td colspan="${Math.max(1,selectedRoles.length)}"></td></tr>`}
+          ${services.length
+            ? gridServiceRows(services,selectedRoles)
+            : `<tr><td class="stickyDate">—</td><td class="stickyService">No services in this month</td><td colspan="${Math.max(1,selectedRoles.length)}"></td><td class="stickyActions"></td></tr>`}
         </tbody>
       </table>
     </div>
 
-    <div class="gridFooterNote">Changes save automatically. “— Unassigned —” removes the volunteer from that role.</div>
+    <div class="gridFooterNote">Changes save automatically. Use “— Unassigned —” to clear a volunteer. Add or remove date/service rows and role columns as needed.</div>
   </div>`;
 }
 
@@ -592,17 +611,27 @@ function gridServiceRows(services,roles){
         <b>${d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}</b>
         <span>${d.toLocaleDateString(undefined,{weekday:'long'})}</span>
       </td>`:''}
+
       <td class="stickyService gridServiceCell">
         <b>${esc(service.title||'Service')}</b>
         <span>${timeLabel(service.start)}${service.end?' – '+timeLabel(service.end):''}</span>
       </td>
+
       ${roles.map(role=>gridVolunteerCell(service,role)).join('')}
+
+      <td class="stickyActions gridRowActions">
+        <button class="secondary" onclick="editGridService('${service.id}')">Edit</button>
+        <button class="danger" onclick="deleteGridService('${service.id}')">Remove Row</button>
+      </td>
     </tr>`;
   }).join('');
 }
 
 function gridVolunteerCell(service,role){
-  const existing=serviceAssignments(service.id).find(a=>a.ministryId===gridMinistryId && (a.roleId===role.id || (!a.roleId && a.roleName===role.name)));
+  const existing=serviceAssignments(service.id).find(a=>
+    a.ministryId===gridMinistryId &&
+    (a.roleId===role.id || (!a.roleId && a.roleName===role.name))
+  );
   const volunteers=qualifiedUsers(gridMinistryId,role.id);
   const currentId=existing?.volunteerId||'';
 
@@ -610,7 +639,9 @@ function gridVolunteerCell(service,role){
     <select aria-label="${esc(role.name)} volunteer for ${esc(service.title||'service')}" onchange="setGridAssignment('${service.id}','${role.id}',this.value)">
       <option value="">— Unassigned —</option>
       ${volunteers.map(u=>`<option value="${u.id}" ${u.id===currentId?'selected':''}>${esc(u.name||u.email)}</option>`).join('')}
-      ${currentId&&!volunteers.some(u=>u.id===currentId)?`<option value="${currentId}" selected>${esc(existing?.volunteerName||'Current volunteer')}</option>`:''}
+      ${currentId&&!volunteers.some(u=>u.id===currentId)
+        ? `<option value="${currentId}" selected>${esc(existing?.volunteerName||'Current volunteer')}</option>`
+        : ''}
     </select>
   </td>`;
 }
@@ -620,12 +651,14 @@ window.changeGridMinistry=value=>{
   localStorage.setItem('cvsGridMinistryId',value);
   renderGridScheduler();
 };
+
 window.changeGridMonth=value=>{
   if(!value)return;
   gridMonth=value;
   localStorage.setItem('cvsGridMonth',value);
   renderGridScheduler();
 };
+
 window.addGridRoleColumn=()=>{
   const select=document.getElementById('gridAddRoleSelect');
   const id=select?.value;
@@ -635,10 +668,15 @@ window.addGridRoleColumn=()=>{
   saveGridRoleIds(gridMinistryId,ids);
   renderGridScheduler();
 };
+
 window.removeGridRoleColumn=id=>{
-  saveGridRoleIds(gridMinistryId,selectedGridRoleIds(gridMinistryId).filter(x=>x!==id));
+  saveGridRoleIds(
+    gridMinistryId,
+    selectedGridRoleIds(gridMinistryId).filter(x=>x!==id)
+  );
   renderGridScheduler();
 };
+
 window.changeGridRoleColumn=(index,newRoleId)=>{
   const ids=selectedGridRoleIds(gridMinistryId);
   if(ids.includes(newRoleId) && ids[index]!==newRoleId){
@@ -648,6 +686,117 @@ window.changeGridRoleColumn=(index,newRoleId)=>{
   ids[index]=newRoleId;
   saveGridRoleIds(gridMinistryId,ids.filter(Boolean));
   renderGridScheduler();
+};
+
+window.openGridAddService=()=>{
+  const suggestedDate=`${gridMonth}-01`;
+  $('#gridServiceEditor').innerHTML=`<div class="card gridInlineEditor">
+    <h3>Add Date / Service Row</h3>
+    <div class="row">
+      <div><label>Date</label><input id="gridNewDate" type="date" value="${suggestedDate}"></div>
+      <div><label>Service Name</label><input id="gridNewTitle" value="1st Celebration"></div>
+      <div><label>Start</label><input id="gridNewStart" type="time" value="09:00"></div>
+      <div><label>End</label><input id="gridNewEnd" type="time" value="10:30"></div>
+    </div>
+    <label>Location</label><input id="gridNewLocation" value="Main Sanctuary">
+    <div class="row">
+      <button onclick="saveGridNewService()">Add Row</button>
+      <button class="secondary" onclick="closeGridServiceEditor()">Cancel</button>
+    </div>
+  </div>`;
+  document.getElementById('gridNewDate')?.focus();
+};
+
+window.closeGridServiceEditor=()=>{
+  const editor=document.getElementById('gridServiceEditor');
+  if(editor)editor.innerHTML='';
+};
+
+window.saveGridNewService=async()=>{
+  const date=$('#gridNewDate')?.value;
+  const title=$('#gridNewTitle')?.value.trim();
+  const start=$('#gridNewStart')?.value;
+  const end=$('#gridNewEnd')?.value;
+  const location=$('#gridNewLocation')?.value.trim();
+
+  if(!date||!title||!start||!end){
+    return alert('Complete the date, service name, start, and end time.');
+  }
+
+  try{
+    await addDoc(collection(db,'services'),{
+      date,title,start,end,
+      location:location||'Main Sanctuary',
+      status:'scheduled',
+      archived:false,
+      createdAt:serverTimestamp()
+    });
+    gridMonth=date.slice(0,7);
+    localStorage.setItem('cvsGridMonth',gridMonth);
+    closeGridServiceEditor();
+  }catch(error){
+    console.error('Could not add grid service row:',error);
+    alert(friendly(error));
+  }
+};
+
+window.editGridService=id=>{
+  const s=state.services.find(x=>x.id===id);
+  if(!s)return;
+
+  $('#gridServiceEditor').innerHTML=`<div class="card gridInlineEditor">
+    <h3>Edit Service Row</h3>
+    <input id="gridEditId" type="hidden" value="${s.id}">
+    <div class="row">
+      <div><label>Date</label><input id="gridEditDate" type="date" value="${esc(s.date||'')}"></div>
+      <div><label>Service Name</label><input id="gridEditTitle" value="${esc(s.title||'Service')}"></div>
+      <div><label>Start</label><input id="gridEditStart" type="time" value="${esc(s.start||'09:00')}"></div>
+      <div><label>End</label><input id="gridEditEnd" type="time" value="${esc(s.end||'10:30')}"></div>
+    </div>
+    <label>Location</label><input id="gridEditLocation" value="${esc(s.location||'Main Sanctuary')}">
+    <div class="row">
+      <button onclick="saveGridServiceEdit()">Save Row</button>
+      <button class="secondary" onclick="closeGridServiceEditor()">Cancel</button>
+    </div>
+  </div>`;
+  document.getElementById('gridEditTitle')?.focus();
+};
+
+window.saveGridServiceEdit=async()=>{
+  const id=$('#gridEditId')?.value;
+  if(!id)return;
+
+  try{
+    await updateDoc(doc(db,'services',id),{
+      date:$('#gridEditDate').value,
+      title:$('#gridEditTitle').value.trim()||'Service',
+      start:$('#gridEditStart').value,
+      end:$('#gridEditEnd').value,
+      location:$('#gridEditLocation').value.trim()||'Main Sanctuary',
+      updatedAt:serverTimestamp()
+    });
+    closeGridServiceEditor();
+  }catch(error){
+    console.error('Could not update grid service row:',error);
+    alert(friendly(error));
+  }
+};
+
+window.deleteGridService=async id=>{
+  const service=state.services.find(s=>s.id===id);
+  if(!service)return;
+  if(!confirm(`Remove the row for ${service.title||'this service'} on ${service.date}? Its assignments will also be removed.`))return;
+
+  try{
+    const assignments=serviceAssignments(id);
+    for(const a of assignments){
+      await deleteDoc(doc(db,'assignments',a.id));
+    }
+    await deleteDoc(doc(db,'services',id));
+  }catch(error){
+    console.error('Could not remove grid service row:',error);
+    alert(friendly(error));
+  }
 };
 
 async function validateGridVolunteer(volunteerId,serviceId){
@@ -675,7 +824,10 @@ async function validateGridVolunteer(volunteerId,serviceId){
 window.setGridAssignment=async(serviceId,roleId,volunteerId)=>{
   const role=state.roles.find(r=>r.id===roleId);
   const user=state.users.find(u=>u.id===volunteerId);
-  const existing=serviceAssignments(serviceId).find(a=>a.ministryId===gridMinistryId && (a.roleId===roleId || (!a.roleId && a.roleName===role?.name)));
+  const existing=serviceAssignments(serviceId).find(a=>
+    a.ministryId===gridMinistryId &&
+    (a.roleId===roleId || (!a.roleId && a.roleName===role?.name))
+  );
 
   try{
     if(!volunteerId){
@@ -699,7 +851,10 @@ window.setGridAssignment=async(serviceId,roleId,volunteerId)=>{
     };
 
     if(existing)await updateDoc(doc(db,'assignments',existing.id),data);
-    else await addDoc(collection(db,'assignments'),{...data,createdAt:serverTimestamp()});
+    else await addDoc(collection(db,'assignments'),{
+      ...data,
+      createdAt:serverTimestamp()
+    });
   }catch(error){
     console.error('Grid assignment failed:',error);
     alert(friendly(error));

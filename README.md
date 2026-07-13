@@ -183,3 +183,16 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Date and Service columns remain frozen while role columns scroll horizontally.
 - Role headers remain sticky while scrolling vertically.
 - Added print / Save as PDF support for the grid.
+
+
+## Alpha 5.9
+
+- Fixed the Grid View layout bug that stacked all role headers vertically.
+- Each role now appears as its own horizontal column.
+- Role columns can be added, changed, or removed.
+- Added Add Date / Service Row.
+- Existing service rows can be edited or removed directly from the grid.
+- Removing a service row also removes its assignments after confirmation.
+- Date and Service remain frozen on the left.
+- Row Actions remain frozen on the right.
+- Sticky role headers remain visible while scrolling vertically.

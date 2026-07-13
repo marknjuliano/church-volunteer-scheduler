@@ -1618,3 +1618,109 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
   }
   body.gridSchedulePrinting .roleHeader button{display:none}
 }
+
+
+/* Alpha 5.9 — corrected horizontal grid, dynamic rows and columns */
+.gridControls{
+  grid-template-columns:minmax(170px,.8fr) minmax(170px,.8fr) minmax(230px,1fr) minmax(300px,1.4fr);
+}
+.gridActionRow{display:flex;gap:8px}
+.ministryGridTable .roleHeader{
+  display:table-cell!important;
+  min-width:190px!important;
+  width:190px!important;
+  padding:8px!important;
+  vertical-align:middle!important;
+}
+.roleHeaderInner{
+  display:grid;
+  grid-template-columns:minmax(145px,1fr) 30px;
+  gap:6px;
+  align-items:center;
+}
+.roleHeaderInner select{
+  width:100%;
+  min-width:0;
+  margin:0;
+}
+.roleHeaderInner button{
+  min-width:30px;
+  min-height:40px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+}
+.ministryGridTable .stickyActions{
+  position:sticky;
+  right:0;
+  min-width:180px;
+  width:180px;
+  z-index:4;
+  background:#fff;
+  box-shadow:-2px 0 0 var(--line);
+}
+.ministryGridTable thead .stickyActions{
+  z-index:9;
+  background:#eaf5ef;
+}
+.gridRowActions{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.gridRowActions button{
+  min-width:auto;
+  padding:9px 10px;
+  white-space:nowrap;
+}
+.gridInlineEditor{
+  margin-bottom:12px;
+  border:1px solid #a9cdbb;
+}
+.gridInlineEditor h3{margin-top:0}
+.ministryGridTable thead .gridTitleRow th{
+  position:sticky;
+  top:0;
+  z-index:12;
+}
+.ministryGridTable thead .gridHeaderRow th{
+  position:sticky;
+  top:44px;
+}
+.ministryGridTable th,
+.ministryGridTable td{
+  box-sizing:border-box;
+}
+.gridVolunteerCell{
+  min-width:190px!important;
+  width:190px!important;
+}
+.gridVolunteerCell select{
+  width:100%;
+  min-width:0;
+  margin:0;
+}
+
+@media(max-width:900px){
+  .gridControls{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .gridControls{grid-template-columns:1fr}
+  .ministryGridTable .roleHeader,
+  .gridVolunteerCell{
+    min-width:165px!important;
+    width:165px!important;
+  }
+  .roleHeaderInner{
+    grid-template-columns:minmax(120px,1fr) 28px;
+  }
+  .ministryGridTable .stickyActions{
+    min-width:150px;
+    width:150px;
+  }
+  .gridRowActions{
+    flex-direction:column;
+    align-items:stretch;
+  }
+}
