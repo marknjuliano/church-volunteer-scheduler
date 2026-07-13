@@ -1985,3 +1985,213 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
   .gridRoleDragHandle{display:none}
   .gridRoleChip{cursor:default}
 }
+
+
+/* Alpha 6.1.4 — professional landscape print layout */
+.gridPrintHeader{
+  display:none;
+}
+
+@media print{
+  @page{
+    size: letter landscape;
+    margin: 0.38in;
+  }
+
+  html,body{
+    background:#fff!important;
+  }
+
+  body.gridSchedulePrinting{
+    color:#111!important;
+    font-family:Arial,Helvetica,sans-serif!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  body.gridSchedulePrinting .hero,
+  body.gridSchedulePrinting .tabs,
+  body.gridSchedulePrinting .footer,
+  body.gridSchedulePrinting .scheduleManagerHeader,
+  body.gridSchedulePrinting .scheduleManagerTabs,
+  body.gridSchedulePrinting .gridControls,
+  body.gridSchedulePrinting .gridRoleConfig,
+  body.gridSchedulePrinting .gridTableToolbar,
+  body.gridSchedulePrinting .gridScrollHint,
+  body.gridSchedulePrinting .gridFooterNote,
+  body.gridSchedulePrinting .stickyActions{
+    display:none!important;
+  }
+
+  body.gridSchedulePrinting .wrap{
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+
+  body.gridSchedulePrinting .gridPrintHeader{
+    display:block!important;
+    margin:0 0 10px;
+    text-align:center;
+  }
+
+  body.gridSchedulePrinting .gridPrintChurch{
+    font-size:9pt;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:#385d4d;
+  }
+
+  body.gridSchedulePrinting .gridPrintTitle{
+    margin-top:3px;
+    font-size:17pt;
+    font-weight:800;
+    color:#183b2e;
+  }
+
+  body.gridSchedulePrinting .gridPrintMeta{
+    margin-top:2px;
+    font-size:8.5pt;
+    color:#666;
+  }
+
+  body.gridSchedulePrinting .gridTableScroller{
+    overflow:visible!important;
+    border:0!important;
+    border-radius:0!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable{
+    width:100%!important;
+    table-layout:fixed!important;
+    border-collapse:collapse!important;
+    font-size:8.2pt!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .gridTitleRow{
+    display:none!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable th,
+  body.gridSchedulePrinting .ministryGridTable td{
+    position:static!important;
+    min-width:0!important;
+    width:auto!important;
+    padding:5px 6px!important;
+    border:1px solid #9aaea4!important;
+    box-shadow:none!important;
+    vertical-align:middle!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable thead th{
+    background:#dfeee7!important;
+    color:#183b2e!important;
+    font-size:8.5pt!important;
+    font-weight:800!important;
+    text-align:center!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .stickyDate{
+    width:11%!important;
+    background:#f3f8f5!important;
+    text-align:center!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .stickyService{
+    width:16%!important;
+    background:#fff!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .roleHeader,
+  body.gridSchedulePrinting .gridVolunteerCell{
+    width:auto!important;
+  }
+
+  body.gridSchedulePrinting .roleHeaderInner{
+    display:block!important;
+  }
+
+  body.gridSchedulePrinting .roleHeaderInner button{
+    display:none!important;
+  }
+
+  body.gridSchedulePrinting .roleHeaderInner select{
+    appearance:none!important;
+    border:0!important;
+    background:transparent!important;
+    padding:0!important;
+    width:100%!important;
+    min-height:0!important;
+    font-size:8.5pt!important;
+    font-weight:800!important;
+    text-align:center!important;
+    color:#183b2e!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell{
+    position:relative!important;
+    text-align:center!important;
+    font-size:8.2pt!important;
+    font-weight:600!important;
+    color:#111!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell select{
+    display:none!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell::after{
+    content:attr(data-print-value);
+    display:block;
+    white-space:normal;
+    line-height:1.15;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell[data-print-value="OPEN"]::after{
+    color:#8a6d1d;
+    font-weight:800;
+    letter-spacing:.04em;
+  }
+
+  body.gridSchedulePrinting .gridDateCell b{
+    font-size:9pt!important;
+    color:#183b2e!important;
+  }
+
+  body.gridSchedulePrinting .gridDateCell span{
+    margin-top:2px!important;
+    font-size:7pt!important;
+    color:#666!important;
+  }
+
+  body.gridSchedulePrinting .gridServiceCell b{
+    font-size:8.5pt!important;
+  }
+
+  body.gridSchedulePrinting .gridServiceCell span{
+    margin-top:2px!important;
+    font-size:7pt!important;
+    color:#666!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable tbody tr:nth-child(4n+1) td,
+  body.gridSchedulePrinting .ministryGridTable tbody tr:nth-child(4n+2) td{
+    background:#fbfdfc!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable tbody tr{
+    break-inside:avoid!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable tbody tr:nth-child(even) td{
+    border-bottom-color:#6f877b!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable::after{
+    content:"";
+  }
+}

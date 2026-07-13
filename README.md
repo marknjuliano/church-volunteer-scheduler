@@ -234,3 +234,15 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Sorting is now applied directly at the Grid View dropdown render point.
 - Email remains the tie-breaker when display names match.
 - Updated cache version to force browsers to load the corrected JavaScript.
+
+
+## Alpha 6.1.4
+
+- Grid printing now defaults to Letter landscape.
+- Added a professional print-only title block with church name, month, ministry, and roster subtitle.
+- Expanded the schedule to use the full printable page width.
+- Improved role header, date, service, and assignment column sizing.
+- Replaced printed unassigned dropdown text with a cleaner OPEN label.
+- Added stronger date grouping, subtle row shading, and cleaner table borders.
+- Hid all screen-only controls from print output.
+- Preserved draggable columns, alphabetical volunteer dropdowns, and existing scheduling logic.
