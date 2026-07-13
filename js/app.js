@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha6.1.5 balanced print typography');
+console.log('Church Volunteer Scheduler v1.0.0-alpha6.1.7 preserve grid scroll position');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -46,6 +46,24 @@ let calendarDisplay=localStorage.getItem('cvsCalendarDisplay')||'calendar';
 let scheduleDisplay=localStorage.getItem('cvsScheduleDisplay')||'cards';
 let gridMonth=localStorage.getItem('cvsGridMonth')||nowDate().slice(0,7);
 let gridMinistryId=localStorage.getItem('cvsGridMinistryId')||'';
+let gridScrollLeft=Number(sessionStorage.getItem('cvsGridScrollLeft')||0);
+function rememberGridScroll(){
+  const scroller=document.querySelector('.gridTableScroller');
+  if(!scroller)return;
+  gridScrollLeft=scroller.scrollLeft;
+  sessionStorage.setItem('cvsGridScrollLeft',String(gridScrollLeft));
+}
+function restoreGridScroll(){
+  requestAnimationFrame(()=>{
+    const scroller=document.querySelector('.gridTableScroller');
+    if(!scroller)return;
+    scroller.scrollLeft=gridScrollLeft;
+    scroller.addEventListener('scroll',()=>{
+      gridScrollLeft=scroller.scrollLeft;
+      sessionStorage.setItem('cvsGridScrollLeft',String(gridScrollLeft));
+    },{passive:true});
+  });
+}
 function gridRoleKey(ministryId){return `cvsGridRoles:${ministryId}`;}
 function selectedGridRoleIds(ministryId){
   const valid=visibleRoles(ministryId).map(r=>r.id);
@@ -90,7 +108,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.1.5</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.1.7</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -643,6 +661,7 @@ function renderGridScheduler(){
 
     <div class="gridFooterNote">Changes save automatically. Use “— Unassigned —” to clear a volunteer. Add or remove date/service rows and role columns as needed.</div>
   </div>`;
+  restoreGridScroll();
 }
 
 function gridMonthLabel(value){
@@ -654,13 +673,15 @@ function gridServiceRows(services,roles){
   const dateCounts={};
   services.forEach(s=>dateCounts[s.date]=(dateCounts[s.date]||0)+1);
   const renderedDates=new Set();
+  const dateOrder=[...new Set(services.map(s=>s.date))];
 
   return services.map(service=>{
     const showDate=!renderedDates.has(service.date);
     renderedDates.add(service.date);
+    const dateGroupIndex=dateOrder.indexOf(service.date);
     const d=new Date(service.date+'T12:00:00');
 
-    return `<tr>
+    return `<tr class="gridDateGroup gridDateGroup-${dateGroupIndex % 2}" data-date-group="${dateGroupIndex}">
       ${showDate?`<td class="stickyDate gridDateCell" rowspan="${dateCounts[service.date]}">
         <b>${d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}</b>
         <span>${d.toLocaleDateString(undefined,{weekday:'long'})}</span>
@@ -719,6 +740,7 @@ window.changeGridMonth=value=>{
 };
 
 window.addGridRoleColumn=()=>{
+  rememberGridScroll();
   const select=document.getElementById('gridAddRoleSelect');
   const id=select?.value;
   if(!id)return;
@@ -768,6 +790,7 @@ window.endGridRoleDrag=event=>{
 };
 
 window.moveGridRoleColumn=(index,direction)=>{
+  rememberGridScroll();
   const ids=selectedGridRoleIds(gridMinistryId);
   const next=index+direction;
   if(index<0||next<0||next>=ids.length)return;
@@ -778,6 +801,7 @@ window.moveGridRoleColumn=(index,direction)=>{
 };
 
 window.removeGridRoleColumn=id=>{
+  rememberGridScroll();
   saveGridRoleIds(
     gridMinistryId,
     selectedGridRoleIds(gridMinistryId).filter(x=>x!==id)
@@ -786,6 +810,7 @@ window.removeGridRoleColumn=id=>{
 };
 
 window.changeGridRoleColumn=(index,newRoleId)=>{
+  rememberGridScroll();
   const ids=selectedGridRoleIds(gridMinistryId);
   if(ids.includes(newRoleId) && ids[index]!==newRoleId){
     alert('That role is already displayed in another column.');
@@ -930,6 +955,7 @@ async function validateGridVolunteer(volunteerId,serviceId){
 }
 
 window.setGridAssignment=async(serviceId,roleId,volunteerId)=>{
+  rememberGridScroll();
   const role=state.roles.find(r=>r.id===roleId);
   const user=state.users.find(u=>u.id===volunteerId);
   const existing=serviceAssignments(serviceId).find(a=>

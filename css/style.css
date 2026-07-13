@@ -2301,3 +2301,46 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
     background:#fcfdfc!important;
   }
 }
+
+/* Alpha 6.1.7 — subtle date-group shading for easier scanning */
+.ministryGridTable tbody tr.gridDateGroup-0 > td{
+  background:#ffffff;
+}
+.ministryGridTable tbody tr.gridDateGroup-1 > td{
+  background:#f2f7f4;
+}
+.ministryGridTable tbody tr.gridDateGroup-0 > td.stickyDate,
+.ministryGridTable tbody tr.gridDateGroup-0 > td.stickyService{
+  background:#ffffff;
+}
+.ministryGridTable tbody tr.gridDateGroup-1 > td.stickyDate,
+.ministryGridTable tbody tr.gridDateGroup-1 > td.stickyService{
+  background:#f2f7f4;
+}
+.ministryGridTable tbody .gridVolunteerCell select{
+  background:#ffffff;
+}
+
+/* A slightly clearer boundary between one date and the next. */
+.ministryGridTable tbody tr.gridDateGroup-0 + tr.gridDateGroup-1 > td,
+.ministryGridTable tbody tr.gridDateGroup-1 + tr.gridDateGroup-0 > td{
+  border-top-width:2px;
+  border-top-color:#b8c9c0;
+}
+
+@media print{
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-0 > td{
+    background:#ffffff!important;
+  }
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-1 > td{
+    background:#f2f7f4!important;
+  }
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-0 > td.stickyDate,
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-0 > td.stickyService{
+    background:#ffffff!important;
+  }
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-1 > td.stickyDate,
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-1 > td.stickyService{
+    background:#f2f7f4!important;
+  }
+}

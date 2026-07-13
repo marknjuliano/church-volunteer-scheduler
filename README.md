@@ -256,3 +256,21 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - OPEN now prints in a softer neutral style.
 - Improved title and table alignment.
 - Softened table borders and header shading for a cleaner professional look.
+
+
+## Alpha 6.1.6
+
+- Preserves the Grid View horizontal scroll position after changing a volunteer.
+- Firestore live updates no longer jump the grid back to the left.
+- The current right-side role remains visible while repeatedly updating assignments.
+- Scroll position is remembered for the browser session.
+- Also preserves position while adding, removing, changing, or reordering role columns.
+
+
+## Alpha 6.1.7
+- Added subtle alternating shading by date group in the live scheduling grid.
+- Both services under the same date share one background tone.
+- Uses only white and very light green, keeping the interface professional and uncluttered.
+- Added a slightly stronger divider between dates.
+- The same grouping is applied to Print / Save as PDF.
+- Preserves horizontal scroll position behavior from Alpha 6.1.6.
