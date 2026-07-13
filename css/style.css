@@ -1724,3 +1724,221 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
     align-items:stretch;
   }
 }
+
+
+/* Alpha 6.0 — cleaner grid, obvious add-column controls, compact actions */
+.gridControls{
+  grid-template-columns:minmax(170px,.75fr) minmax(170px,.75fr) minmax(220px,.9fr) minmax(320px,1.35fr);
+  gap:12px;
+  padding:16px;
+}
+.gridControls label{
+  margin-bottom:6px;
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.gridAddRoleRow{
+  grid-template-columns:minmax(180px,1fr) auto;
+}
+.gridPrimaryAction{
+  white-space:nowrap;
+}
+.gridRoleConfig{
+  padding:14px 16px;
+}
+.gridRoleChips{
+  gap:6px;
+}
+.gridRoleChip{
+  padding:7px 10px;
+  font-size:13px;
+  border-radius:999px;
+}
+.gridTableToolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  margin-bottom:8px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+}
+.gridTableToolbar>div:first-child{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.gridTableToolbar span{
+  color:var(--muted);
+  font-size:12px;
+}
+.gridToolbarActions{
+  display:flex;
+  gap:8px;
+}
+.gridToolbarActions button{
+  min-height:38px;
+  padding:8px 12px;
+  font-size:13px;
+}
+.gridScrollHint{
+  padding:7px 4px 9px;
+  font-size:12px;
+}
+.ministryGridTable th,
+.ministryGridTable td{
+  padding:8px;
+}
+.gridDateCell b{
+  font-size:15px;
+}
+.gridDateCell span,
+.gridServiceCell span{
+  font-size:11px;
+}
+.gridServiceCell b{
+  font-size:15px;
+}
+.gridVolunteerCell select,
+.roleHeaderInner select{
+  min-height:42px;
+  padding:8px 10px;
+  font-size:14px;
+}
+.ministryGridTable .stickyActions{
+  min-width:92px;
+  width:92px;
+}
+.gridRowActions{
+  display:table-cell!important;
+  text-align:center;
+}
+.rowActionMenu{
+  position:relative;
+  display:inline-block;
+}
+.rowActionMenu>summary{
+  display:grid;
+  place-items:center;
+  width:40px;
+  height:40px;
+  margin:auto;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+  color:var(--ink);
+  font-weight:900;
+  letter-spacing:2px;
+  cursor:pointer;
+  list-style:none;
+}
+.rowActionMenu>summary::-webkit-details-marker{display:none}
+.rowActionMenu[open]>summary{
+  border-color:#9fc8b6;
+  background:#f2f8f5;
+}
+.rowActionMenuPanel{
+  position:absolute;
+  right:0;
+  top:46px;
+  z-index:40;
+  width:170px;
+  padding:6px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+  box-shadow:0 12px 30px rgba(0,0,0,.12);
+}
+.rowActionMenuPanel button{
+  width:100%;
+  min-height:38px;
+  padding:8px 10px;
+  border:0;
+  border-radius:8px;
+  background:#fff;
+  color:var(--ink);
+  text-align:left;
+  font-size:13px;
+}
+.rowActionMenuPanel button:hover{
+  background:#f4f8f6;
+}
+.rowActionMenuPanel .rowDeleteAction{
+  color:#b42323;
+}
+.gridTableScroller{
+  border-radius:10px;
+}
+.ministryGridTable .roleHeader,
+.gridVolunteerCell{
+  min-width:175px!important;
+  width:175px!important;
+}
+.roleHeaderInner{
+  grid-template-columns:minmax(130px,1fr) 28px;
+}
+.roleHeaderInner button{
+  min-width:28px;
+  min-height:36px;
+  border-radius:8px;
+}
+.gridTitleRow th{
+  padding:9px!important;
+  font-size:15px;
+}
+.gridHeaderRow th{
+  font-size:13px;
+}
+
+@media(max-width:900px){
+  .gridControls{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .gridControls{grid-template-columns:1fr}
+  .gridTableToolbar{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .gridToolbarActions{
+    width:100%;
+  }
+  .gridToolbarActions button{
+    flex:1;
+  }
+  .ministryGridTable .roleHeader,
+  .gridVolunteerCell{
+    min-width:155px!important;
+    width:155px!important;
+  }
+  .ministryGridTable .stickyActions{
+    min-width:70px;
+    width:70px;
+  }
+  .rowActionMenuPanel{
+    right:0;
+    width:160px;
+  }
+}
+
+@media print{
+  body.gridSchedulePrinting .gridTableToolbar{
+    display:none!important;
+  }
+  body.gridSchedulePrinting .stickyActions{
+    display:none!important;
+  }
+}
+
+/* Alpha 6.1: reorderable role columns */
+.gridRoleChip{cursor:grab;user-select:none;transition:transform .15s ease,opacity .15s ease,box-shadow .15s ease}
+.gridRoleChip:active{cursor:grabbing}
+.gridRoleChip.dragging{opacity:.5;transform:scale(.98);box-shadow:0 8px 20px rgba(0,0,0,.12)}
+.gridRoleDragHandle{font-weight:900;color:var(--muted);letter-spacing:-3px;cursor:grab;padding-right:3px}
+.gridRoleMoveButtons{display:inline-flex;gap:2px}
+.gridRoleMoveButtons button{width:24px;min-width:24px;height:24px;min-height:24px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--brand);font-size:18px;line-height:1}
+.gridRoleMoveButtons button:disabled{opacity:.3;cursor:not-allowed}
+@media (pointer:fine){.gridRoleMoveButtons{display:none}}

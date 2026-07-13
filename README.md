@@ -196,3 +196,13 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Date and Service remain frozen on the left.
 - Row Actions remain frozen on the right.
 - Sticky role headers remain visible while scrolling vertically.
+
+
+## Alpha 6.0
+
+- Made the Add Column control more visible and easier to find.
+- Added a compact toolbar above the grid with Add Row and Add Column actions.
+- Replaced large Edit/Delete buttons with a professional three-dot row action menu.
+- Reduced cell padding, font size, and column width to make the grid less crowded.
+- Narrowed the frozen Actions column.
+- Kept Date and Service frozen while role columns scroll horizontally.
