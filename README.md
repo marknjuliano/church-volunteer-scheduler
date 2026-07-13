@@ -216,3 +216,21 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Assigned volunteer cells move automatically with their role column.
 - Added left/right controls for mobile and touch devices.
 - Role-column order remains saved per ministry.
+
+
+## Alpha 6.1.2
+
+- Volunteer dropdowns are sorted alphabetically by display name.
+- Sorting is case-insensitive and uses natural numeric ordering.
+- Email is used as a tie-breaker when display names match.
+- Applies to Grid View qualified-volunteer dropdowns and broad Schedule volunteer selectors.
+- Preserves the Alpha 6.1.1 draggable role-column hotfix.
+
+
+## Alpha 6.1.3
+
+- Fixed Grid View volunteer dropdowns that were still appearing out of order.
+- Added stricter case-insensitive and punctuation-insensitive sorting.
+- Sorting is now applied directly at the Grid View dropdown render point.
+- Email remains the tie-breaker when display names match.
+- Updated cache version to force browsers to load the corrected JavaScript.

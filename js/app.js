@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha6.1.1 draggable columns hotfix');
+console.log('Church Volunteer Scheduler v1.0.0-alpha6.1.3 alphabetical dropdown hotfix');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -90,14 +90,43 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.1.1</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.1.3</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
 function userQualifications(u){return Array.isArray(u?.qualifications)?u.qualifications:[]}
 function qualificationFor(u,ministryId){return userQualifications(u).find(q=>q.ministryId===ministryId)}
 function isQualifiedFor(u,ministryId,roleId){const q=qualificationFor(u,ministryId);return !!q && Array.isArray(q.roleIds) && q.roleIds.includes(roleId)}
-function qualifiedUsers(ministryId,roleId){return state.users.filter(u=>['volunteer','volunteerS','coordinator','admin'].includes(u.role)&&isQualifiedFor(u,ministryId,roleId))}
+function sortUsersAlphabetically(users){
+  const clean=value=>String(value||'')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .trim()
+    .toLocaleLowerCase();
+
+  return [...users].sort((a,b)=>{
+    const aLabel=clean(a?.name||a?.email);
+    const bLabel=clean(b?.name||b?.email);
+
+    const byLabel=aLabel.localeCompare(
+      bLabel,
+      undefined,
+      {sensitivity:'base',numeric:true,ignorePunctuation:true}
+    );
+    if(byLabel!==0)return byLabel;
+
+    return clean(a?.email).localeCompare(
+      clean(b?.email),
+      undefined,
+      {sensitivity:'base',numeric:true,ignorePunctuation:true}
+    );
+  });
+}
+function qualifiedUsers(ministryId,roleId){
+  return sortUsersAlphabetically(
+    state.users.filter(u=>['volunteer','volunteerS','coordinator','admin'].includes(u.role)&&isQualifiedFor(u,ministryId,roleId))
+  );
+}
 function isVolunteerSUser(userId){return state.users.find(u=>u.id===userId)?.role==='volunteerS'}
 function upcomingServices(){return [...state.services].filter(s=>!s.archived&&s.date&&new Date(s.date+'T23:59:59')>=new Date()).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start))}
 function serviceAssignments(id){return state.assignments.filter(a=>a.serviceId===id&&!a.archived)}
@@ -656,7 +685,7 @@ function gridVolunteerCell(service,role){
     a.ministryId===gridMinistryId &&
     (a.roleId===role.id || (!a.roleId && a.roleName===role.name))
   );
-  const volunteers=qualifiedUsers(gridMinistryId,role.id);
+  const volunteers=sortUsersAlphabetically(qualifiedUsers(gridMinistryId,role.id));
   const currentId=existing?.volunteerId||'';
 
   return `<td class="gridVolunteerCell">
