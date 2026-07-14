@@ -282,3 +282,10 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Phones show schedules grouped by date, then service, with one easy-to-tap volunteer dropdown per role.
 - Removes squeezed role columns and horizontal scheduling friction on small screens.
 - Keeps automatic saving, alphabetical volunteer dropdowns, service actions, date-group shading, desktop scroll preservation, and the professional landscape print/PDF table.
+
+
+## Alpha 6.1.9
+- Fixed Grid View failing to load after the responsive mobile scheduler update.
+- Removed an undefined display-name helper reference in the mobile dropdown renderer.
+- Restored both desktop Grid View and mobile scheduling cards.
+- Preserves all Alpha 6.1.8 responsive behavior and prior scheduling features.
