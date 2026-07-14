@@ -274,3 +274,11 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Added a slightly stronger divider between dates.
 - The same grouping is applied to Print / Save as PDF.
 - Preserves horizontal scroll position behavior from Alpha 6.1.6.
+
+
+## Alpha 6.1.8
+- Added a dedicated responsive mobile scheduling view.
+- Desktop/tablet keeps the spreadsheet-style scheduling grid.
+- Phones show schedules grouped by date, then service, with one easy-to-tap volunteer dropdown per role.
+- Removes squeezed role columns and horizontal scheduling friction on small screens.
+- Keeps automatic saving, alphabetical volunteer dropdowns, service actions, date-group shading, desktop scroll preservation, and the professional landscape print/PDF table.

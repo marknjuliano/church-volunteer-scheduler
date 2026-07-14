@@ -2344,3 +2344,94 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
     background:#f2f7f4!important;
   }
 }
+
+
+/* Alpha 6.1.8 — dedicated mobile scheduling layout */
+.gridMobileScheduler{display:none}
+
+@media(max-width:760px){
+  .gridScrollHint{display:none}
+  .gridTableScroller{display:none}
+  .gridMobileScheduler{display:grid;gap:14px}
+
+  .mobileDateGroup{
+    overflow:hidden;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:#fff;
+    box-shadow:0 8px 22px rgba(25,58,45,.05);
+  }
+  .mobileDateGroup-1{background:#f2f7f4}
+
+  .mobileDateHeader{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:16px;
+    border-bottom:1px solid var(--line);
+    background:rgba(223,240,231,.72);
+  }
+  .mobileDateHeader b,.mobileDateHeader span{display:block}
+  .mobileDateHeader b{font-size:20px;line-height:1.15}
+  .mobileDateHeader > div > span{margin-top:4px;color:var(--muted);font-size:13px}
+  .mobileDateCount{
+    flex:0 0 auto;
+    padding:7px 10px;
+    border-radius:999px;
+    background:#fff;
+    color:var(--green);
+    font-size:12px;
+    font-weight:800;
+  }
+
+  .mobileServiceList{display:grid}
+  .mobileServiceCard{padding:16px;background:transparent}
+  .mobileServiceCard + .mobileServiceCard{border-top:2px solid var(--line)}
+
+  .mobileServiceHeading{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:15px;
+  }
+  .mobileServiceHeading h3{margin:0;font-size:21px;line-height:1.2}
+  .mobileServiceHeading p{margin:5px 0 0;color:var(--muted);font-size:14px}
+  .mobileRowActionMenu{flex:0 0 auto}
+  .mobileRowActionMenu summary{min-width:46px;min-height:42px}
+
+  .mobileRoleAssignments{display:grid;gap:11px}
+  .mobileRoleField{
+    display:grid;
+    grid-template-columns:minmax(105px,.8fr) minmax(0,1.5fr);
+    align-items:center;
+    gap:10px;
+    margin:0;
+  }
+  .mobileRoleField > span{
+    font-size:14px;
+    font-weight:800;
+    color:#263a32;
+    overflow-wrap:anywhere;
+  }
+  .mobileRoleField select{
+    width:100%;
+    min-width:0;
+    margin:0;
+    padding:12px 38px 12px 12px;
+    font-size:16px;
+    background:#fff;
+  }
+  .gridFooterNote{margin-top:14px}
+}
+
+@media(max-width:420px){
+  .mobileRoleField{grid-template-columns:1fr;gap:6px}
+  .mobileRoleField > span{font-size:13px}
+}
+
+@media print{
+  body.gridSchedulePrinting .gridMobileScheduler{display:none!important}
+  body.gridSchedulePrinting .gridTableScroller{display:block!important}
+}

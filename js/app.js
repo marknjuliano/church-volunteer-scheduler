@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha6.1.7 preserve grid scroll position');
+console.log('Church Volunteer Scheduler v1.0.0-alpha6.1.8 preserve grid scroll position');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -108,7 +108,7 @@ window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('
 window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.1.7</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.1.8</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -631,6 +631,12 @@ function renderGridScheduler(){
       <div class="gridPrintMeta">Monthly Ministry Assignment Roster</div>
     </div>
 
+    <div class="gridMobileScheduler">
+      ${services.length
+        ? gridMobileServiceGroups(services,selectedRoles)
+        : '<div class="gridMobileEmpty">No services in this month.</div>'}
+    </div>
+
     <div class="gridTableScroller">
       <table class="ministryGridTable">
         <thead>
@@ -667,6 +673,71 @@ function renderGridScheduler(){
 function gridMonthLabel(value){
   const [year,month]=String(value).split('-').map(Number);
   return new Date(year,month-1,1).toLocaleDateString(undefined,{month:'long',year:'numeric'});
+}
+
+
+function gridMobileServiceGroups(services,roles){
+  const groups={};
+  services.forEach(service=>{
+    if(!groups[service.date]) groups[service.date]=[];
+    groups[service.date].push(service);
+  });
+
+  return Object.entries(groups).map(([date,dateServices],dateIndex)=>{
+    const d=new Date(date+'T12:00:00');
+    return `<section class="mobileDateGroup mobileDateGroup-${dateIndex%2}">
+      <div class="mobileDateHeader">
+        <div>
+          <b>${d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}</b>
+          <span>${d.toLocaleDateString(undefined,{weekday:'long'})}</span>
+        </div>
+        <span class="mobileDateCount">${dateServices.length} service${dateServices.length===1?'':'s'}</span>
+      </div>
+      <div class="mobileServiceList">
+        ${dateServices.map(service=>gridMobileServiceCard(service,roles)).join('')}
+      </div>
+    </section>`;
+  }).join('');
+}
+
+function gridMobileServiceCard(service,roles){
+  return `<article class="mobileServiceCard">
+    <div class="mobileServiceHeading">
+      <div>
+        <h3>${esc(service.title||'Service')}</h3>
+        <p>${timeLabel(service.start)}${service.end?' – '+timeLabel(service.end):''}</p>
+      </div>
+      <details class="rowActionMenu mobileRowActionMenu">
+        <summary aria-label="Service actions" title="Service actions">•••</summary>
+        <div class="rowActionMenuPanel">
+          <button onclick="editGridService('${service.id}')">✎ Edit service</button>
+          <button class="rowDeleteAction" onclick="deleteGridService('${service.id}')">🗑 Delete row</button>
+        </div>
+      </details>
+    </div>
+    <div class="mobileRoleAssignments">
+      ${roles.length
+        ? roles.map(role=>gridMobileVolunteerField(service,role)).join('')
+        : '<p class="small">Add a role column to begin scheduling.</p>'}
+    </div>
+  </article>`;
+}
+
+function gridMobileVolunteerField(service,role){
+  const existing=serviceAssignments(service.id).find(a=>
+    a.ministryId===gridMinistryId &&
+    (a.roleId===role.id || (!a.roleId && a.roleName===role.name))
+  );
+  const volunteers=sortUsersAlphabetically(qualifiedUsers(gridMinistryId,role.id));
+  const currentId=existing?.volunteerId||'';
+
+  return `<label class="mobileRoleField">
+    <span>${esc(role.name)}</span>
+    <select aria-label="${esc(role.name)} volunteer for ${esc(service.title||'service')}" onchange="setGridAssignment('${service.id}','${role.id}',this.value)">
+      <option value="">— Unassigned —</option>
+      ${volunteers.map(u=>`<option value="${u.id}" ${u.id===currentId?'selected':''}>${esc(displayName(u))}</option>`).join('')}
+    </select>
+  </label>`;
 }
 
 function gridServiceRows(services,roles){
