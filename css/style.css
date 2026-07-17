@@ -2478,3 +2478,99 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
   .claimUsernameRow{grid-template-columns:1fr}
   .authTabs button{padding-inline:8px}
 }
+
+
+/* Alpha 6.2.1 — authentication UI polish */
+.authCard{
+  padding:28px;
+}
+
+.authCard h2{
+  margin-bottom:22px;
+}
+
+.authField{
+  margin-bottom:18px;
+}
+
+.authField label{
+  display:block;
+  margin:0 0 8px;
+}
+
+.authField input{
+  margin:0;
+}
+
+.authField .fieldHelp{
+  margin:7px 2px 0;
+  line-height:1.45;
+}
+
+.authCard input{
+  min-height:54px;
+}
+
+.authCard .passwordBox{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:stretch;
+  gap:10px;
+}
+
+.authCard .passwordBox input{
+  width:100%;
+  min-width:0;
+}
+
+.authCard .passwordToggle{
+  min-width:88px;
+  padding-inline:18px;
+}
+
+.authTabs{
+  margin-bottom:26px;
+}
+
+.authTabs button{
+  font-weight:800;
+}
+
+#signupPanel .authPrimary{
+  margin-top:4px;
+}
+
+#signupPanel > .small,
+#loginPanel > .small{
+  margin-top:14px;
+  line-height:1.5;
+}
+
+@media(max-width:520px){
+  .authCard{
+    padding:20px;
+  }
+
+  .authCard h2{
+    font-size:30px;
+    margin-bottom:18px;
+  }
+
+  .authField{
+    margin-bottom:16px;
+  }
+
+  .authCard .passwordBox{
+    grid-template-columns:minmax(0,1fr) 74px;
+    gap:8px;
+  }
+
+  .authCard .passwordToggle{
+    min-width:74px;
+    padding-inline:10px;
+  }
+
+  .authTabs{
+    margin-bottom:20px;
+  }
+}

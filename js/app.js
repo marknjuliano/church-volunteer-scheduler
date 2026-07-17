@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha6.2.0 preserve grid scroll position');
+console.log('Church Volunteer Scheduler v1.0.0-alpha6.2.1 preserve grid scroll position');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -164,7 +164,7 @@ function renderLogin(){
         <label>Password</label>
         <div class="passwordBox">
           <input id="loginPass" type="password" autocomplete="current-password">
-          <button class="secondary" onclick="togglePass('loginPass',this)">Show</button>
+          <button class="secondary passwordToggle" aria-label="Show password" onclick="togglePass('loginPass',this)">Show</button>
         </div>
         <button class="authPrimary" onclick="login()">Login</button>
         <button class="ghost authLink" onclick="forgotPassword()">Forgot Password</button>
@@ -173,22 +173,22 @@ function renderLogin(){
 
       <section id="signupPanel" hidden>
         <h2>Create Your Account</h2>
-        <label>Username <span class="required">*</span></label>
-        <input id="signupUsername" type="text" maxlength="24" autocomplete="username" placeholder="Example: mark.juliano">
-        <p class="fieldHelp">3–24 characters: letters, numbers, dot, underscore, or hyphen.</p>
+        <div class="authField"><label>Username <span class="required">*</span></label>
+        <input id="signupUsername" type="text" maxlength="24" autocomplete="username" placeholder="mark.juliano">
+        <p class="fieldHelp">Use 3–24 characters: letters, numbers, dot, underscore, or hyphen.</p></div>
 
-        <label>Display Name <span class="required">*</span></label>
-        <input id="signupName" type="text" autocomplete="name" placeholder="Example: Mark Juliano">
+        <div class="authField"><label>Display Name <span class="required">*</span></label>
+        <input id="signupName" type="text" autocomplete="name" placeholder="Mark Juliano"></div>
 
-        <label>Recovery Email <span class="optional">(optional)</span></label>
-        <input id="signupRecoveryEmail" type="email" autocomplete="email" placeholder="Used only for password recovery">
-        <p class="fieldHelp">You may create an account without email. Without one, password recovery requires an administrator.</p>
+        <div class="authField"><label>Recovery Email <span class="optional">(optional)</span></label>
+        <input id="signupRecoveryEmail" type="email" autocomplete="email" placeholder="name@example.com">
+        <p class="fieldHelp">Optional. Add an email for self-service password reset.</p></div>
 
-        <label>Password <span class="required">*</span></label>
+        <div class="authField"><label>Password <span class="required">*</span></label>
         <div class="passwordBox">
           <input id="signupPass" type="password" autocomplete="new-password" minlength="6">
-          <button class="secondary" onclick="togglePass('signupPass',this)">Show</button>
-        </div>
+          <button class="secondary passwordToggle" aria-label="Show password" onclick="togglePass('signupPass',this)">Show</button>
+        </div></div>
 
         <button class="authPrimary" onclick="createUsernameAccount()">Create Account</button>
         <p class="small">New accounts start as Pending until approved.</p>
@@ -209,7 +209,9 @@ window.showAuthPanel=panel=>{
 window.togglePass=(id,b)=>{
   const e=document.getElementById(id);
   e.type=e.type==='password'?'text':'password';
-  b.textContent=e.type==='password'?'Show':'Hide';
+  const hidden=e.type==='password';
+  b.textContent=hidden?'Show':'Hide';
+  b.setAttribute('aria-label',hidden?'Show password':'Hide password');
 };
 
 window.login=async()=>{
@@ -302,7 +304,7 @@ window.forgotPassword=async()=>{
 
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.profile?.username||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.2.0</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.profile?.username||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.2.1</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}

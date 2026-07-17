@@ -313,3 +313,12 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 
 ### How it works
 Firebase Authentication still uses its secure email/password provider internally. Username accounts without a recovery email receive a private internal login identifier. The public app only shows and accepts the chosen username. A protected `usernames/{username}` Firestore document maps the username to its Firebase login identifier. Exact username lookups are allowed for login, but listing the username directory is blocked by Firestore rules.
+
+
+## Alpha 6.2.1 — Authentication UI Polish
+- Fixed helper text overlapping the next field.
+- Added consistent field containers and spacing.
+- Shortened recovery-email guidance.
+- Simplified placeholders.
+- Improved password Show/Hide button sizing and accessibility.
+- Refined mobile spacing while preserving username/email authentication behavior.
