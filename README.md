@@ -289,3 +289,27 @@ Upload the contents of this folder to the repository root. Publish GitHub Pages 
 - Removed an undefined display-name helper reference in the mobile dropdown renderer.
 - Restored both desktop Grid View and mobile scheduling cards.
 - Preserves all Alpha 6.1.8 responsive behavior and prior scheduling features.
+
+
+## Alpha 6.2.0 — Username or Email Login
+
+### What changed
+- New users can create an account using a unique username and password.
+- A recovery email is optional.
+- Existing Firebase email/password accounts continue working without migration.
+- The login field accepts either a username or an email address.
+- Existing email users can claim a username from Profile.
+- Accounts created without a recovery email require an administrator if the password is forgotten.
+- User IDs, roles, qualifications, services, and assignments remain unchanged.
+
+### Required Firebase walkthrough
+1. Upload the Alpha 6.2.0 website files to GitHub.
+2. In Firebase Console, open **Firestore Database → Rules**.
+3. Replace the rules with the included `firestore.rules`.
+4. Click **Publish**.
+5. Confirm **Authentication → Sign-in method → Email/Password** is enabled.
+6. Test first with a new username account.
+7. Test an existing account by logging in with its original email.
+
+### How it works
+Firebase Authentication still uses its secure email/password provider internally. Username accounts without a recovery email receive a private internal login identifier. The public app only shows and accepts the chosen username. A protected `usernames/{username}` Firestore document maps the username to its Firebase login identifier. Exact username lookups are allowed for login, but listing the username directory is blocked by Firestore rules.

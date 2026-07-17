@@ -1,8 +1,8 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha6.1.9 preserve grid scroll position');
+console.log('Church Volunteer Scheduler v1.0.0-alpha6.2.0 preserve grid scroll position');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
-  sendPasswordResetEmail, onAuthStateChanged, updatePassword
+  sendPasswordResetEmail, onAuthStateChanged, updatePassword, deleteUser
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 import {
   collection, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc,
@@ -16,6 +16,24 @@ const esc = (s='') => String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&
 const fmtDate = d => d ? new Date(d+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : '';
 const timeLabel = t => { if(!t)return ''; let [h,m]=String(t).split(':').map(Number); const a=h>=12?'PM':'AM'; h=h%12||12; return `${h}:${String(m||0).padStart(2,'0')} ${a}`; };
 const MAX_ALLOWED_OVERLAP_MINUTES = 15;
+const USERNAME_LOGIN_DOMAIN = 'login.church-volunteer.app';
+const usernamePattern = /^[a-zA-Z0-9._-]{3,24}$/;
+const normalizeUsername = value => String(value||'').trim().toLowerCase();
+const isInternalLoginEmail = email => String(email||'').toLowerCase().endsWith(`@${USERNAME_LOGIN_DOMAIN}`);
+const usernameLoginEmail = username => `${normalizeUsername(username)}@${USERNAME_LOGIN_DOMAIN}`;
+function usernameError(username){
+  if(!username)return 'Enter a username.';
+  if(!usernamePattern.test(username))return 'Username must be 3–24 characters using letters, numbers, dot, underscore, or hyphen.';
+  if(username.includes('@'))return 'Do not include @ in a username.';
+  return '';
+}
+async function usernameRecord(username){
+  const key=normalizeUsername(username);
+  if(!key)return null;
+  const snap=await getDoc(doc(db,'usernames',key));
+  return snap.exists()?{id:snap.id,...snap.data()}:null;
+}
+
 const minutesFromTime = t => { const [h,m]=String(t||'').split(':').map(Number); return Number.isFinite(h)&&Number.isFinite(m)?h*60+m:null; };
 function overlapMinutes(a,b){
   if(!a||!b||a.date!==b.date)return 0;
@@ -82,13 +100,32 @@ const isCoordinator=()=>['coordinator','admin'].includes(state.profile?.role);
 const isVolunteer=()=>['volunteer','volunteerS'].includes(state.profile?.role);
 const canManageService=()=>isCoordinator();
 
-function friendly(e){const m={'auth/email-already-in-use':'This email is already registered.','auth/weak-password':'Password must be at least 6 characters.','auth/invalid-email':'Please enter a valid email.','auth/invalid-credential':'Email or password is incorrect.','auth/network-request-failed':'Please check your internet connection.','permission-denied':'You do not have permission for that action.'};return m[e?.code]||e?.message||'Something went wrong.'}
+function friendly(e){const m={'auth/email-already-in-use':'This email is already registered.','auth/weak-password':'Password must be at least 6 characters.','auth/invalid-email':'Please enter a valid email.','auth/invalid-credential':'Username/email or password is incorrect.','auth/user-not-found':'Username/email or password is incorrect.','auth/network-request-failed':'Please check your internet connection.','permission-denied':'You do not have permission for that action.'};return m[e?.code]||e?.message||'Something went wrong.'}
 
 if(!firebaseConfigured){renderSetup();} else onAuthStateChanged(auth,async user=>{cleanup();state={...state,user,profile:null,services:[],ministries:[],roles:[],users:[],assignments:[],ready:false};if(!user)return renderLogin();await ensureProfile(user);startListeners();});
 
 function renderSetup(){appEl.innerHTML=`<div class="wrap login"><div><div class="hero brandHero loginBrandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>v1.0.0 Alpha 4.1</p></div></div></div><div class="card"><h2>Connect Firebase First</h2><div class="notice warn"><b>This build is ready, but it is intentionally not connected to the old Pickleball database.</b></div><p>Open <code>js/firebase.js</code> and paste the Web App configuration from your new church Firebase project.</p><p class="small">This protects your existing PowerDink data from being mixed with church schedules.</p></div></div></div>`}
 
-async function ensureProfile(user){const ref=doc(db,'users',user.uid);let snap=await getDoc(ref);if(!snap.exists()){await setDoc(ref,{name:user.email.split('@')[0],email:user.email,status:'pending',role:'pending',ministryIds:[],createdAt:serverTimestamp()});snap=await getDoc(ref)}state.profile={id:user.uid,...snap.data()}}
+async function ensureProfile(user){
+  const ref=doc(db,'users',user.uid);
+  let snap=await getDoc(ref);
+  if(!snap.exists()){
+    const internal=isInternalLoginEmail(user.email);
+    const username=internal?String(user.email||'').split('@')[0]:'';
+    await setDoc(ref,{
+      name:username||String(user.email||'').split('@')[0]||'New User',
+      username:username||null,
+      email:internal?null:user.email,
+      recoveryEmail:internal?null:user.email,
+      status:'pending',
+      role:'pending',
+      ministryIds:[],
+      createdAt:serverTimestamp()
+    });
+    snap=await getDoc(ref);
+  }
+  state.profile={id:user.uid,...snap.data()};
+}
 function startListeners(){
   unsubs.push(onSnapshot(query(collection(db,'services'),orderBy('date')),s=>{state.services=s.docs.map(d=>({id:d.id,...d.data()}));state.ready=true;render()},renderError));
   unsubs.push(onSnapshot(collection(db,'ministries'),s=>{state.ministries=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.sortOrder||0)-(b.sortOrder||0));render()},console.error));
@@ -101,14 +138,171 @@ function renderError(e){appEl.innerHTML=`<div class="wrap"><div class="card"><h2
 function render(){if(!state.user)return renderLogin();if(!state.ready)return appEl.innerHTML='<div class="wrap"><div class="card"><h2>Loading...</h2></div></div>';renderApp()}
 function nav(v){state.view=v;localStorage.setItem('cvsView',v);render()} window.nav=nav;
 
-function renderLogin(){appEl.innerHTML=`<div class="wrap login"><div><div class="hero brandHero loginBrandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>View your next service and volunteer assignment.</p></div></div></div><div class="card"><h2>Login</h2><label>Email</label><input id="email" type="email"><label>Password</label><div class="passwordBox"><input id="pass" type="password"><button class="secondary" onclick="togglePass('pass',this)">Show</button></div><div class="row" style="margin-top:14px"><button onclick="login()">Login</button><button class="secondary" onclick="createAccount()">Create Account</button><button class="ghost" onclick="forgotPassword()">Forgot Password</button></div><p class="small">New accounts start as Pending. Pending users can view the next service and calendar while waiting for approval.</p></div></div></div>`}
-window.togglePass=(id,b)=>{const e=document.getElementById(id);e.type=e.type==='password'?'text':'password';b.textContent=e.type==='password'?'Show':'Hide'};
-window.login=async()=>{try{await signInWithEmailAndPassword(auth,$('#email').value.trim(),$('#pass').value)}catch(e){alert(friendly(e))}};
-window.createAccount=async()=>{try{const email=$('#email').value.trim(),pass=$('#pass').value;if(!email||!pass)return alert('Enter email and password.');await createUserWithEmailAndPassword(auth,email,pass)}catch(e){alert(friendly(e))}};
-window.forgotPassword=async()=>{const email=$('#email')?.value.trim()||prompt('Enter your email');if(!email)return;try{await sendPasswordResetEmail(auth,email);alert('Password reset email sent.')}catch(e){alert(friendly(e))}};
+function renderLogin(){
+  appEl.innerHTML=`<div class="wrap login"><div>
+    <div class="hero brandHero loginBrandHero">
+      <div class="brandLeft">
+        <img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo">
+        <span class="brandDivider"></span>
+        <div class="brandTitle">
+          <h1>Church Volunteer Scheduler</h1>
+          <p>Sign in using your username or existing email address.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card authCard">
+      <div class="authTabs">
+        <button id="loginTab" class="active" onclick="showAuthPanel('login')">Login</button>
+        <button id="signupTab" onclick="showAuthPanel('signup')">Create Account</button>
+      </div>
+
+      <section id="loginPanel">
+        <h2>Welcome Back</h2>
+        <label>Username or Email</label>
+        <input id="loginId" type="text" autocomplete="username" placeholder="Username or email address">
+        <label>Password</label>
+        <div class="passwordBox">
+          <input id="loginPass" type="password" autocomplete="current-password">
+          <button class="secondary" onclick="togglePass('loginPass',this)">Show</button>
+        </div>
+        <button class="authPrimary" onclick="login()">Login</button>
+        <button class="ghost authLink" onclick="forgotPassword()">Forgot Password</button>
+        <p class="small">Existing accounts may continue signing in with their email address.</p>
+      </section>
+
+      <section id="signupPanel" hidden>
+        <h2>Create Your Account</h2>
+        <label>Username <span class="required">*</span></label>
+        <input id="signupUsername" type="text" maxlength="24" autocomplete="username" placeholder="Example: mark.juliano">
+        <p class="fieldHelp">3–24 characters: letters, numbers, dot, underscore, or hyphen.</p>
+
+        <label>Display Name <span class="required">*</span></label>
+        <input id="signupName" type="text" autocomplete="name" placeholder="Example: Mark Juliano">
+
+        <label>Recovery Email <span class="optional">(optional)</span></label>
+        <input id="signupRecoveryEmail" type="email" autocomplete="email" placeholder="Used only for password recovery">
+        <p class="fieldHelp">You may create an account without email. Without one, password recovery requires an administrator.</p>
+
+        <label>Password <span class="required">*</span></label>
+        <div class="passwordBox">
+          <input id="signupPass" type="password" autocomplete="new-password" minlength="6">
+          <button class="secondary" onclick="togglePass('signupPass',this)">Show</button>
+        </div>
+
+        <button class="authPrimary" onclick="createUsernameAccount()">Create Account</button>
+        <p class="small">New accounts start as Pending until approved.</p>
+      </section>
+    </div>
+  </div></div>`;
+}
+
+window.showAuthPanel=panel=>{
+  const signup=panel==='signup';
+  $('#loginPanel').hidden=signup;
+  $('#signupPanel').hidden=!signup;
+  $('#loginTab').classList.toggle('active',!signup);
+  $('#signupTab').classList.toggle('active',signup);
+  (signup?$('#signupUsername'):$('#loginId'))?.focus();
+};
+
+window.togglePass=(id,b)=>{
+  const e=document.getElementById(id);
+  e.type=e.type==='password'?'text':'password';
+  b.textContent=e.type==='password'?'Show':'Hide';
+};
+
+window.login=async()=>{
+  const identifier=$('#loginId')?.value.trim();
+  const password=$('#loginPass')?.value;
+  if(!identifier||!password)return alert('Enter your username/email and password.');
+
+  try{
+    let loginEmail=identifier;
+    if(!identifier.includes('@')){
+      const record=await usernameRecord(identifier);
+      if(!record?.loginEmail)throw {code:'auth/invalid-credential'};
+      loginEmail=record.loginEmail;
+    }
+    await signInWithEmailAndPassword(auth,loginEmail,password);
+  }catch(e){
+    alert(friendly(e));
+  }
+};
+
+window.createUsernameAccount=async()=>{
+  const username=$('#signupUsername')?.value.trim();
+  const normalized=normalizeUsername(username);
+  const name=$('#signupName')?.value.trim();
+  const recoveryEmail=$('#signupRecoveryEmail')?.value.trim().toLowerCase();
+  const password=$('#signupPass')?.value;
+  const validation=usernameError(username);
+
+  if(validation)return alert(validation);
+  if(!name)return alert('Enter your display name.');
+  if(!password||password.length<6)return alert('Password must be at least 6 characters.');
+
+  let credential=null;
+  try{
+    if(await usernameRecord(normalized))return alert('That username is already taken.');
+
+    const loginEmail=recoveryEmail||usernameLoginEmail(normalized);
+    credential=await createUserWithEmailAndPassword(auth,loginEmail,password);
+    const uid=credential.user.uid;
+
+    await setDoc(doc(db,'usernames',normalized),{
+      uid,
+      username:normalized,
+      loginEmail,
+      hasRecoveryEmail:!!recoveryEmail,
+      createdAt:serverTimestamp()
+    });
+
+    await setDoc(doc(db,'users',uid),{
+      name,
+      username:normalized,
+      email:recoveryEmail||null,
+      recoveryEmail:recoveryEmail||null,
+      status:'pending',
+      role:'pending',
+      ministryIds:[],
+      qualifications:[],
+      createdAt:serverTimestamp()
+    });
+
+    alert('Account created. Your username is '+normalized+'.');
+  }catch(e){
+    if(credential?.user){
+      try{await deleteUser(credential.user);}catch{}
+    }
+    alert(e?.code==='auth/email-already-in-use'&&recoveryEmail
+      ? 'That recovery email already belongs to an account. Sign in with that email or use another recovery email.'
+      : friendly(e));
+  }
+};
+
+window.forgotPassword=async()=>{
+  const identifier=$('#loginId')?.value.trim()||prompt('Enter your username or email address');
+  if(!identifier)return;
+
+  try{
+    let resetEmail=identifier;
+    if(!identifier.includes('@')){
+      const record=await usernameRecord(identifier);
+      if(!record)return alert('Username not found.');
+      if(!record.hasRecoveryEmail)return alert('This username has no recovery email. Please contact an administrator to reset the password.');
+      resetEmail=record.loginEmail;
+    }
+    await sendPasswordResetEmail(auth,resetEmail);
+    alert('Password reset email sent.');
+  }catch(e){
+    alert(friendly(e));
+  }
+};
+
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.1.9</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.profile?.username||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.2.0</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}
@@ -480,7 +674,77 @@ window.printSchedule=()=>{
 
 window.selectCalendarDate=d=>{state.selectedCalendarDate=d;renderCalendar()};window.changeCalendarMonth=n=>{const [y,m]=state.calendarMonth.split('-').map(Number),d=new Date(y,m-1+n,1);state.calendarMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;state.selectedCalendarDate=state.calendarMonth+'-01';renderCalendar()};
 
-function renderProfile(){const p=state.profile;$('#main').innerHTML=`<div class="card"><h2>Profile</h2><label>Name</label><input id="profileName" value="${esc(p.name||'')}"><label>Email</label><input value="${esc(state.user.email)}" disabled><label>Phone</label><input id="profilePhone" value="${esc(p.phone||'')}"><label>Account Type</label><input value="${esc(roleLabel(p.role))}" disabled><button style="margin-top:12px" onclick="saveProfile()">Save Profile</button></div><div class="card"><h2>Change Password</h2><input id="newPassword" type="password" placeholder="New password"><button style="margin-top:10px" onclick="changeMyPassword()">Change Password</button></div>`}
+function renderProfile(){
+  const p=state.profile;
+  const authEmail=state.user?.email||'';
+  const recovery=p.recoveryEmail||p.email||(!isInternalLoginEmail(authEmail)?authEmail:'');
+  const hasUsername=!!p.username;
+
+  $('#main').innerHTML=`<div class="card">
+    <h2>Profile</h2>
+
+    <label>Name</label>
+    <input id="profileName" value="${esc(p.name||'')}">
+
+    <label>Username</label>
+    ${hasUsername
+      ? `<input value="${esc(p.username)}" disabled><p class="fieldHelp">Use this username or your email to log in.</p>`
+      : `<div class="claimUsernameRow">
+          <input id="profileUsername" maxlength="24" placeholder="Choose a username">
+          <button onclick="claimUsername()">Claim Username</button>
+        </div>
+        <p class="fieldHelp">Your existing email login will continue working after you add a username.</p>`}
+
+    <label>Recovery Email</label>
+    <input value="${esc(recovery||'No recovery email added')}" disabled>
+    <p class="fieldHelp">${recovery
+      ? 'Password reset messages are sent to this address.'
+      : 'This account has no self-service password recovery. Contact an administrator if you forget the password.'}</p>
+
+    <label>Phone</label>
+    <input id="profilePhone" value="${esc(p.phone||'')}">
+
+    <label>Account Type</label>
+    <input value="${esc(roleLabel(p.role))}" disabled>
+
+    <button style="margin-top:12px" onclick="saveProfile()">Save Profile</button>
+  </div>
+
+  <div class="card">
+    <h2>Change Password</h2>
+    <input id="newPassword" type="password" placeholder="New password">
+    <button style="margin-top:10px" onclick="changeMyPassword()">Change Password</button>
+  </div>`;
+}
+
+window.claimUsername=async()=>{
+  const username=$('#profileUsername')?.value.trim();
+  const normalized=normalizeUsername(username);
+  const validation=usernameError(username);
+  if(validation)return alert(validation);
+
+  try{
+    if(await usernameRecord(normalized))return alert('That username is already taken.');
+
+    await setDoc(doc(db,'usernames',normalized),{
+      uid:state.user.uid,
+      username:normalized,
+      loginEmail:state.user.email,
+      hasRecoveryEmail:!isInternalLoginEmail(state.user.email),
+      createdAt:serverTimestamp()
+    });
+
+    await updateDoc(doc(db,'users',state.user.uid),{
+      username:normalized,
+      updatedAt:serverTimestamp()
+    });
+
+    alert('Username added. You may now log in using '+normalized+' or your email.');
+  }catch(e){
+    alert(friendly(e));
+  }
+};
+
 window.saveProfile=async()=>{await updateDoc(doc(db,'users',state.user.uid),{name:$('#profileName').value.trim(),phone:$('#profilePhone').value.trim()});alert('Profile saved.')};window.changeMyPassword=async()=>{const p=$('#newPassword').value;if(p.length<6)return alert('Use at least 6 characters.');try{await updatePassword(state.user,p);alert('Password changed.')}catch(e){alert(friendly(e))}};
 
 function renderSchedule(){

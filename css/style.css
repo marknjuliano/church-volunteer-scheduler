@@ -2435,3 +2435,46 @@ textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-column
   body.gridSchedulePrinting .gridMobileScheduler{display:none!important}
   body.gridSchedulePrinting .gridTableScroller{display:block!important}
 }
+
+
+/* Alpha 6.2.0 — username or email authentication */
+.authCard{max-width:680px;margin-inline:auto}
+.authTabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  margin-bottom:20px;
+  padding:4px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#f3f7f5;
+}
+.authTabs button{
+  min-height:44px;
+  border:0;
+  background:transparent;
+  color:var(--ink);
+  box-shadow:none;
+}
+.authTabs button.active{
+  background:var(--brand);
+  color:#fff;
+}
+.authPrimary{width:100%;margin-top:16px}
+.authLink{display:block;margin:8px auto 0}
+.required{color:#a62c2c}
+.optional{color:var(--muted);font-weight:400}
+.fieldHelp{
+  margin:-7px 0 12px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.4;
+}
+.claimUsernameRow{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+}
+@media(max-width:520px){
+  .claimUsernameRow{grid-template-columns:1fr}
+  .authTabs button{padding-inline:8px}
+}
