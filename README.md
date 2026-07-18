@@ -322,3 +322,10 @@ Firebase Authentication still uses its secure email/password provider internally
 - Simplified placeholders.
 - Improved password Show/Hide button sizing and accessibility.
 - Refined mobile spacing while preserving username/email authentication behavior.
+
+
+## Alpha 6.2.2 (Preparation)
+This package is prepared for integrating the TECH/CREATIVE SCHEDULE header.
+Next step:
+- Replace header image in /images with the approved asset.
+- Make logo link to Dashboard/Home.
