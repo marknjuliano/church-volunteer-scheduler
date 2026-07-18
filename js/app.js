@@ -1,4 +1,4 @@
-console.log('Church Volunteer Scheduler v1.0.0-alpha6.2.1 preserve grid scroll position');
+console.log('Church Volunteer Scheduler v1.0.0-alpha6.2.2 preserve grid scroll position');
 import { auth, db, firebaseConfigured } from './firebase.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -104,7 +104,13 @@ function friendly(e){const m={'auth/email-already-in-use':'This email is already
 
 if(!firebaseConfigured){renderSetup();} else onAuthStateChanged(auth,async user=>{cleanup();state={...state,user,profile:null,services:[],ministries:[],roles:[],users:[],assignments:[],ready:false};if(!user)return renderLogin();await ensureProfile(user);startListeners();});
 
-function renderSetup(){appEl.innerHTML=`<div class="wrap login"><div><div class="hero brandHero loginBrandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>v1.0.0 Alpha 4.1</p></div></div></div><div class="card"><h2>Connect Firebase First</h2><div class="notice warn"><b>This build is ready, but it is intentionally not connected to the old Pickleball database.</b></div><p>Open <code>js/firebase.js</code> and paste the Web App configuration from your new church Firebase project.</p><p class="small">This protects your existing PowerDink data from being mixed with church schedules.</p></div></div></div>`}
+function renderSetup(){appEl.innerHTML=`<div class="wrap login"><div>
+<div class="hero brandHero loginBrandHero techCreativeHero">
+  <button class="techCreativeHomeLink" type="button" onclick="goHome()" aria-label="Go to home page">
+    <img src="images/tech-creative-header.jpg" class="techCreativeHeaderImage" alt="Tech Creative Schedule">
+  </button>
+</div>
+</div><div class="card"><h2>Connect Firebase First</h2><div class="notice warn"><b>This build is ready, but it is intentionally not connected to the old Pickleball database.</b></div><p>Open <code>js/firebase.js</code> and paste the Web App configuration from your new church Firebase project.</p><p class="small">This protects your existing PowerDink data from being mixed with church schedules.</p></div></div></div>`}
 
 async function ensureProfile(user){
   const ref=doc(db,'users',user.uid);
@@ -141,14 +147,9 @@ function nav(v){state.view=v;localStorage.setItem('cvsView',v);render()} window.
 function renderLogin(){
   appEl.innerHTML=`<div class="wrap login"><div>
     <div class="hero brandHero loginBrandHero">
-      <div class="brandLeft">
-        <img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo">
-        <span class="brandDivider"></span>
-        <div class="brandTitle">
-          <h1>Church Volunteer Scheduler</h1>
-          <p>Sign in using your username or existing email address.</p>
-        </div>
-      </div>
+      <button class="techCreativeHomeLink appHeaderLogo" type="button" onclick="goHome()" aria-label="Go to home page">
+      <img src="images/tech-creative-header.jpg" class="techCreativeHeaderImage" alt="Tech Creative Schedule">
+    </button>
     </div>
 
     <div class="card authCard">
@@ -302,9 +303,24 @@ window.forgotPassword=async()=>{
   }
 };
 
+
+window.goHome=()=>{
+  try{
+    localStorage.setItem('activePage','home');
+  }catch{}
+  if(typeof showPage==='function'){
+    showPage('home');
+  }else if(typeof navigate==='function'){
+    navigate('home');
+  }else{
+    location.hash='#home';
+    location.reload();
+  }
+};
+
 window.logout=()=>signOut(auth);
 
-function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.profile?.username||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.2.1</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
+function renderApp(){const tabs=[['home','Home'],['calendar','Calendar'],['profile','Profile']];if(isCoordinator())tabs.push(['schedule','Schedule']);if(isAdmin())tabs.push(['admin','Admin']);appEl.innerHTML=`<div class="wrap"><div class="hero heroWithBell brandHero"><div class="brandLeft"><img src="images/church-logo.svg" class="powerDinkLogo" alt="Church logo"><span class="brandDivider"></span><div class="brandTitle"><h1>Church Volunteer Scheduler</h1><p>${esc(state.profile?.name||state.profile?.username||state.user.email)} • ${esc(roleLabel(state.profile?.role))}</p></div></div></div><div class="tabs">${tabs.map(([v,l])=>`<button class="tab ${state.view===v?'active':''}" onclick="nav('${v}')">${l}</button>`).join('')}<button class="tab" onclick="logout()">Logout</button></div><main id="main"></main><div class="footer">Securely connected • Church Volunteer Scheduler v1.0.0-alpha6.2.2</div></div>`;if(state.view==='calendar')renderCalendar();else if(state.view==='profile')renderProfile();else if(state.view==='schedule'&&isCoordinator())renderSchedule();else if(state.view==='admin'&&isAdmin())renderAdmin();else renderHome()}
 const roleLabel=r=>({pending:'Pending / Schedule View',scheduleViewer:'Schedule Viewer',volunteer:'Volunteer',volunteerS:'Volunteer (S)',coordinator:'Coordinator',admin:'Admin'}[r]||'Pending');
 function visibleMinistries(){return state.ministries.filter(m=>m.visible!==false&&!m.archived)}
 function visibleRoles(ministryId){return state.roles.filter(r=>r.ministryId===ministryId&&r.visible!==false&&!r.archived)}

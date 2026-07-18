@@ -324,8 +324,10 @@ Firebase Authentication still uses its secure email/password provider internally
 - Refined mobile spacing while preserving username/email authentication behavior.
 
 
-## Alpha 6.2.2 (Preparation)
-This package is prepared for integrating the TECH/CREATIVE SCHEDULE header.
-Next step:
-- Replace header image in /images with the approved asset.
-- Make logo link to Dashboard/Home.
+## Alpha 6.2.2 — TECH/CREATIVE Header
+- Replaced the green Church Volunteer Scheduler hero with the approved TECH/CREATIVE SCHEDULE header image.
+- Removed the visible border around the header.
+- Preserved the image aspect ratio to prevent distortion.
+- Made the full header clickable.
+- Clicking the header returns to the Home/Dashboard page.
+- Added responsive sizing for desktop and mobile.
