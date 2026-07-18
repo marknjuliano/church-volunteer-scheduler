@@ -329,3 +329,16 @@ This package is prepared for integrating the TECH/CREATIVE SCHEDULE header.
 Next step:
 - Replace header image in /images with the approved asset.
 - Make logo link to Dashboard/Home.
+
+
+## Alpha 6.2.6
+- Orange is reserved for the HisLife logo and the SCHEDULE word only.
+- Replaced orange interface controls with navy and neutral gray styling.
+- Removed the signed-in name and role from the main header.
+
+## Alpha 6.2.7
+- Finalized the restrained color palette.
+- Orange is used only for the original HisLife logo and the word **SCHEDULE**.
+- All primary controls now use navy; secondary controls use white and neutral gray.
+- Removed the signed-in name and role from the header.
+- Added high-priority overrides to prevent older orange or black button rules from reappearing.

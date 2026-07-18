@@ -2835,3 +2835,123 @@ button.danger:hover,.rowDeleteAction:hover{background:#fff1f0!important;color:#9
 @media(max-width:760px){
   .gridToolbarActions button{min-width:0}
 }
+
+/* Alpha 6.2.6 — orange reserved for the HisLife mark and SCHEDULE word only */
+:root{
+  --brand:#344767;
+  --brand-2:#263754;
+  --brand-soft:#eef2f7;
+  --accent:#667085;
+  --accent-soft:#f2f4f7;
+}
+body:before,body:after{display:none!important}
+.brandSubline{color:#ff5a00!important}
+.brandTitle p{display:none!important}
+button{background:#344767;color:#fff}
+button:hover{background:#263754;box-shadow:0 8px 20px rgba(52,71,103,.18)}
+button.secondary,
+.homeCalendarLink,.homeViewAll,.homeServiceCard button,.expandBtn{
+  background:#fff!important;color:#344054!important;border:1px solid #d0d5dd!important;box-shadow:none!important
+}
+button.secondary:hover,
+.homeCalendarLink:hover,.homeViewAll:hover,.homeServiceCard button:hover,.expandBtn:hover{
+  background:#f2f4f7!important;color:#1d2939!important
+}
+button.ghost{background:transparent!important;color:#344767!important}
+button.ghost:hover{background:#eef2f7!important}
+.tab.active{background:#eef0f3!important;color:#111827!important}
+.authTabs button.active{border-bottom-color:#344767!important;color:#111827!important}
+.authPrimary{background:#344767!important;color:#fff!important}
+.authPrimary:hover{background:#263754!important}
+input:focus,select:focus,textarea:focus{border-color:#667085!important;box-shadow:0 0 0 4px rgba(102,112,133,.14)!important}
+.homeServiceDate span,.homeServiceDate b{color:#344767!important}
+.featuredDate .month,.featuredDate .day{color:#344767!important}
+.badge.green,.calendarEvent{background:#eef2f7!important;color:#344767!important}
+.calendarSelected{outline-color:#344767!important}
+.miniCount,.featuredRibbon{background:#344767!important}
+
+/* Alpha 6.2.7 — final restrained palette
+   Orange appears only in the HisLife image and the SCHEDULE word. */
+:root{
+  --brand:#344767!important;
+  --brand-2:#263754!important;
+  --brand-soft:#eef2f7!important;
+}
+.brandSubline{color:#ff5a00!important}
+.brandTitle p{display:none!important}
+
+/* All filled interface actions use navy, not orange or black. */
+button,
+.authPrimary,
+.gridPrimaryAction,
+.gridActionRow button,
+.scheduleManagerHeader button,
+.gridToolbarActions button,
+.scheduleManagerHeader .secondary,
+.scheduleManagerTabs button.active{
+  background:#344767!important;
+  color:#fff!important;
+  border-color:#344767!important;
+}
+button:hover,
+.authPrimary:hover,
+.gridPrimaryAction:hover,
+.gridActionRow button:hover,
+.scheduleManagerHeader button:hover,
+.gridToolbarActions button:hover,
+.scheduleManagerHeader .secondary:hover,
+.scheduleManagerTabs button.active:hover{
+  background:#263754!important;
+  color:#fff!important;
+  border-color:#263754!important;
+}
+
+/* Active navigation stays neutral so it does not compete with the logo. */
+.tab.active{
+  background:#eef0f3!important;
+  color:#111827!important;
+  border-color:#eef0f3!important;
+}
+
+/* Outlined and secondary controls remain white and gray. */
+button.secondary,
+.passwordToggle,
+.homeCalendarLink,.homeViewAll,.homeServiceCard button,.expandBtn,
+.rowActionMenuPanel button,
+.gridRoleChip button,.roleHeaderInner button,
+.gridToolbarActions .secondary,
+.gridActionRow .secondary{
+  background:#fff!important;
+  color:#344054!important;
+  border:1px solid #d0d5dd!important;
+  box-shadow:none!important;
+}
+button.secondary:hover,
+.passwordToggle:hover,
+.homeCalendarLink:hover,.homeViewAll:hover,.homeServiceCard button:hover,.expandBtn:hover,
+.rowActionMenuPanel button:hover,
+.gridRoleChip button:hover,.roleHeaderInner button:hover,
+.gridToolbarActions .secondary:hover,
+.gridActionRow .secondary:hover{
+  background:#f2f4f7!important;
+  color:#1d2939!important;
+  border-color:#b8c0cc!important;
+}
+button.ghost,.authLink{
+  background:transparent!important;
+  color:#344767!important;
+  border-color:transparent!important;
+}
+button.ghost:hover,.authLink:hover{background:#eef2f7!important;color:#263754!important}
+
+/* Remove orange decoration from schedule controls and chips. */
+.scheduleManagerTabs button:hover{background:#eef2f7!important;color:#263754!important}
+.gridRoleChip{background:#fff!important;border-color:#d0d5dd!important;color:#344054!important}
+.rowActionMenu[open]>summary{background:#f2f4f7!important;border-color:#b8c0cc!important}
+input:focus,select:focus,textarea:focus{
+  border-color:#667085!important;
+  box-shadow:0 0 0 4px rgba(102,112,133,.14)!important;
+}
+
+/* Keep the logo image untouched. */
+.powerDinkLogo{filter:none!important}
