@@ -1,0 +1,2649 @@
+:root{
+  --bg:#f4f7f6;
+  --surface:#ffffff;
+  --surface-2:#f8faf9;
+  --ink:#17211d;
+  --muted:#68756f;
+  --brand:#145c43;
+  --brand-2:#0f4634;
+  --brand-soft:#e7f3ed;
+  --accent:#c8a45a;
+  --accent-soft:#fbf5e8;
+  --line:#dce5e0;
+  --danger:#c83838;
+  --danger-soft:#fdecec;
+  --warning:#a86f08;
+  --warning-soft:#fff7df;
+  --info:#2f66b1;
+  --info-soft:#edf4ff;
+  --shadow-sm:0 4px 16px rgba(20,48,38,.07);
+  --shadow:0 18px 45px rgba(20,48,38,.10);
+  --radius-sm:12px;
+  --radius:18px;
+  --radius-lg:26px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 20% 0%,#fff 0,#f4f7f6 38%,#eef3f0 100%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}
+button{border:0;border-radius:12px;padding:12px 16px;background:var(--brand);color:#fff;font-weight:750;cursor:pointer;box-shadow:none;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+button:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(20,92,67,.18);background:var(--brand-2)}
+button:active{transform:translateY(0)}
+button.secondary{background:#eef3f0;color:#23302a;border:1px solid var(--line)}
+button.secondary:hover{background:#e5ece8;box-shadow:none}
+button.danger{background:var(--danger)}
+button.success{background:#168253}
+button.ghost{background:transparent;color:var(--brand);box-shadow:none}
+button.ghost:hover{background:var(--brand-soft)}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.wrap{width:min(1180px,100%);margin:auto;padding:26px 22px 60px}
+.appShell{min-height:100vh}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;border-radius:var(--radius-lg);padding:24px 28px;margin-bottom:16px;box-shadow:var(--shadow)}
+.hero:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-90px;top:-120px;background:rgba(255,255,255,.07)}
+.hero h1{margin:0;font-size:clamp(25px,4vw,38px);line-height:1.05;letter-spacing:-.7px}
+.hero p{margin:7px 0 0;color:rgba(255,255,255,.76)}
+.heroWithBell{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brandHero{min-height:126px;display:flex;align-items:center}
+.brandLeft{display:flex;align-items:center;gap:20px;position:relative;z-index:1;min-width:0}
+.powerDinkLogo{width:82px;height:82px;object-fit:contain;flex:none;filter:drop-shadow(0 8px 12px rgba(0,0,0,.14))}
+.brandDivider{width:1px;height:70px;background:rgba(255,255,255,.25);flex:none}
+.brandTitle{min-width:0}.brandTitle h1{max-width:720px}.brandTitle p{font-size:15px}
+.card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin:16px 0;box-shadow:var(--shadow-sm)}
+.card:hover{border-color:#cedbd4}
+h2{margin:0 0 16px;font-size:clamp(23px,3vw,30px);line-height:1.2;letter-spacing:-.4px}h3{margin:22px 0 10px;font-size:19px}.small{color:var(--muted);font-size:14px}.muted{color:var(--muted)}
+label{display:block;font-weight:700;margin:13px 0 7px;color:#314039}
+input,select,textarea{width:100%;border:1px solid #cfdad4;border-radius:12px;padding:12px 13px;background:#fff;color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(20,92,67,.10)}
+textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.tabs{position:sticky;top:10px;z-index:30;display:flex;gap:6px;overflow-x:auto;padding:7px;margin:0 0 18px;background:rgba(255,255,255,.88);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow-sm)}
+.tab{white-space:nowrap;background:transparent;color:#3d4a44;border:0;box-shadow:none;border-radius:10px;padding:11px 16px}
+.tab:hover{background:var(--surface-2);box-shadow:none}.tab.active{background:var(--brand);color:#fff}.tab:last-child{margin-left:auto;color:#8b3434}.tab:last-child:hover{background:var(--danger-soft);color:var(--danger)}
+.sectionTitle{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:24px 4px 10px}.sectionTitle h2,.otherTitle{margin:0}.sectionTitle .small{margin:0}
+.big{font-size:21px;font-weight:850;letter-spacing:-.2px}.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800;margin:3px 4px 3px 0;letter-spacing:.02em}.badge.green{background:var(--brand-soft);color:var(--brand)}.badge.yellow{background:var(--warning-soft);color:var(--warning)}.badge.red{background:var(--danger-soft);color:var(--danger)}.badge.blue{background:var(--info-soft);color:var(--info)}
+.notice{border:1px solid #b9ddd0;background:#eff8f4;color:#1b5a46;border-radius:14px;padding:14px 16px;margin:15px 0}.notice.warn{border-color:#ead39c;background:var(--warning-soft);color:#765309}.notice.info{border-color:#bed0ed;background:var(--info-soft);color:#234f8b}.error{background:var(--danger-soft);color:#992b2b;padding:13px 15px;border-radius:12px;margin:10px 0}.successText{color:#147148}
+.person{display:flex;justify-content:space-between;gap:16px;align-items:center;border:1px solid var(--line);background:var(--surface-2);border-radius:14px;padding:14px 16px;margin:10px 0}.person b{font-size:16px}.person .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center}.person .actions select{min-width:170px}
+.dash{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:4px 0 20px}.stat{position:relative;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}.stat:after{content:"";position:absolute;right:-18px;bottom:-28px;width:85px;height:85px;border-radius:50%;background:var(--brand-soft)}.stat span{color:var(--muted);font-weight:700}.stat b{display:block;font-size:34px;line-height:1;margin-top:9px;position:relative;z-index:1}
+.passwordBox{display:flex;gap:10px}.passwordBox input{flex:1}.passwordBox button{min-width:86px}.login{min-height:100vh;display:grid;place-items:center;padding-top:30px}.login>div{width:min(560px,100%)}.loginBrandHero{min-height:150px}.login .card{padding:28px}.login .card>p.small{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}.hide{display:none}
+.statusBox{border:1px solid var(--line);background:#fff;border-radius:16px;padding:16px;margin:14px 0}.statusBox>h3{margin-top:14px}.statusGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px}.statusChoice{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px;margin:0;font-weight:700;cursor:pointer}.statusChoice input{width:auto;transform:scale(1.15)}
+.featuredEvent{position:relative;display:grid;grid-template-columns:150px 1fr;overflow:hidden;margin:16px 0 26px;border-radius:22px;border:1px solid #b9d8cb;background:linear-gradient(135deg,#fff 0%,#f3faf6 100%);box-shadow:var(--shadow)}.featuredRibbon{position:absolute;top:14px;left:14px;background:var(--brand);border-radius:999px;color:#fff;font-weight:800;padding:7px 11px;font-size:12px;z-index:2}.featuredDate{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:54px 18px 28px;border-right:1px solid var(--line);text-align:center;background:var(--brand-soft)}.featuredDate .month{font-size:13px;text-transform:uppercase;letter-spacing:.13em;color:var(--brand);font-weight:850}.featuredDate .day{font-size:54px;line-height:1;font-weight:900;color:var(--brand-2)}.featuredDate .weekday{font-size:13px;color:var(--muted);font-weight:750}.featuredMain{padding:28px}.featuredTop{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.featuredTop h2{margin:0}.featuredBadges{margin-top:12px}.eventDetailsCard{margin-top:18px;border-top:1px solid var(--line);padding-top:15px;color:#435049}.eventExpanded{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.calendarHeader{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.calendarHeader h2{margin:0}.calendarGrid,.calendarWeekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.calendarWeekdays div{text-align:center;color:var(--muted);font-size:12px;font-weight:800;padding:8px 0}.calendarCell{min-height:92px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;cursor:pointer}.calendarCell:hover{border-color:#9fc6b5;background:#fbfdfc}.calendarCell.empty{background:transparent;border-color:transparent;cursor:default}.calendarSelected{outline:2px solid var(--brand);outline-offset:1px}.calendarEvent{margin-top:7px;background:var(--brand-soft);color:var(--brand);padding:5px 6px;border-radius:7px;font-size:11px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.miniCount{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--brand);color:#fff;font-size:10px;float:right}
+.coordEventCard{border:1px solid var(--line);border-radius:16px;background:#fff;margin:12px 0;overflow:hidden}.coordEventCard summary{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:18px;cursor:pointer;list-style:none}.coordEventCard summary::-webkit-details-marker{display:none}.coordEventCard summary p{margin:4px 0 0;color:var(--muted)}.coordSummaryRight{display:flex;align-items:center;gap:12px}.coordExpandText{font-size:13px;color:var(--muted);font-weight:750}.coordEventBody{padding:0 18px 18px;border-top:1px solid var(--line);background:#fbfdfc}.coordEventBody>.row{margin-top:16px}
+.calendarCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}
+@media(max-width:800px){.dash{grid-template-columns:repeat(2,minmax(0,1fr))}.featuredEvent{grid-template-columns:120px 1fr}.featuredDate .day{font-size:45px}.wrap{padding:18px 14px 50px}.tabs{top:6px}.brandDivider{display:none}.brandLeft{gap:14px}.powerDinkLogo{width:68px;height:68px}.hero{padding:22px}}
+@media(max-width:620px){body{font-size:15px}.wrap{padding:10px 10px 42px}.hero{border-radius:20px;padding:20px}.hero h1{font-size:26px}.brandHero{min-height:110px}.powerDinkLogo{width:56px;height:56px}.brandTitle p{font-size:13px}.card{padding:18px;border-radius:16px}.eventTop,.featuredTop{display:block}.person{display:block}.person .actions{margin-top:12px;justify-content:flex-start}.person .actions>*{flex:1;min-width:120px}.tabs{border-radius:13px}.tab{padding:10px 13px}.tab:last-child{margin-left:0}.featuredEvent{grid-template-columns:1fr}.featuredDate{padding:52px 18px 18px;border-right:0;border-bottom:1px solid var(--line)}.featuredMain{padding:20px}.calendarCell{min-height:70px;padding:6px}.calendarGrid,.calendarWeekdays{gap:3px}.calendarEvent{font-size:9px}.coordEventCard summary{align-items:flex-start}.coordSummaryRight{display:block;text-align:right}.login .row{grid-template-columns:1fr}.login .row button{width:100%}.sectionTitle{display:block}.dash{gap:9px}.stat{padding:16px}.stat b{font-size:28px}}
+
+/* Alpha 4 — volunteer ministry and role qualifications */
+.qualificationPanel{margin:-2px 0 18px;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.qualificationPanel summary{cursor:pointer;padding:14px 16px;font-weight:800;color:var(--brand);list-style:none;background:var(--brand-soft)}
+.qualificationPanel summary::-webkit-details-marker{display:none}
+.qualificationPanel summary:after{content:'Manage';float:right;font-size:12px;color:var(--muted)}
+.qualificationPanel[open] summary:after{content:'Close'}
+.qualificationBody{padding:16px}
+.qualificationMinistry{padding:12px 0;border-bottom:1px solid var(--line)}
+.qualificationMinistry:last-of-type{border-bottom:0}
+.qualificationMinistry h3{margin:0 0 9px}
+.qualificationChoice{display:inline-flex;align-items:center;gap:7px;margin:4px 8px 4px 0;padding:9px 11px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);font-weight:700;cursor:pointer}
+.qualificationChoice input{width:auto;margin:0}
+.assignmentBuilder{margin-top:14px;align-items:end}
+.userCard{margin-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0}
+.userCard + .qualificationPanel{border-top-left-radius:0;border-top-right-radius:0;border-top:0}
+
+
+/* Alpha 4.5 — mobile schedule refinement */
+@media(max-width:620px){
+  body{
+    background:linear-gradient(180deg,#f8fbf9 0,#eef5f1 100%);
+  }
+
+  .wrap{
+    padding:8px 8px 34px;
+  }
+
+  .tabs{
+    position:sticky;
+    top:4px;
+    gap:4px;
+    padding:6px;
+    margin:0 0 16px;
+    border-radius:14px;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    box-shadow:0 8px 22px rgba(20,48,38,.10);
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    scroll-snap-align:start;
+    flex:0 0 auto;
+    min-height:42px;
+    padding:10px 14px;
+    font-size:14px;
+  }
+
+  .sectionTitle{
+    margin:18px 4px 12px;
+  }
+  .sectionTitle h2,
+  .otherTitle{
+    font-size:24px;
+    line-height:1.15;
+  }
+  .sectionTitle .small,
+  .otherTitle + .small{
+    display:block;
+    margin-top:5px;
+    font-size:13px;
+    line-height:1.45;
+  }
+
+  .featuredEvent{
+    display:block;
+    margin:12px 0 16px;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 10px 28px rgba(20,48,38,.09);
+  }
+
+  .featuredRibbon{
+    top:12px;
+    left:12px;
+    padding:6px 9px;
+    font-size:10px;
+    letter-spacing:.03em;
+  }
+
+  .featuredDate{
+    min-height:auto;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    padding:48px 14px 14px;
+    border-right:0;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(135deg,#e6f4ed,#edf8f3);
+  }
+  .featuredDate span,
+  .featuredDate b,
+  .featuredDate strong,
+  .featuredDate em{
+    display:inline;
+    margin:0;
+    line-height:1;
+  }
+  .featuredDate span{font-size:13px;color:var(--muted)}
+  .featuredDate b{font-size:14px;letter-spacing:.05em}
+  .featuredDate strong{font-size:24px;color:var(--brand-2)}
+  .featuredDate em{font-size:13px;color:var(--muted)}
+
+  .featuredMain{
+    padding:18px 16px 16px;
+  }
+  .featuredMain h2{
+    font-size:23px;
+    margin-bottom:8px;
+  }
+  .featuredMain p{
+    margin:5px 0;
+    line-height:1.55;
+  }
+  .featuredBadges{
+    margin-top:10px;
+  }
+  .featuredMain h3{
+    margin:22px 0 10px;
+    font-size:18px;
+  }
+
+  .featuredMain .person{
+    padding:13px 14px;
+    border-radius:13px;
+    background:#fbfdfc;
+  }
+
+  .eventDetailsCard{
+    margin:10px 0;
+    padding:0;
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    background:#fff;
+  }
+  .eventDetailsCard summary{
+    display:grid;
+    grid-template-columns:44px 1fr auto;
+    gap:10px;
+    align-items:center;
+    padding:13px;
+    list-style:none;
+  }
+  .eventDetailsCard summary::-webkit-details-marker{display:none}
+
+  .miniDate{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:48px;
+    border-radius:10px;
+    background:var(--brand-soft);
+    color:var(--brand);
+    line-height:1;
+  }
+  .miniDate span{font-size:9px;text-transform:uppercase}
+  .miniDate b{font-size:10px;margin:3px 0}
+  .miniDate strong{font-size:18px}
+
+  .miniInfo{
+    min-width:0;
+  }
+  .miniInfo b{
+    display:block;
+    font-size:15px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .miniInfo span{
+    display:block;
+    margin-top:3px;
+    font-size:12px;
+    color:var(--muted);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .miniCount{
+    display:none;
+  }
+  .expandBtn{
+    min-width:0;
+    padding:8px 10px;
+    font-size:0;
+    border-radius:9px;
+  }
+  .expandBtn:after{
+    content:'›';
+    font-size:22px;
+    line-height:1;
+  }
+  .eventDetailsCard[open] .expandBtn:after{
+    content:'⌄';
+  }
+  .eventExpanded{
+    display:block;
+    padding:0 12px 12px;
+    border-top:1px solid var(--line);
+  }
+
+  .card{
+    margin:12px 0;
+    padding:16px;
+  }
+
+  .person{
+    padding:13px;
+  }
+
+  .footer{
+    padding:18px 8px;
+    line-height:1.4;
+  }
+}
+
+@media(max-width:380px){
+  .tab{padding:9px 12px;font-size:13px}
+  .featuredMain{padding:16px 14px}
+  .featuredMain h2{font-size:21px}
+  .featuredDate{gap:5px}
+}
+
+
+/* Alpha 4.7 — collapsible admin sections */
+.adminSection{
+  padding:0;
+  overflow:hidden;
+}
+.adminSection > summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:22px 24px;
+  cursor:pointer;
+  list-style:none;
+  user-select:none;
+}
+.adminSection > summary::-webkit-details-marker{display:none}
+.adminSection > summary span:first-child{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.adminSection > summary b{
+  font-size:24px;
+  color:var(--ink);
+}
+.adminSection > summary small{
+  color:var(--muted);
+  font-size:14px;
+  font-weight:500;
+}
+.adminChevron{
+  flex:0 0 auto;
+  font-size:24px;
+  color:var(--brand);
+  transition:transform .2s ease;
+}
+.adminSection[open] .adminChevron{
+  transform:rotate(180deg);
+}
+.adminSectionBody{
+  padding:0 24px 24px;
+  border-top:1px solid var(--line);
+}
+.adminSectionBody > .person:first-child,
+.adminSectionBody > .statusBox:first-child{
+  margin-top:18px;
+}
+
+@media(max-width:620px){
+  .adminSection > summary{
+    padding:18px 16px;
+  }
+  .adminSection > summary b{
+    font-size:20px;
+  }
+  .adminSection > summary small{
+    font-size:12px;
+    line-height:1.35;
+  }
+  .adminSectionBody{
+    padding:0 12px 14px;
+  }
+}
+
+
+/* Alpha 4.8 — People directory table */
+.peopleDirectory{padding-top:18px}
+.peopleStats{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:16px;
+}
+.peopleStats>div{
+  padding:15px 16px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:linear-gradient(180deg,#fff,#f8fbf9);
+}
+.peopleStats span{display:block;color:var(--muted);font-size:12px}
+.peopleStats b{display:block;margin-top:4px;font-size:25px;color:var(--ink)}
+.peopleToolbar{
+  display:grid;
+  grid-template-columns:minmax(260px,1fr) 190px 170px;
+  gap:10px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-bottom:0;
+  border-radius:14px 14px 0 0;
+  background:#fbfdfc;
+}
+.peopleToolbar select{width:100%}
+.peopleSearch{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+}
+.peopleSearch input{
+  width:100%;
+  padding:11px 0;
+  border:0;
+  outline:0;
+  box-shadow:none;
+}
+.peopleTableScroller{
+  overflow-x:auto;
+  border:1px solid var(--line);
+}
+.peopleTable{
+  width:100%;
+  border-collapse:collapse;
+  min-width:900px;
+  background:#fff;
+}
+.peopleTable th{
+  padding:12px 14px;
+  text-align:left;
+  font-size:12px;
+  color:var(--muted);
+  background:#f8fbf9;
+  border-bottom:1px solid var(--line);
+}
+.peopleTable td{
+  padding:12px 14px;
+  border-bottom:1px solid var(--line);
+  vertical-align:middle;
+}
+.peopleTable tbody tr:hover{background:#fbfdfc}
+.peopleIdentity{display:flex;align-items:center;gap:11px}
+.peopleIdentity small{display:block;color:var(--muted);margin-top:3px}
+.peopleAvatar{
+  display:grid;
+  place-items:center;
+  width:38px;height:38px;
+  flex:0 0 38px;
+  border-radius:50%;
+  background:var(--brand-soft);
+  color:var(--brand);
+  font-size:13px;
+  font-weight:800;
+}
+.peopleRole{
+  display:inline-flex;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  background:#e8f4ee;
+  color:#126748;
+  white-space:nowrap;
+}
+.peopleRole-admin{background:#dff2e8;color:#0c6847}
+.peopleRole-coordinator{background:#e6eeff;color:#2856a8}
+.peopleRole-volunteerS{background:#efe5ff;color:#6a2ab2}
+.peopleRole-pending{background:#fff3d8;color:#8b5d00}
+.peopleRole-scheduleViewer{background:#eef1f4;color:#46515b}
+.peopleStatus{font-size:12px;color:#14734f;white-space:nowrap}
+.peopleStatus-pending{color:#9a6500}
+.peopleActions{display:flex;gap:7px}
+.peopleActions button{
+  min-width:36px;
+  padding:8px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:#fff;
+  color:var(--ink);
+}
+.peopleActions button:hover{background:var(--brand-soft);color:var(--brand)}
+.peopleEmpty{text-align:center;color:var(--muted);padding:28px!important}
+.peoplePager{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-top:0;
+  border-radius:0 0 14px 14px;
+  background:#fbfdfc;
+  font-size:12px;
+  color:var(--muted);
+}
+.peoplePager>div{display:flex;align-items:center;gap:9px}
+.peoplePager select{padding:7px 28px 7px 9px}
+.peoplePager button{padding:8px 11px}
+.peoplePager button:disabled{opacity:.45;cursor:not-allowed}
+.peoplePageNumber{
+  display:grid;
+  place-items:center;
+  min-width:34px;height:34px;
+  border-radius:8px;
+  background:var(--brand);
+  color:#fff;
+  font-weight:800;
+}
+.peopleFocus{
+  outline:3px solid rgba(19,112,78,.25);
+  box-shadow:0 0 0 7px rgba(19,112,78,.08);
+  transition:.2s ease;
+}
+
+@media(max-width:900px){
+  .peopleStats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .peopleToolbar{grid-template-columns:1fr 1fr}
+  .peopleSearch{grid-column:1/-1}
+}
+@media(max-width:620px){
+  .peopleStats{grid-template-columns:1fr 1fr;gap:8px}
+  .peopleStats>div{padding:12px}
+  .peopleStats b{font-size:21px}
+  .peopleToolbar{grid-template-columns:1fr;padding:9px}
+  .peopleSearch{grid-column:auto}
+  .peoplePager{align-items:flex-start;flex-direction:column}
+  .peoplePager>div:last-child{align-self:stretch;justify-content:flex-end}
+}
+
+
+/* Alpha 4.9 — calendar visibility and selected-date fix */
+.calendarCell{
+  color:var(--ink);
+  text-align:left;
+  box-shadow:none;
+}
+.calendarCell:hover{
+  color:var(--ink);
+}
+.calendarCell > span{
+  display:inline-block;
+  font-weight:850;
+  color:var(--ink);
+}
+.calendarCell > b{
+  display:block;
+  margin-top:7px;
+  color:var(--brand);
+  font-size:11px;
+  line-height:1.25;
+}
+.calendarCell.selected{
+  outline:2px solid var(--brand);
+  outline-offset:1px;
+  background:var(--brand-soft);
+}
+.calendarCell.today{
+  border-color:#8dbca8;
+}
+.calendarCell.empty{
+  color:transparent;
+}
+.calendarSelected{
+  margin-top:18px;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  outline:none;
+  background:#fbfdfc;
+}
+.calendarSelected h3{
+  margin-top:0;
+}
+
+
+/* Alpha 5.0 — professional Home dashboard */
+.homeWelcome{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:16px;
+  margin:22px 4px 20px;
+}
+.homeAvatar{
+  display:grid;
+  place-items:center;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:var(--brand-soft);
+  color:var(--brand);
+  font-size:20px;
+  font-weight:900;
+}
+.homeWelcome h1{
+  margin:0;
+  font-size:31px;
+  line-height:1.1;
+}
+.homeWelcome p{
+  margin:6px 0 0;
+  color:var(--muted);
+}
+.homeToday{
+  min-width:230px;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+}
+.homeToday span,
+.homeToday b{display:block}
+.homeToday span{font-size:12px;color:var(--muted)}
+.homeToday b{margin-top:3px;font-size:14px}
+
+.homeDashboard{
+  display:grid;
+  grid-template-columns:minmax(0,1.8fr) minmax(280px,.9fr);
+  gap:18px;
+  align-items:start;
+}
+.homePrimary,
+.homeSideCard{
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#fff;
+  box-shadow:var(--shadow);
+}
+.homePrimary{padding:18px}
+.homeSectionHeading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:2px 4px 16px;
+}
+.homeSectionHeading h2{
+  margin:0;
+  font-size:24px;
+}
+.homeSectionHeading p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+.homeCount{
+  padding:7px 11px;
+  border-radius:999px;
+  background:var(--brand-soft);
+  color:var(--brand);
+  font-size:12px;
+  font-weight:800;
+}
+.homeServiceList{
+  display:grid;
+  gap:14px;
+}
+.homeServiceCard{
+  display:grid;
+  grid-template-columns:86px minmax(0,1fr);
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+}
+.homeServiceFirst{
+  border-color:#acd2c2;
+  box-shadow:0 8px 24px rgba(17,92,65,.07);
+}
+.homeServiceDate{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:22px 10px;
+  border-right:1px solid var(--line);
+  background:linear-gradient(180deg,#f0f8f4,#fbfdfc);
+  color:var(--brand);
+}
+.homeServiceDate span,
+.homeServiceDate b{
+  font-size:11px;
+  letter-spacing:.08em;
+}
+.homeServiceDate strong{
+  margin:5px 0;
+  font-size:33px;
+  line-height:1;
+}
+.homeServiceContent{
+  min-width:0;
+  padding:18px;
+}
+.homeServiceTop{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:flex-start;
+}
+.homeServiceTop h3{
+  margin:0 0 8px;
+  font-size:23px;
+}
+.homeServiceTop p{
+  margin:4px 0;
+  color:var(--muted);
+}
+.homeAssignment,
+.homeTeam{
+  margin-top:14px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  overflow:hidden;
+  background:#fbfdfc;
+}
+.homeAssignment>summary,
+.homeTeam>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 14px;
+  cursor:pointer;
+  list-style:none;
+}
+.homeAssignment>summary::-webkit-details-marker,
+.homeTeam>summary::-webkit-details-marker,
+.homeFutureDate>summary::-webkit-details-marker{display:none}
+.homeAssignment>summary span:first-child{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.homeAssignment small{
+  color:var(--brand);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.homeAssignmentBody{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  padding:0 14px 14px;
+}
+.homeAssignmentBody>div{
+  padding:10px 12px;
+  border-radius:10px;
+  background:#fff;
+}
+.homeAssignmentBody small,
+.homeAssignmentBody b{display:block}
+.homeAssignmentBody small{font-size:11px;color:var(--muted)}
+.homeAssignmentBody b{margin-top:3px}
+.homeTeam>summary{
+  font-weight:850;
+  background:#fff;
+}
+.homeCollapseIcon{
+  color:var(--brand);
+  font-size:20px;
+  transition:transform .2s ease;
+}
+.homeAssignment[open] .homeCollapseIcon,
+.homeTeam[open] .homeCollapseIcon{
+  transform:rotate(180deg);
+}
+.homeTeamList{
+  padding:0 12px 12px;
+}
+.homeTeamRow{
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  padding:9px 7px;
+  border-top:1px solid var(--line);
+}
+.homeTeamRow:first-child{border-top:0}
+.homeTeamRow>span:last-child{
+  color:var(--muted);
+  font-size:13px;
+}
+.homeTeamAvatar{
+  display:grid;
+  place-items:center;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:var(--brand-soft);
+  color:var(--brand);
+  font-size:10px;
+  font-weight:900;
+}
+.homeCalendarLink{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  margin-top:15px;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fff;
+  color:var(--brand);
+}
+.homeCalendarLink span{font-size:22px}
+
+.homeSidebar{
+  position:sticky;
+  top:86px;
+}
+.homeSideCard{
+  padding:16px;
+}
+.homeSideHeading{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.homeSideHeading h3{margin:0}
+.homeSideHeading span{color:var(--muted);font-size:12px}
+.homeFutureDate{
+  margin-top:9px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+}
+.homeFutureDate>summary{
+  display:grid;
+  grid-template-columns:52px minmax(0,1fr) auto;
+  align-items:center;
+  gap:11px;
+  padding:10px;
+  cursor:pointer;
+  list-style:none;
+}
+.homeFutureDate>summary>div:nth-child(2){
+  min-width:0;
+}
+.homeFutureDate>summary>div:nth-child(2) b,
+.homeFutureDate>summary>div:nth-child(2) span{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.homeFutureDate>summary>div:nth-child(2) span{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:12px;
+}
+.homeFutureCalendar{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:5px;
+  border-radius:9px;
+  background:#f7faf8;
+  color:var(--brand);
+}
+.homeFutureCalendar span,
+.homeFutureCalendar b{font-size:9px}
+.homeFutureCalendar strong{
+  margin:2px 0;
+  font-size:21px;
+  line-height:1;
+}
+.homeFutureArrow{
+  font-size:22px;
+  transition:transform .2s ease;
+}
+.homeFutureDate[open] .homeFutureArrow{transform:rotate(90deg)}
+.homeFutureBody{
+  padding:0 10px 10px;
+}
+.homeFutureBody>div{
+  padding:9px 8px;
+  border-top:1px solid var(--line);
+}
+.homeFutureBody b,
+.homeFutureBody span{display:block}
+.homeFutureBody span{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:12px;
+}
+.homeViewAll{
+  width:100%;
+  margin-top:12px;
+}
+
+@media(max-width:900px){
+  .homeDashboard{grid-template-columns:1fr}
+  .homeSidebar{position:static}
+  .homeSideCard{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+  }
+  .homeSideHeading,
+  .homeViewAll{grid-column:1/-1}
+}
+@media(max-width:620px){
+  .homeWelcome{
+    grid-template-columns:auto 1fr;
+    margin:16px 3px;
+  }
+  .homeWelcome h1{font-size:24px}
+  .homeToday{
+    grid-column:1/-1;
+    min-width:0;
+    padding:11px 13px;
+  }
+  .homePrimary{padding:11px}
+  .homeSectionHeading{
+    align-items:flex-start;
+    padding:4px 2px 12px;
+  }
+  .homeSectionHeading h2{font-size:21px}
+  .homeServiceCard{
+    grid-template-columns:58px minmax(0,1fr);
+  }
+  .homeServiceDate{
+    padding:18px 5px;
+  }
+  .homeServiceDate strong{font-size:26px}
+  .homeServiceContent{padding:14px 12px}
+  .homeServiceTop{display:block}
+  .homeServiceTop .badge{
+    display:inline-flex;
+    margin-top:8px;
+  }
+  .homeServiceTop h3{font-size:20px}
+  .homeAssignmentBody{grid-template-columns:1fr}
+  .homeTeamRow{
+    grid-template-columns:30px minmax(0,1fr);
+  }
+  .homeTeamRow>span:last-child{
+    grid-column:2;
+  }
+  .homeSideCard{display:block}
+  .homeFutureDate{margin-top:8px}
+}
+
+
+/* Alpha 5.1 — group scheduled volunteers by ministry */
+.homeMinistries{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+.homeMinistryGroup{
+  border:1px solid var(--line);
+  border-radius:13px;
+  overflow:hidden;
+  background:#fbfdfc;
+}
+.homeMinistryGroup>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 14px;
+  cursor:pointer;
+  list-style:none;
+  font-weight:850;
+  background:#fff;
+}
+.homeMinistryGroup>summary::-webkit-details-marker{display:none}
+.homeMinistryGroup>summary small{
+  color:var(--muted);
+  font-weight:700;
+}
+.homeMinistryGroup[open] .homeCollapseIcon{
+  transform:rotate(180deg);
+}
+.homeMinistryList{
+  padding:0 12px 12px;
+}
+.homeMinistryRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 7px;
+  border-top:1px solid var(--line);
+}
+.homeMinistryRow:first-child{border-top:0}
+.homeMinistryPerson{
+  min-width:0;
+}
+.homeMinistryPerson b,
+.homeMinistryPerson small{
+  display:block;
+}
+.homeMinistryPerson b{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.homeMinistryPerson small{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:12px;
+}
+.homeNoAssignments{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fbfdfc;
+}
+
+@media(max-width:620px){
+  .homeMinistryGroup>summary{
+    padding:12px;
+  }
+  .homeMinistryList{
+    padding:0 10px 10px;
+  }
+  .homeMinistryRow{
+    padding:9px 4px;
+  }
+}
+
+/* Alpha 5.2 — pending demo people */
+.demoPeopleHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+.demoPeopleHeader h2{margin-bottom:4px}
+.demoPeopleHeader p{margin:0}
+@media(max-width:620px){
+  .demoPeopleHeader{display:block}
+  .demoPeopleHeader button{width:100%;margin-top:12px}
+}
+
+
+/* Alpha 5.3 — stable qualification checkboxes and preserved open panels */
+.qualificationChoice{
+  box-sizing:border-box;
+  min-height:52px;
+  padding:12px 18px;
+  border:1px solid var(--line);
+  gap:10px;
+  vertical-align:top;
+  transform:none;
+}
+.qualificationChoice:hover{
+  border-color:#b9cec3;
+  background:#f5f9f7;
+}
+.qualificationChoice:has(input:checked){
+  border:1px solid #9fc8b6;
+  background:var(--brand-soft);
+}
+.qualificationChoice input[type="checkbox"]{
+  appearance:auto;
+  -webkit-appearance:checkbox;
+  width:20px;
+  height:20px;
+  min-width:20px;
+  flex:0 0 20px;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:3px;
+  box-shadow:none;
+  accent-color:var(--brand);
+}
+.qualificationChoice input[type="checkbox"]:focus{
+  border:0;
+  box-shadow:none;
+  outline:2px solid rgba(20,92,67,.18);
+  outline-offset:2px;
+}
+.qualificationChoice span{
+  display:inline-block;
+  line-height:20px;
+  white-space:nowrap;
+}
+.qualificationPanel,
+.adminSection{
+  scroll-margin-top:90px;
+}
+
+@media(max-width:620px){
+  .qualificationChoice{
+    min-height:48px;
+    padding:11px 14px;
+    margin-right:6px;
+  }
+  .qualificationChoice span{
+    white-space:normal;
+  }
+}
+
+
+/* Alpha 5.5 — Schedule Calendar/List tabs and printable ministry roster */
+.scheduleViewPage{margin-top:18px}
+.scheduleViewHeader{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin:0 2px 14px;
+}
+.scheduleViewHeader h2{margin:0;font-size:30px}
+.scheduleViewHeader p{margin:5px 0 0}
+.scheduleViewTabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  max-width:680px;
+  margin-bottom:14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+}
+.scheduleViewTabs button{
+  border:0;
+  border-radius:0;
+  background:#fff;
+  color:var(--ink);
+  min-height:48px;
+}
+.scheduleViewTabs button.active{
+  background:var(--brand);
+  color:#fff;
+}
+.printScheduleButton{white-space:nowrap}
+.scheduleListNotice{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:14px;
+  padding:13px 16px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#f7fbf9;
+  color:var(--brand);
+}
+.scheduleListNotice b{font-size:12px;color:var(--muted)}
+.scheduleDateList{display:grid;gap:10px}
+.scheduleDateGroup{
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 4px 14px rgba(19,63,47,.04);
+}
+.scheduleDateGroup>summary{
+  display:grid;
+  grid-template-columns:auto auto auto 1fr;
+  align-items:center;
+  gap:10px;
+  padding:15px 18px;
+  list-style:none;
+  cursor:pointer;
+  background:#fff;
+}
+.scheduleDateGroup>summary::-webkit-details-marker{display:none}
+.scheduleDateArrow{
+  color:var(--brand);
+  font-size:22px;
+  line-height:1;
+  transition:transform .2s ease;
+}
+.scheduleDateGroup[open] .scheduleDateArrow{transform:rotate(90deg)}
+.scheduleDateCount{
+  justify-self:end;
+  color:var(--brand);
+  font-size:13px;
+  font-weight:800;
+}
+.scheduleDateBody{
+  padding:0 14px 14px;
+  border-top:1px solid var(--line);
+}
+.scheduleListService{
+  margin-top:14px;
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  break-inside:avoid;
+}
+.scheduleListServiceHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:13px;
+}
+.scheduleListServiceHeader h3{
+  margin:0;
+  font-size:20px;
+}
+.scheduleListServiceHeader p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+.scheduleMinistryGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.scheduleMinistryBlock{
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  break-inside:avoid;
+}
+.scheduleMinistryBlock h4{
+  margin:0;
+  padding:10px 12px;
+  background:#f4f8f6;
+  color:var(--ink);
+  font-size:14px;
+}
+.scheduleRoleRows{padding:4px 12px 8px}
+.scheduleRoleRow{
+  display:grid;
+  grid-template-columns:minmax(120px,.8fr) minmax(120px,1fr);
+  gap:14px;
+  padding:7px 0;
+  border-bottom:1px solid #edf2ef;
+  font-size:13px;
+}
+.scheduleRoleRow:last-child{border-bottom:0}
+.scheduleRoleRow span{color:var(--muted)}
+.scheduleEmptyTeam{grid-column:1/-1;margin:0}
+
+@media(max-width:760px){
+  .scheduleViewHeader{align-items:stretch;flex-direction:column}
+  .printScheduleButton{width:100%}
+  .scheduleViewTabs{max-width:none}
+  .scheduleListNotice{align-items:flex-start;flex-direction:column}
+  .scheduleDateGroup>summary{
+    grid-template-columns:auto 1fr auto;
+    padding:13px;
+  }
+  .scheduleDateGroup>summary .badge{grid-column:2}
+  .scheduleDateCount{grid-column:3;grid-row:1}
+  .scheduleDateBody{padding:0 9px 9px}
+  .scheduleListService{padding:12px}
+  .scheduleListServiceHeader{display:block}
+  .scheduleListServiceHeader .badge{display:inline-flex;margin-top:8px}
+  .scheduleMinistryGrid{grid-template-columns:1fr}
+  .scheduleRoleRow{grid-template-columns:minmax(105px,.8fr) 1fr}
+}
+
+@media print{
+  @page{size:letter portrait;margin:.55in}
+  body.schedulePrinting{
+    background:#fff!important;
+    color:#000!important;
+    font-family:Arial,Helvetica,sans-serif!important;
+  }
+  body.schedulePrinting .hero,
+  body.schedulePrinting .tabs,
+  body.schedulePrinting .footer,
+  body.schedulePrinting .scheduleViewHeader,
+  body.schedulePrinting .scheduleViewTabs,
+  body.schedulePrinting .scheduleListNotice,
+  body.schedulePrinting .calendarCard{
+    display:none!important;
+  }
+  body.schedulePrinting .wrap{
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  body.schedulePrinting main:before{
+    content:"CHURCH VOLUNTEER SCHEDULE";
+    display:block;
+    margin-bottom:4px;
+    font-size:20pt;
+    font-weight:900;
+    letter-spacing:.02em;
+  }
+  body.schedulePrinting main:after{
+    content:"Thank you for serving!";
+    display:block;
+    margin-top:18px;
+    padding-top:10px;
+    border-top:1px solid #000;
+    text-align:center;
+    font-style:italic;
+  }
+  body.schedulePrinting .scheduleDateList{display:block}
+  body.schedulePrinting .scheduleDateGroup{
+    display:none;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+  }
+  body.schedulePrinting .scheduleDateGroup[open]{
+    display:block;
+    margin-bottom:18px;
+  }
+  body.schedulePrinting .scheduleDateGroup>summary{
+    display:block;
+    padding:0 0 8px;
+    border-bottom:2px solid #000;
+    background:#fff;
+  }
+  body.schedulePrinting .scheduleDateArrow,
+  body.schedulePrinting .scheduleDateCount,
+  body.schedulePrinting .scheduleDateGroup>summary .badge{
+    display:none!important;
+  }
+  body.schedulePrinting .scheduleDateGroup>summary b{
+    font-size:14pt;
+  }
+  body.schedulePrinting .scheduleDateBody{
+    padding:0;
+    border:0;
+  }
+  body.schedulePrinting .scheduleListService{
+    margin-top:14px;
+    padding:0 0 12px;
+    border:0;
+    border-bottom:1px solid #777;
+    border-radius:0;
+  }
+  body.schedulePrinting .scheduleListServiceHeader{
+    margin-bottom:8px;
+  }
+  body.schedulePrinting .scheduleListServiceHeader h3{
+    font-size:12pt;
+    text-transform:uppercase;
+  }
+  body.schedulePrinting .scheduleListServiceHeader p{
+    color:#000;
+    font-size:9pt;
+  }
+  body.schedulePrinting .scheduleListServiceHeader .badge{
+    display:none;
+  }
+  body.schedulePrinting .scheduleMinistryGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  body.schedulePrinting .scheduleMinistryBlock{
+    border:0;
+    border-radius:0;
+  }
+  body.schedulePrinting .scheduleMinistryBlock h4{
+    padding:5px 0;
+    border-bottom:1px solid #000;
+    background:#fff;
+    font-size:9pt;
+    text-transform:uppercase;
+  }
+  body.schedulePrinting .scheduleRoleRows{padding:2px 0 0}
+  body.schedulePrinting .scheduleRoleRow{
+    grid-template-columns:1fr 1fr;
+    padding:3px 0;
+    border:0;
+    font-size:8.5pt;
+  }
+  body.schedulePrinting .scheduleRoleRow span{color:#000}
+}
+
+
+/* Alpha 5.6 — uninterrupted admin scheduling workflow */
+.coordEventCard[data-service-id]{scroll-margin-top:90px}
+.coordEventCard .assignmentBuilder select:focus,
+.coordEventCard .assignmentBuilder input:focus{position:relative;z-index:1}
+
+
+/* Alpha 5.7 — guaranteed Calendar/List switcher visibility */
+.scheduleViewPage{margin-top:16px}
+.scheduleViewTabs{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  width:100%!important;
+  max-width:680px!important;
+  margin:0 0 14px!important;
+  border:1px solid var(--line)!important;
+  border-radius:13px!important;
+  overflow:hidden!important;
+  background:#fff!important;
+}
+.scheduleViewTabs button{
+  display:block!important;
+  min-height:48px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#fff!important;
+  color:var(--ink)!important;
+  box-shadow:none!important;
+}
+.scheduleViewTabs button.active{
+  background:var(--brand)!important;
+  color:#fff!important;
+}
+@media(max-width:620px){
+  .scheduleViewHeader{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:10px!important;
+  }
+  .scheduleViewHeader h2{font-size:26px!important}
+  .scheduleViewTabs{
+    position:relative!important;
+    top:auto!important;
+    z-index:1!important;
+    margin-bottom:12px!important;
+  }
+  .scheduleViewTabs button{
+    padding:12px 8px!important;
+    font-size:14px!important;
+  }
+  .printScheduleButton{
+    width:100%!important;
+  }
+}
+
+
+/* Alpha 5.8 — Ministry spreadsheet grid scheduler */
+.scheduleManagerHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:16px;
+  margin:18px 2px 14px;
+}
+.scheduleManagerHeader h2{margin:0;font-size:30px}
+.scheduleManagerHeader p{margin:5px 0 0}
+.scheduleManagerTabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  max-width:520px;
+  margin-bottom:14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+.scheduleManagerTabs button{
+  border:0;
+  border-radius:0;
+  background:#fff;
+  color:var(--ink);
+  min-height:48px;
+}
+.scheduleManagerTabs button.active{
+  background:var(--brand);
+  color:#fff;
+}
+.gridControls{
+  display:grid;
+  grid-template-columns:minmax(180px,1fr) minmax(180px,1fr) minmax(260px,1.4fr);
+  gap:14px;
+  align-items:end;
+  margin-bottom:12px;
+}
+.gridAddRoleRow{display:grid;grid-template-columns:1fr auto;gap:8px}
+.gridRoleConfig{margin-bottom:10px}
+.gridRoleConfig>div:first-child p{margin:4px 0 12px}
+.gridRoleChips{display:flex;gap:8px;flex-wrap:wrap}
+.gridRoleChip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 12px;
+  border:1px solid #acd0bf;
+  border-radius:9px;
+  background:#f4fbf7;
+  font-weight:800;
+}
+.gridRoleChip button{
+  min-width:24px;
+  min-height:24px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+}
+.gridScrollHint{
+  padding:9px 12px;
+  color:var(--muted);
+  font-size:13px;
+}
+.gridTableScroller{
+  width:100%;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  -webkit-overflow-scrolling:touch;
+}
+.ministryGridTable{
+  width:max-content;
+  min-width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
+}
+.ministryGridTable th,
+.ministryGridTable td{
+  min-width:190px;
+  padding:10px;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  background:#fff;
+  vertical-align:middle;
+}
+.ministryGridTable thead th{
+  position:sticky;
+  top:0;
+  z-index:6;
+  background:#eaf5ef;
+}
+.ministryGridTable .gridTitleRow th{
+  left:0;
+  min-width:100%;
+  padding:10px;
+  text-align:center;
+  background:#dff0e7;
+  z-index:9;
+}
+.ministryGridTable .stickyDate{
+  position:sticky;
+  left:0;
+  min-width:135px;
+  width:135px;
+  z-index:5;
+  background:#f7fbf9;
+  box-shadow:2px 0 0 var(--line);
+}
+.ministryGridTable thead .stickyDate{z-index:10;background:#eaf5ef}
+.ministryGridTable .stickyService{
+  position:sticky;
+  left:135px;
+  min-width:180px;
+  width:180px;
+  z-index:4;
+  background:#fff;
+  box-shadow:2px 0 0 var(--line);
+}
+.ministryGridTable thead .stickyService{z-index:9;background:#eaf5ef}
+.gridDateCell{text-align:center}
+.gridDateCell b,.gridDateCell span,.gridServiceCell b,.gridServiceCell span{display:block}
+.gridDateCell span,.gridServiceCell span{margin-top:4px;color:var(--muted);font-size:12px}
+.roleHeader{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:6px;
+  align-items:center;
+}
+.roleHeader select,.gridVolunteerCell select{min-width:165px;margin:0}
+.roleHeader button{
+  min-width:30px;
+  min-height:40px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+}
+.gridFooterNote{
+  margin-top:10px;
+  padding:11px 14px;
+  border-radius:9px;
+  background:#eef5fb;
+  color:var(--muted);
+  font-size:13px;
+}
+
+@media(max-width:760px){
+  .scheduleManagerHeader{flex-direction:column;align-items:stretch}
+  .scheduleManagerTabs{max-width:none}
+  .gridControls{grid-template-columns:1fr}
+  .ministryGridTable .stickyDate{min-width:105px;width:105px}
+  .ministryGridTable .stickyService{left:105px;min-width:150px;width:150px}
+  .ministryGridTable th,.ministryGridTable td{min-width:170px;padding:8px}
+  .roleHeader select,.gridVolunteerCell select{min-width:145px}
+}
+
+@media print{
+  body.gridSchedulePrinting .hero,
+  body.gridSchedulePrinting .tabs,
+  body.gridSchedulePrinting .footer,
+  body.gridSchedulePrinting .scheduleManagerHeader,
+  body.gridSchedulePrinting .scheduleManagerTabs,
+  body.gridSchedulePrinting .gridControls,
+  body.gridSchedulePrinting .gridRoleConfig,
+  body.gridSchedulePrinting .gridScrollHint,
+  body.gridSchedulePrinting .gridFooterNote{
+    display:none!important;
+  }
+  body.gridSchedulePrinting .wrap{
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  body.gridSchedulePrinting .gridTableScroller{
+    overflow:visible;
+    border:0;
+  }
+  body.gridSchedulePrinting .ministryGridTable{
+    width:100%;
+    font-size:8pt;
+  }
+  body.gridSchedulePrinting .ministryGridTable th,
+  body.gridSchedulePrinting .ministryGridTable td{
+    position:static!important;
+    min-width:0!important;
+    width:auto!important;
+    padding:4px!important;
+    box-shadow:none!important;
+  }
+  body.gridSchedulePrinting select{
+    appearance:none;
+    border:0;
+    padding:0;
+    font-size:8pt;
+    background:transparent;
+  }
+  body.gridSchedulePrinting .roleHeader button{display:none}
+}
+
+
+/* Alpha 5.9 — corrected horizontal grid, dynamic rows and columns */
+.gridControls{
+  grid-template-columns:minmax(170px,.8fr) minmax(170px,.8fr) minmax(230px,1fr) minmax(300px,1.4fr);
+}
+.gridActionRow{display:flex;gap:8px}
+.ministryGridTable .roleHeader{
+  display:table-cell!important;
+  min-width:190px!important;
+  width:190px!important;
+  padding:8px!important;
+  vertical-align:middle!important;
+}
+.roleHeaderInner{
+  display:grid;
+  grid-template-columns:minmax(145px,1fr) 30px;
+  gap:6px;
+  align-items:center;
+}
+.roleHeaderInner select{
+  width:100%;
+  min-width:0;
+  margin:0;
+}
+.roleHeaderInner button{
+  min-width:30px;
+  min-height:40px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+}
+.ministryGridTable .stickyActions{
+  position:sticky;
+  right:0;
+  min-width:180px;
+  width:180px;
+  z-index:4;
+  background:#fff;
+  box-shadow:-2px 0 0 var(--line);
+}
+.ministryGridTable thead .stickyActions{
+  z-index:9;
+  background:#eaf5ef;
+}
+.gridRowActions{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.gridRowActions button{
+  min-width:auto;
+  padding:9px 10px;
+  white-space:nowrap;
+}
+.gridInlineEditor{
+  margin-bottom:12px;
+  border:1px solid #a9cdbb;
+}
+.gridInlineEditor h3{margin-top:0}
+.ministryGridTable thead .gridTitleRow th{
+  position:sticky;
+  top:0;
+  z-index:12;
+}
+.ministryGridTable thead .gridHeaderRow th{
+  position:sticky;
+  top:44px;
+}
+.ministryGridTable th,
+.ministryGridTable td{
+  box-sizing:border-box;
+}
+.gridVolunteerCell{
+  min-width:190px!important;
+  width:190px!important;
+}
+.gridVolunteerCell select{
+  width:100%;
+  min-width:0;
+  margin:0;
+}
+
+@media(max-width:900px){
+  .gridControls{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .gridControls{grid-template-columns:1fr}
+  .ministryGridTable .roleHeader,
+  .gridVolunteerCell{
+    min-width:165px!important;
+    width:165px!important;
+  }
+  .roleHeaderInner{
+    grid-template-columns:minmax(120px,1fr) 28px;
+  }
+  .ministryGridTable .stickyActions{
+    min-width:150px;
+    width:150px;
+  }
+  .gridRowActions{
+    flex-direction:column;
+    align-items:stretch;
+  }
+}
+
+
+/* Alpha 6.0 — cleaner grid, obvious add-column controls, compact actions */
+.gridControls{
+  grid-template-columns:minmax(170px,.75fr) minmax(170px,.75fr) minmax(220px,.9fr) minmax(320px,1.35fr);
+  gap:12px;
+  padding:16px;
+}
+.gridControls label{
+  margin-bottom:6px;
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.gridAddRoleRow{
+  grid-template-columns:minmax(180px,1fr) auto;
+}
+.gridPrimaryAction{
+  white-space:nowrap;
+}
+.gridRoleConfig{
+  padding:14px 16px;
+}
+.gridRoleChips{
+  gap:6px;
+}
+.gridRoleChip{
+  padding:7px 10px;
+  font-size:13px;
+  border-radius:999px;
+}
+.gridTableToolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  margin-bottom:8px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+}
+.gridTableToolbar>div:first-child{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.gridTableToolbar span{
+  color:var(--muted);
+  font-size:12px;
+}
+.gridToolbarActions{
+  display:flex;
+  gap:8px;
+}
+.gridToolbarActions button{
+  min-height:38px;
+  padding:8px 12px;
+  font-size:13px;
+}
+.gridScrollHint{
+  padding:7px 4px 9px;
+  font-size:12px;
+}
+.ministryGridTable th,
+.ministryGridTable td{
+  padding:8px;
+}
+.gridDateCell b{
+  font-size:15px;
+}
+.gridDateCell span,
+.gridServiceCell span{
+  font-size:11px;
+}
+.gridServiceCell b{
+  font-size:15px;
+}
+.gridVolunteerCell select,
+.roleHeaderInner select{
+  min-height:42px;
+  padding:8px 10px;
+  font-size:14px;
+}
+.ministryGridTable .stickyActions{
+  min-width:92px;
+  width:92px;
+}
+.gridRowActions{
+  display:table-cell!important;
+  text-align:center;
+}
+.rowActionMenu{
+  position:relative;
+  display:inline-block;
+}
+.rowActionMenu>summary{
+  display:grid;
+  place-items:center;
+  width:40px;
+  height:40px;
+  margin:auto;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+  color:var(--ink);
+  font-weight:900;
+  letter-spacing:2px;
+  cursor:pointer;
+  list-style:none;
+}
+.rowActionMenu>summary::-webkit-details-marker{display:none}
+.rowActionMenu[open]>summary{
+  border-color:#9fc8b6;
+  background:#f2f8f5;
+}
+.rowActionMenuPanel{
+  position:absolute;
+  right:0;
+  top:46px;
+  z-index:40;
+  width:170px;
+  padding:6px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+  box-shadow:0 12px 30px rgba(0,0,0,.12);
+}
+.rowActionMenuPanel button{
+  width:100%;
+  min-height:38px;
+  padding:8px 10px;
+  border:0;
+  border-radius:8px;
+  background:#fff;
+  color:var(--ink);
+  text-align:left;
+  font-size:13px;
+}
+.rowActionMenuPanel button:hover{
+  background:#f4f8f6;
+}
+.rowActionMenuPanel .rowDeleteAction{
+  color:#b42323;
+}
+.gridTableScroller{
+  border-radius:10px;
+}
+.ministryGridTable .roleHeader,
+.gridVolunteerCell{
+  min-width:175px!important;
+  width:175px!important;
+}
+.roleHeaderInner{
+  grid-template-columns:minmax(130px,1fr) 28px;
+}
+.roleHeaderInner button{
+  min-width:28px;
+  min-height:36px;
+  border-radius:8px;
+}
+.gridTitleRow th{
+  padding:9px!important;
+  font-size:15px;
+}
+.gridHeaderRow th{
+  font-size:13px;
+}
+
+@media(max-width:900px){
+  .gridControls{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .gridControls{grid-template-columns:1fr}
+  .gridTableToolbar{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .gridToolbarActions{
+    width:100%;
+  }
+  .gridToolbarActions button{
+    flex:1;
+  }
+  .ministryGridTable .roleHeader,
+  .gridVolunteerCell{
+    min-width:155px!important;
+    width:155px!important;
+  }
+  .ministryGridTable .stickyActions{
+    min-width:70px;
+    width:70px;
+  }
+  .rowActionMenuPanel{
+    right:0;
+    width:160px;
+  }
+}
+
+@media print{
+  body.gridSchedulePrinting .gridTableToolbar{
+    display:none!important;
+  }
+  body.gridSchedulePrinting .stickyActions{
+    display:none!important;
+  }
+}
+
+
+/* Alpha 6.1.1 — safe draggable role-column ordering */
+.gridRoleChip{
+  cursor:grab;
+  user-select:none;
+}
+.gridRoleChip:active{cursor:grabbing}
+.gridRoleChip.dragging{
+  opacity:.55;
+  outline:2px dashed #6fa98e;
+  outline-offset:2px;
+}
+.gridRoleDragHandle{
+  color:var(--muted);
+  font-weight:900;
+  letter-spacing:-2px;
+  cursor:grab;
+}
+.gridRoleChipLabel{
+  white-space:nowrap;
+}
+.gridRoleMoveButtons{
+  display:none;
+  align-items:center;
+  gap:2px;
+}
+.gridRoleMoveButtons button,
+.gridRoleRemove{
+  width:26px;
+  min-width:26px;
+  height:26px;
+  min-height:26px;
+  padding:0;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  color:var(--muted);
+}
+.gridRoleMoveButtons button:hover,
+.gridRoleRemove:hover{
+  background:#e7f2ec;
+  color:var(--brand);
+}
+.gridRoleMoveButtons button:disabled{
+  opacity:.3;
+  cursor:not-allowed;
+}
+@media (pointer:coarse), (max-width:760px){
+  .gridRoleMoveButtons{display:inline-flex}
+  .gridRoleDragHandle{display:none}
+  .gridRoleChip{cursor:default}
+}
+
+
+/* Alpha 6.1.4 — professional landscape print layout */
+.gridPrintHeader{
+  display:none;
+}
+
+@media print{
+  @page{
+    size: letter landscape;
+    margin: 0.38in;
+  }
+
+  html,body{
+    background:#fff!important;
+  }
+
+  body.gridSchedulePrinting{
+    color:#111!important;
+    font-family:Arial,Helvetica,sans-serif!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  body.gridSchedulePrinting .hero,
+  body.gridSchedulePrinting .tabs,
+  body.gridSchedulePrinting .footer,
+  body.gridSchedulePrinting .scheduleManagerHeader,
+  body.gridSchedulePrinting .scheduleManagerTabs,
+  body.gridSchedulePrinting .gridControls,
+  body.gridSchedulePrinting .gridRoleConfig,
+  body.gridSchedulePrinting .gridTableToolbar,
+  body.gridSchedulePrinting .gridScrollHint,
+  body.gridSchedulePrinting .gridFooterNote,
+  body.gridSchedulePrinting .stickyActions{
+    display:none!important;
+  }
+
+  body.gridSchedulePrinting .wrap{
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+
+  body.gridSchedulePrinting .gridPrintHeader{
+    display:block!important;
+    margin:0 0 10px;
+    text-align:center;
+  }
+
+  body.gridSchedulePrinting .gridPrintChurch{
+    font-size:9pt;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:#385d4d;
+  }
+
+  body.gridSchedulePrinting .gridPrintTitle{
+    margin-top:3px;
+    font-size:17pt;
+    font-weight:800;
+    color:#183b2e;
+  }
+
+  body.gridSchedulePrinting .gridPrintMeta{
+    margin-top:2px;
+    font-size:8.5pt;
+    color:#666;
+  }
+
+  body.gridSchedulePrinting .gridTableScroller{
+    overflow:visible!important;
+    border:0!important;
+    border-radius:0!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable{
+    width:100%!important;
+    table-layout:fixed!important;
+    border-collapse:collapse!important;
+    font-size:8.2pt!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .gridTitleRow{
+    display:none!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable th,
+  body.gridSchedulePrinting .ministryGridTable td{
+    position:static!important;
+    min-width:0!important;
+    width:auto!important;
+    padding:5px 6px!important;
+    border:1px solid #9aaea4!important;
+    box-shadow:none!important;
+    vertical-align:middle!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable thead th{
+    background:#dfeee7!important;
+    color:#183b2e!important;
+    font-size:8.5pt!important;
+    font-weight:800!important;
+    text-align:center!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .stickyDate{
+    width:11%!important;
+    background:#f3f8f5!important;
+    text-align:center!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .stickyService{
+    width:16%!important;
+    background:#fff!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .roleHeader,
+  body.gridSchedulePrinting .gridVolunteerCell{
+    width:auto!important;
+  }
+
+  body.gridSchedulePrinting .roleHeaderInner{
+    display:block!important;
+  }
+
+  body.gridSchedulePrinting .roleHeaderInner button{
+    display:none!important;
+  }
+
+  body.gridSchedulePrinting .roleHeaderInner select{
+    appearance:none!important;
+    border:0!important;
+    background:transparent!important;
+    padding:0!important;
+    width:100%!important;
+    min-height:0!important;
+    font-size:8.5pt!important;
+    font-weight:800!important;
+    text-align:center!important;
+    color:#183b2e!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell{
+    position:relative!important;
+    text-align:center!important;
+    font-size:8.2pt!important;
+    font-weight:600!important;
+    color:#111!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell select{
+    display:none!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell::after{
+    content:attr(data-print-value);
+    display:block;
+    white-space:normal;
+    line-height:1.15;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell[data-print-value="OPEN"]::after{
+    color:#8a6d1d;
+    font-weight:800;
+    letter-spacing:.04em;
+  }
+
+  body.gridSchedulePrinting .gridDateCell b{
+    font-size:9pt!important;
+    color:#183b2e!important;
+  }
+
+  body.gridSchedulePrinting .gridDateCell span{
+    margin-top:2px!important;
+    font-size:7pt!important;
+    color:#666!important;
+  }
+
+  body.gridSchedulePrinting .gridServiceCell b{
+    font-size:8.5pt!important;
+  }
+
+  body.gridSchedulePrinting .gridServiceCell span{
+    margin-top:2px!important;
+    font-size:7pt!important;
+    color:#666!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable tbody tr:nth-child(4n+1) td,
+  body.gridSchedulePrinting .ministryGridTable tbody tr:nth-child(4n+2) td{
+    background:#fbfdfc!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable tbody tr{
+    break-inside:avoid!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable tbody tr:nth-child(even) td{
+    border-bottom-color:#6f877b!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable::after{
+    content:"";
+  }
+}
+
+
+/* Alpha 6.1.5 — balanced print typography and alignment */
+@media print{
+  body.gridSchedulePrinting .gridPrintHeader{
+    width:100%;
+    margin:0 auto 12px!important;
+  }
+
+  body.gridSchedulePrinting .gridPrintChurch{
+    font-size:8pt!important;
+    font-weight:600!important;
+    letter-spacing:.07em!important;
+  }
+
+  body.gridSchedulePrinting .gridPrintTitle{
+    font-size:16pt!important;
+    font-weight:700!important;
+    line-height:1.15!important;
+  }
+
+  body.gridSchedulePrinting .gridPrintMeta{
+    font-size:8pt!important;
+    font-weight:400!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable{
+    width:100%!important;
+    margin:0 auto!important;
+    table-layout:fixed!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable thead th{
+    font-size:8.2pt!important;
+    font-weight:600!important;
+    line-height:1.1!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .stickyDate{
+    width:11%!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable .stickyService{
+    width:16%!important;
+  }
+
+  body.gridSchedulePrinting .gridDateCell b{
+    font-size:8.6pt!important;
+    font-weight:600!important;
+    line-height:1.15!important;
+  }
+
+  body.gridSchedulePrinting .gridDateCell span{
+    font-size:6.8pt!important;
+    font-weight:400!important;
+  }
+
+  body.gridSchedulePrinting .gridServiceCell b{
+    font-size:8.2pt!important;
+    font-weight:600!important;
+    line-height:1.15!important;
+  }
+
+  body.gridSchedulePrinting .gridServiceCell span{
+    font-size:6.8pt!important;
+    font-weight:400!important;
+    line-height:1.2!important;
+  }
+
+  body.gridSchedulePrinting .roleHeaderInner select{
+    font-size:8.1pt!important;
+    font-weight:600!important;
+    line-height:1.1!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell{
+    font-size:8pt!important;
+    font-weight:400!important;
+    line-height:1.15!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell::after{
+    font-weight:400!important;
+    letter-spacing:0!important;
+  }
+
+  body.gridSchedulePrinting .gridVolunteerCell[data-print-value="OPEN"]::after{
+    color:#777!important;
+    font-weight:400!important;
+    letter-spacing:.02em!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable th,
+  body.gridSchedulePrinting .ministryGridTable td{
+    border-color:#aeb8b3!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable thead th{
+    background:#e8f1ec!important;
+  }
+
+  body.gridSchedulePrinting .ministryGridTable tbody tr:nth-child(4n+1) td,
+  body.gridSchedulePrinting .ministryGridTable tbody tr:nth-child(4n+2) td{
+    background:#fcfdfc!important;
+  }
+}
+
+/* Alpha 6.1.7 — subtle date-group shading for easier scanning */
+.ministryGridTable tbody tr.gridDateGroup-0 > td{
+  background:#ffffff;
+}
+.ministryGridTable tbody tr.gridDateGroup-1 > td{
+  background:#f2f7f4;
+}
+.ministryGridTable tbody tr.gridDateGroup-0 > td.stickyDate,
+.ministryGridTable tbody tr.gridDateGroup-0 > td.stickyService{
+  background:#ffffff;
+}
+.ministryGridTable tbody tr.gridDateGroup-1 > td.stickyDate,
+.ministryGridTable tbody tr.gridDateGroup-1 > td.stickyService{
+  background:#f2f7f4;
+}
+.ministryGridTable tbody .gridVolunteerCell select{
+  background:#ffffff;
+}
+
+/* A slightly clearer boundary between one date and the next. */
+.ministryGridTable tbody tr.gridDateGroup-0 + tr.gridDateGroup-1 > td,
+.ministryGridTable tbody tr.gridDateGroup-1 + tr.gridDateGroup-0 > td{
+  border-top-width:2px;
+  border-top-color:#b8c9c0;
+}
+
+@media print{
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-0 > td{
+    background:#ffffff!important;
+  }
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-1 > td{
+    background:#f2f7f4!important;
+  }
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-0 > td.stickyDate,
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-0 > td.stickyService{
+    background:#ffffff!important;
+  }
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-1 > td.stickyDate,
+  body.gridSchedulePrinting .ministryGridTable tbody tr.gridDateGroup-1 > td.stickyService{
+    background:#f2f7f4!important;
+  }
+}
+
+
+/* Alpha 6.1.8 — dedicated mobile scheduling layout */
+.gridMobileScheduler{display:none}
+
+@media(max-width:760px){
+  .gridScrollHint{display:none}
+  .gridTableScroller{display:none}
+  .gridMobileScheduler{display:grid;gap:14px}
+
+  .mobileDateGroup{
+    overflow:hidden;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:#fff;
+    box-shadow:0 8px 22px rgba(25,58,45,.05);
+  }
+  .mobileDateGroup-1{background:#f2f7f4}
+
+  .mobileDateHeader{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:16px;
+    border-bottom:1px solid var(--line);
+    background:rgba(223,240,231,.72);
+  }
+  .mobileDateHeader b,.mobileDateHeader span{display:block}
+  .mobileDateHeader b{font-size:20px;line-height:1.15}
+  .mobileDateHeader > div > span{margin-top:4px;color:var(--muted);font-size:13px}
+  .mobileDateCount{
+    flex:0 0 auto;
+    padding:7px 10px;
+    border-radius:999px;
+    background:#fff;
+    color:var(--green);
+    font-size:12px;
+    font-weight:800;
+  }
+
+  .mobileServiceList{display:grid}
+  .mobileServiceCard{padding:16px;background:transparent}
+  .mobileServiceCard + .mobileServiceCard{border-top:2px solid var(--line)}
+
+  .mobileServiceHeading{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:15px;
+  }
+  .mobileServiceHeading h3{margin:0;font-size:21px;line-height:1.2}
+  .mobileServiceHeading p{margin:5px 0 0;color:var(--muted);font-size:14px}
+  .mobileRowActionMenu{flex:0 0 auto}
+  .mobileRowActionMenu summary{min-width:46px;min-height:42px}
+
+  .mobileRoleAssignments{display:grid;gap:11px}
+  .mobileRoleField{
+    display:grid;
+    grid-template-columns:minmax(105px,.8fr) minmax(0,1.5fr);
+    align-items:center;
+    gap:10px;
+    margin:0;
+  }
+  .mobileRoleField > span{
+    font-size:14px;
+    font-weight:800;
+    color:#263a32;
+    overflow-wrap:anywhere;
+  }
+  .mobileRoleField select{
+    width:100%;
+    min-width:0;
+    margin:0;
+    padding:12px 38px 12px 12px;
+    font-size:16px;
+    background:#fff;
+  }
+  .gridFooterNote{margin-top:14px}
+}
+
+@media(max-width:420px){
+  .mobileRoleField{grid-template-columns:1fr;gap:6px}
+  .mobileRoleField > span{font-size:13px}
+}
+
+@media print{
+  body.gridSchedulePrinting .gridMobileScheduler{display:none!important}
+  body.gridSchedulePrinting .gridTableScroller{display:block!important}
+}
+
+
+/* Alpha 6.2.0 — username or email authentication */
+.authCard{max-width:680px;margin-inline:auto}
+.authTabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  margin-bottom:20px;
+  padding:4px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#f3f7f5;
+}
+.authTabs button{
+  min-height:44px;
+  border:0;
+  background:transparent;
+  color:var(--ink);
+  box-shadow:none;
+}
+.authTabs button.active{
+  background:var(--brand);
+  color:#fff;
+}
+.authPrimary{width:100%;margin-top:16px}
+.authLink{display:block;margin:8px auto 0}
+.required{color:#a62c2c}
+.optional{color:var(--muted);font-weight:400}
+.fieldHelp{
+  margin:-7px 0 12px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.4;
+}
+.claimUsernameRow{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+}
+@media(max-width:520px){
+  .claimUsernameRow{grid-template-columns:1fr}
+  .authTabs button{padding-inline:8px}
+}
+
+
+/* Alpha 6.2.1 — authentication UI polish */
+.authCard{
+  padding:28px;
+}
+
+.authCard h2{
+  margin-bottom:22px;
+}
+
+.authField{
+  margin-bottom:18px;
+}
+
+.authField label{
+  display:block;
+  margin:0 0 8px;
+}
+
+.authField input{
+  margin:0;
+}
+
+.authField .fieldHelp{
+  margin:7px 2px 0;
+  line-height:1.45;
+}
+
+.authCard input{
+  min-height:54px;
+}
+
+.authCard .passwordBox{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:stretch;
+  gap:10px;
+}
+
+.authCard .passwordBox input{
+  width:100%;
+  min-width:0;
+}
+
+.authCard .passwordToggle{
+  min-width:88px;
+  padding-inline:18px;
+}
+
+.authTabs{
+  margin-bottom:26px;
+}
+
+.authTabs button{
+  font-weight:800;
+}
+
+#signupPanel .authPrimary{
+  margin-top:4px;
+}
+
+#signupPanel > .small,
+#loginPanel > .small{
+  margin-top:14px;
+  line-height:1.5;
+}
+
+@media(max-width:520px){
+  .authCard{
+    padding:20px;
+  }
+
+  .authCard h2{
+    font-size:30px;
+    margin-bottom:18px;
+  }
+
+  .authField{
+    margin-bottom:16px;
+  }
+
+  .authCard .passwordBox{
+    grid-template-columns:minmax(0,1fr) 74px;
+    gap:8px;
+  }
+
+  .authCard .passwordToggle{
+    min-width:74px;
+    padding-inline:10px;
+  }
+
+  .authTabs{
+    margin-bottom:20px;
+  }
+}
+
+/* Alpha 6.2.3 — Tech/Creative dark orange brand refresh */
+:root{
+  --bg:#090b0e;
+  --surface:#13161b;
+  --surface-2:#181c22;
+  --ink:#f7f7f8;
+  --muted:#a9afb8;
+  --brand:#ff5a00;
+  --brand-2:#d94700;
+  --brand-soft:rgba(255,90,0,.12);
+  --accent:#ff7a22;
+  --accent-soft:rgba(255,122,34,.13);
+  --line:#2b3038;
+  --shadow-sm:0 8px 24px rgba(0,0,0,.28);
+  --shadow:0 22px 55px rgba(0,0,0,.42);
+}
+body{
+  background:
+    linear-gradient(135deg,rgba(255,90,0,.12),transparent 18%),
+    radial-gradient(circle at 15% 0%,#1a0d06 0,#090b0e 34%,#07090b 100%);
+  color:var(--ink);
+}
+body:before,body:after{content:"";position:fixed;z-index:-1;pointer-events:none;transform:rotate(-45deg);background:linear-gradient(90deg,transparent,rgba(255,90,0,.22),transparent)}
+body:before{width:620px;height:2px;left:-190px;top:250px;box-shadow:0 34px 0 rgba(255,90,0,.08),0 68px 0 rgba(255,90,0,.05)}
+body:after{width:700px;height:2px;right:-220px;bottom:190px;box-shadow:0 38px 0 rgba(255,90,0,.08),0 76px 0 rgba(255,90,0,.04)}
+.wrap{width:min(1240px,100%)}
+.hero{background:#050607;border:1px solid #20242a;border-radius:18px;box-shadow:var(--shadow-sm)}
+.hero:after{background:radial-gradient(circle,rgba(255,90,0,.16),transparent 68%)}
+.brandHero{min-height:108px;padding:18px 24px}
+.brandLeft{gap:14px}
+.powerDinkLogo{width:72px;height:72px;object-fit:contain;filter:none}
+.brandDivider{display:none}
+.brandTitle h1{font-size:clamp(24px,3vw,36px);line-height:.92;color:var(--brand);letter-spacing:-.6px}
+.brandSubline{font-size:.52em;letter-spacing:.04em}
+.brandTitle p{color:#b7bbc2;margin-top:10px}
+.card,.stat,.statusBox,.person,.calendarCell{background:linear-gradient(145deg,#171a20,#111419);border-color:var(--line);color:var(--ink)}
+.card:hover{border-color:#414650}
+input,select,textarea{background:#0e1115;color:var(--ink);border-color:#3a3f48}
+input::placeholder,textarea::placeholder{color:#7f858f}
+input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(255,90,0,.13)}
+label{color:#f1f1f2}
+button{background:var(--brand)}
+button:hover{background:#ff6b16;box-shadow:0 8px 22px rgba(255,90,0,.22)}
+button.secondary{background:#20242a;color:#eceef1;border-color:#373c45}
+button.secondary:hover{background:#292e36}
+button.ghost{color:var(--brand)}
+button.ghost:hover{background:var(--brand-soft)}
+.tabs{background:rgba(8,10,12,.9);border-color:#282d34}
+.tab{color:#c7cbd1}.tab:hover{background:#1a1e24}.tab.active{background:var(--brand);color:#fff}
+.badge.green,.calendarEvent{background:var(--brand-soft);color:#ff7a2d}
+.featuredEvent{border-color:#4a2a1a;background:linear-gradient(135deg,#181b20,#111317)}
+.featuredDate{background:rgba(255,90,0,.10);border-color:#38261c}
+.featuredDate .month,.featuredDate .day{color:var(--brand)}
+.authCard{background:linear-gradient(145deg,#171a1f,#101216);border-color:#343942;box-shadow:0 25px 70px rgba(0,0,0,.55)}
+.authTabs{background:#0c0e11;border-color:#30353d}
+.authTabs button{color:#c9cdd3}.authTabs button.active{background:var(--brand);color:#fff}
+.login{padding:34px 20px;align-content:center}
+.login>div{width:min(720px,100%)}
+.login .loginBrandHero{background:transparent;border:0;box-shadow:none;justify-content:center;padding-bottom:12px}
+.login .brandLeft{justify-content:center}
+.login .powerDinkLogo{width:100px;height:100px}
+.login .brandTitle h1{font-size:clamp(34px,6vw,54px)}
+.login .brandTitle p{font-size:16px}
+.login .authCard{max-width:620px}
+.authPrimary{min-height:54px;font-size:18px}
+.small,.muted,.footer{color:var(--muted)}
+.footer{border-top:1px solid #20242a;margin-top:24px}
+@media(max-width:620px){
+  .brandHero{padding:14px 16px}.powerDinkLogo{width:58px;height:58px}.brandTitle h1{font-size:25px}
+  .login .powerDinkLogo{width:78px;height:78px}.login .brandTitle h1{font-size:34px}
+  .login .brandLeft{gap:10px}.login .authCard{padding:20px}
+}
