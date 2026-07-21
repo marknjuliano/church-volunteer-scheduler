@@ -324,21 +324,10 @@ Firebase Authentication still uses its secure email/password provider internally
 - Refined mobile spacing while preserving username/email authentication behavior.
 
 
-## Alpha 6.2.2 (Preparation)
-This package is prepared for integrating the TECH/CREATIVE SCHEDULE header.
-Next step:
-- Replace header image in /images with the approved asset.
-- Make logo link to Dashboard/Home.
-
-
-## Alpha 6.2.6
-- Orange is reserved for the HisLife logo and the SCHEDULE word only.
-- Replaced orange interface controls with navy and neutral gray styling.
-- Removed the signed-in name and role from the main header.
-
-## Alpha 6.2.7
-- Finalized the restrained color palette.
-- Orange is used only for the original HisLife logo and the word **SCHEDULE**.
-- All primary controls now use navy; secondary controls use white and neutral gray.
-- Removed the signed-in name and role from the header.
-- Added high-priority overrides to prevent older orange or black button rules from reappearing.
+## Alpha 6.2.2 — TECH/CREATIVE Header
+- Replaced the green Church Volunteer Scheduler hero with the approved TECH/CREATIVE SCHEDULE header image.
+- Removed the visible border around the header.
+- Preserved the image aspect ratio to prevent distortion.
+- Made the full header clickable.
+- Clicking the header returns to the Home/Dashboard page.
+- Added responsive sizing for desktop and mobile.
