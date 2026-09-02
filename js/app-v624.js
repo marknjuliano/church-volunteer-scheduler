@@ -1036,6 +1036,7 @@ function gridServiceRows(services,roles){
           <summary aria-label="Row actions" title="Row actions">•••</summary>
           <div class="rowActionMenuPanel">
             <button onclick="editGridService('${service.id}')">✎ Edit service</button>
+            <button onclick="openGridDuplicateService('${service.id}')">⧉ Duplicate service</button>
             <button class="rowDeleteAction" onclick="deleteGridService('${service.id}')">🗑 Delete row</button>
           </div>
         </details>
@@ -1158,15 +1159,61 @@ window.changeGridRoleColumn=(index,newRoleId)=>{
   renderGridScheduler();
 };
 
+const GRID_SERVICE_PRESETS=[
+  {name:'1st Celebration',start:'09:00',end:'10:30'},
+  {name:'2nd Celebration',start:'11:00',end:'12:30'},
+  {name:'Prayer Meeting',start:'19:00',end:'20:30'},
+  {name:'Special Event',start:'18:00',end:'20:00'}
+];
+
+function gridTimeOptions(selected){
+  const values=[];
+  for(let h=0;h<24;h++)for(let m of [0,15,30,45])values.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+  if(selected&&!values.includes(selected))values.push(selected);
+  values.sort();
+  return values.map(v=>`<option value="${v}" ${v===selected?'selected':''}>${timeLabel(v)}</option>`).join('');
+}
+
+function gridServiceNameControl(id,current='1st Celebration'){
+  const known=GRID_SERVICE_PRESETS.some(p=>p.name===current);
+  return `<select id="${id}" onchange="gridServicePresetChanged('${id}')">
+    ${GRID_SERVICE_PRESETS.map(p=>`<option value="${esc(p.name)}" ${p.name===current?'selected':''}>${esc(p.name)}</option>`).join('')}
+    <option value="__custom__" ${!known?'selected':''}>Other / Custom…</option>
+  </select>
+  <input id="${id}Custom" class="gridCustomServiceName" value="${known?'':esc(current)}" placeholder="Enter service name" style="${known?'display:none;':''}">`;
+}
+
+function gridServiceTitleValue(id){
+  const select=document.getElementById(id);
+  if(!select)return '';
+  return select.value==='__custom__'?(document.getElementById(id+'Custom')?.value.trim()||''):select.value;
+}
+
+window.gridServicePresetChanged=id=>{
+  const select=document.getElementById(id);
+  const custom=document.getElementById(id+'Custom');
+  if(!select)return;
+  const isCustom=select.value==='__custom__';
+  if(custom){custom.style.display=isCustom?'':'none';if(isCustom)custom.focus();}
+  if(isCustom)return;
+  const preset=GRID_SERVICE_PRESETS.find(p=>p.name===select.value);
+  if(!preset)return;
+  const prefix=id.includes('Edit')?'gridEdit':'gridNew';
+  const start=document.getElementById(prefix+'Start');
+  const end=document.getElementById(prefix+'End');
+  if(start)start.value=preset.start;
+  if(end)end.value=preset.end;
+};
+
 window.openGridAddService=()=>{
   const suggestedDate=`${gridMonth}-01`;
   $('#gridServiceEditor').innerHTML=`<div class="card gridInlineEditor">
     <h3>Add Date / Service Row</h3>
     <div class="row">
       <div><label>Date</label><input id="gridNewDate" type="date" value="${suggestedDate}"></div>
-      <div><label>Service Name</label><input id="gridNewTitle" value="1st Celebration"></div>
-      <div><label>Start</label><input id="gridNewStart" type="time" value="09:00"></div>
-      <div><label>End</label><input id="gridNewEnd" type="time" value="10:30"></div>
+      <div><label>Service Name</label>${gridServiceNameControl('gridNewTitle','1st Celebration')}</div>
+      <div><label>Start</label><select id="gridNewStart">${gridTimeOptions('09:00')}</select></div>
+      <div><label>End</label><select id="gridNewEnd">${gridTimeOptions('10:30')}</select></div>
     </div>
     <label>Location</label><input id="gridNewLocation" value="Main Sanctuary">
     <div class="row">
@@ -1184,7 +1231,7 @@ window.closeGridServiceEditor=()=>{
 
 window.saveGridNewService=async()=>{
   const date=$('#gridNewDate')?.value;
-  const title=$('#gridNewTitle')?.value.trim();
+  const title=gridServiceTitleValue('gridNewTitle');
   const start=$('#gridNewStart')?.value;
   const end=$('#gridNewEnd')?.value;
   const location=$('#gridNewLocation')?.value.trim();
@@ -1219,9 +1266,9 @@ window.editGridService=id=>{
     <input id="gridEditId" type="hidden" value="${s.id}">
     <div class="row">
       <div><label>Date</label><input id="gridEditDate" type="date" value="${esc(s.date||'')}"></div>
-      <div><label>Service Name</label><input id="gridEditTitle" value="${esc(s.title||'Service')}"></div>
-      <div><label>Start</label><input id="gridEditStart" type="time" value="${esc(s.start||'09:00')}"></div>
-      <div><label>End</label><input id="gridEditEnd" type="time" value="${esc(s.end||'10:30')}"></div>
+      <div><label>Service Name</label>${gridServiceNameControl('gridEditTitle',s.title||'Service')}</div>
+      <div><label>Start</label><select id="gridEditStart">${gridTimeOptions(s.start||'09:00')}</select></div>
+      <div><label>End</label><select id="gridEditEnd">${gridTimeOptions(s.end||'10:30')}</select></div>
     </div>
     <label>Location</label><input id="gridEditLocation" value="${esc(s.location||'Main Sanctuary')}">
     <div class="row">
@@ -1229,7 +1276,7 @@ window.editGridService=id=>{
       <button class="secondary" onclick="closeGridServiceEditor()">Cancel</button>
     </div>
   </div>`;
-  document.getElementById('gridEditTitle')?.focus();
+  document.getElementById('gridEditDate')?.focus();
 };
 
 window.saveGridServiceEdit=async()=>{
@@ -1239,7 +1286,7 @@ window.saveGridServiceEdit=async()=>{
   try{
     await updateDoc(doc(db,'services',id),{
       date:$('#gridEditDate').value,
-      title:$('#gridEditTitle').value.trim()||'Service',
+      title:gridServiceTitleValue('gridEditTitle')||'Service',
       start:$('#gridEditStart').value,
       end:$('#gridEditEnd').value,
       location:$('#gridEditLocation').value.trim()||'Main Sanctuary',
@@ -1248,6 +1295,55 @@ window.saveGridServiceEdit=async()=>{
     closeGridServiceEditor();
   }catch(error){
     console.error('Could not update grid service row:',error);
+    alert(friendly(error));
+  }
+};
+
+window.openGridDuplicateService=id=>{
+  const s=state.services.find(x=>x.id===id);
+  if(!s)return;
+  $('#gridServiceEditor').innerHTML=`<div class="card gridInlineEditor">
+    <h3>Duplicate Service</h3>
+    <p class="small">Service name, time, and location are already copied. Just choose the new date.</p>
+    <input id="gridDuplicateSourceId" type="hidden" value="${s.id}">
+    <div class="row">
+      <div><label>New Date</label><input id="gridDuplicateDate" type="date" value="${esc(s.date||'')}"></div>
+      <div><label>Service</label><input value="${esc(s.title||'Service')}" disabled></div>
+      <div><label>Time</label><input value="${esc(timeLabel(s.start))}${s.end?' – '+esc(timeLabel(s.end)):''}" disabled></div>
+    </div>
+    <div class="row">
+      <button onclick="saveGridDuplicateService(false)">Duplicate Service Only</button>
+      <button onclick="saveGridDuplicateService(true)">Duplicate With Volunteers</button>
+      <button class="secondary" onclick="closeGridServiceEditor()">Cancel</button>
+    </div>
+  </div>`;
+  document.getElementById('gridDuplicateDate')?.focus();
+};
+
+window.saveGridDuplicateService=async copyAssignments=>{
+  const sourceId=$('#gridDuplicateSourceId')?.value;
+  const newDate=$('#gridDuplicateDate')?.value;
+  const s=state.services.find(x=>x.id===sourceId);
+  if(!s||!newDate)return alert('Choose a new date.');
+  try{
+    const ref=await addDoc(collection(db,'services'),{
+      title:s.title||'Service',date:newDate,start:s.start||'',end:s.end||'',
+      location:s.location||'Main Sanctuary',status:'scheduled',notes:s.notes||'',archived:false,createdAt:serverTimestamp()
+    });
+    if(copyAssignments){
+      for(const a of serviceAssignments(sourceId)){
+        await addDoc(collection(db,'assignments'),{
+          serviceId:ref.id,volunteerId:a.volunteerId,volunteerName:a.volunteerName,
+          ministryId:a.ministryId,roleId:a.roleId||'',roleName:a.roleName||'',createdAt:serverTimestamp()
+        });
+      }
+    }
+    gridMonth=newDate.slice(0,7);
+    localStorage.setItem('cvsGridMonth',gridMonth);
+    closeGridServiceEditor();
+    alert(copyAssignments?'Service and volunteers duplicated.':'Service duplicated.');
+  }catch(error){
+    console.error('Could not duplicate grid service:',error);
     alert(friendly(error));
   }
 };
