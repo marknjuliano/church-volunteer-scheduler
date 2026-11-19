@@ -2970,3 +2970,22 @@ input:focus,select:focus,textarea:focus{
     max-width:none!important;
   }
 }
+/* Full-width desktop workspace — Alpha 6.2.9. Print and mobile unchanged. */
+@media screen and (min-width: 761px) {
+  .wrap:not(.login) { width:100%; max-width:none; padding-inline:16px; box-sizing:border-box; }
+  .wrap:not(.login) #main { min-width:0; width:100%; }
+  .wrap:not(.login) .brandHero { min-height:72px; padding-block:10px; margin-bottom:10px; }
+  .gridControls { padding:12px; gap:10px; }
+  .gridRoleConfig { padding:10px 12px; }
+  .gridTableScroller { max-width:100%; }
+  .ministryGridTable { width:max-content; min-width:100%; }
+  .ministryGridTable .stickyDate { width:130px; min-width:130px; }
+  .ministryGridTable .stickyService { left:130px; width:170px; min-width:170px; }
+  .ministryGridTable .stickyActions { width:80px; min-width:80px; }
+  .ministryGridTable .roleHeader, .gridVolunteerCell { width:auto!important; min-width:150px!important; }
+  .roleHeaderInner { grid-template-columns:minmax(0,1fr) 28px; }
+  .roleHeaderInner select, .gridVolunteerCell select { min-width:0; width:100%; }
+}
+@media screen and (min-width: 901px) and (max-width: 1099px) {
+  .gridControls { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
