@@ -2615,7 +2615,7 @@ body:after{width:700px;height:2px;right:-220px;bottom:190px;box-shadow:0 38px 0 
 input,select,textarea{background:#0e1115;color:var(--ink);border-color:#3a3f48}
 input::placeholder,textarea::placeholder{color:#7f858f}
 input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(255,90,0,.13)}
-label{color:#f1f1f2}
+label{color:#344054}
 button{background:var(--brand)}
 button:hover{background:#ff6b16;box-shadow:0 8px 22px rgba(255,90,0,.22)}
 button.secondary{background:#20242a;color:#eceef1;border-color:#373c45}
@@ -2989,3 +2989,9 @@ input:focus,select:focus,textarea:focus{
 @media screen and (min-width: 901px) and (max-width: 1099px) {
   .gridControls { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
+
+/* Alpha 6.2.9.1 — readable labels on light surfaces */
+.qualificationPanel .qualificationChoice,
+.qualificationPanel .qualificationChoice span { color:#253650 !important; opacity:1; }
+.qualificationPanel .qualificationChoice:has(input:checked) { background:#e0eee7 !important; border-color:#56866e !important; }
+.qualificationPanel .qualificationChoice input[type="checkbox"] { accent-color:#344767; }
